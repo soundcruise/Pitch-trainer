@@ -378,6 +378,7 @@ h1 {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: rainbowShift 4s ease infinite;
+    filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
 }
 
 /* モバイル向けのタイトルサイズ調整 */
@@ -391,13 +392,9 @@ h1 {
 
     .home-title {
         white-space: nowrap;
-        font-size: 11vw;
+        font-size: min(11vw, 2.2rem);
         /* 画面幅に合わせて伸縮し、はみ出しを防ぐ */
-        max-font-size: 2.2rem;
     }
-}
-
-filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
 }
 
 .modal p {
