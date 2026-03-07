@@ -1,10 +1,11 @@
-const CACHE_NAME = 'pitch-trainer-v11';
+const CACHE_NAME = 'pitch-trainer-v12';
+const VERSION = '12';
 const ASSETS = [
-    './',
-    './index.html',
-    './style.css',
-    './script.js',
-    './manifest.json',
+    './?v=' + VERSION,
+    './index.html?v=' + VERSION,
+    './style.css?v=' + VERSION,
+    './script.js?v=' + VERSION,
+    './manifest.json?v=' + VERSION,
     './icon.png'
 ];
 
@@ -34,7 +35,7 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
     e.respondWith(
-        caches.match(e.request).then((response) => {
+        caches.match(e.request, { ignoreSearch: true }).then((response) => {
             return response || fetch(e.request);
         })
     );
