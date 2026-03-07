@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pitch-trainer-v18';
-const VERSION = '18';
+const CACHE_NAME = 'pitch-trainer-v19';
+const VERSION = '19';
 const ASSETS = [
     './?v=' + VERSION,
     './index.html?v=' + VERSION,
