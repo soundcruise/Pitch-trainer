@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Init</title>
+</head>
+
+<body>
+    <div id="log"></div>
+    <div id="editor-root"></div>
+    <div id="editor-third"></div>
+    <div id="editor-fifth"></div>
+    <div id="editor-seventh"></div>
+    <div id="editor-inversion"></div>
+    <div id="pro-custom-chord-count"></div>
+    <div id="pro-custom-progression-count"></div>
+    <div id="pro-custom-chord-list"></div>
+    <div id="pro-custom-progression-list"></div>
+    <script>
+        function log(msg) {
+            document.getElementById('log').innerHTML += msg + '<br>';
+        }
+        window.onerror = function (msg, url, line, col, error) {
+            log('GLOBAL ERROR: ' + msg + ' at ' + line + ':' + col);
+        };
+        // Mock AudioContext to avoid errors
+        window.AudioContext = window.AudioContext || window.webkitAudioContext || function () {
+            this.createGain = () => ({ gain: { value: 0 } });
+            this.createOscillator = () => ({ type: '', frequency: { value: 0 }, connect: () => { }, start: () => { }, stop: () => { } });
+            this.createBiquadFilter = () => ({ type: '', frequency: { value: 0 }, connect: () => { }, exponentialRampToValueAtTime: () => { } });
+            this.destination = {};
+        };
+    </script>
+    <script src="script.js"></script>
+    <script>
+        try {
+            log('Starting initialize...');
+            const app = new PitchTrainerApp();
+            app.init();
+            log('Inited.');
+            log('Progressions Length: ' + app.customProgressions.length);
+            if (app.customProgressions.length > 0) {
+                log('First Prog: ' + app.customProgressions[0].name);
+            }
+        } catch (e) {
+            log('Error: ' + e.message + ' ' + e.stack);
+        }
+    </script>
+</body>
+
+</html>

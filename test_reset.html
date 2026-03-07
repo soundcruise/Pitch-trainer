@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Restore Default Custom Progressions Debug</title>
+</head>
+
+<body>
+    <h1>Diagnostics</h1>
+    <div id="log" style="font-family: monospace; background: #eee; padding: 10px; min-height: 200px;"></div>
+
+    <button id="btn-preset-custom-progression" style="padding: 15px; font-size: 16px;">
+        デフォルトセットを復元
+    </button>
+
+    <div id="editor-root"></div>
+    <div id="editor-third"></div>
+    <div id="editor-fifth"></div>
+    <div id="editor-seventh"></div>
+    <div id="editor-inversion"></div>
+    <div id="pro-custom-chord-count"></div>
+    <div id="pro-custom-progression-count"></div>
+    <div id="pro-custom-chord-list"></div>
+    <div id="pro-custom-progression-list"></div>
+
+    <script>
+        function log(msg) {
+            document.getElementById('log').innerHTML += msg + '<br>';
+        }
+        window.onerror = function (msg, url, line, col, error) {
+            log('<span style="color:red">GLOBAL ERROR: ' + msg + ' at line ' + line + '</span>');
+        };
+        // Mock AudioContext
+        window.AudioContext = window.AudioContext || window.webkitAudioContext || function () {
+            this.createGain = function () { return { gain: { value: 0 } } };
+            this.createOscillator = function () { return { type: '', frequency: { value: 0 }, connect: function () { }, start: function () { }, stop: function () { } } };
+            this.createBiquadFilter = function () { return { type: '', frequency: { value: 0 }, connect: function () { }, exponentialRampToValueAtTime: function () { } } };
+            this.destination = {};
+        };
+    </script>
+    <script src="script.js"></script>
+    <script>
+        try {
+            log('Starting initialization...');
+            const app = new PitchTrainerApp();
+            app.init();
+            log('<span style="color:green">App initialized successfully.</span>');
+            log('Progressions Count: ' + app.customProgressions.length);
+        } catch (e) {
+            log('<span style="color:red">Initialization Error: ' + e.message + '</span>');
+        }
+    </script>
+</body>
+
+</html>

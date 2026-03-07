@@ -1,0 +1,22 @@
+{
+  "name": "Pitch Trainer",
+  "short_name": "PitchTrain",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#00ff88",
+  "description": "絶対音感トレーニングアプリ。メロディとコードの聞き取り練習ができます。",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

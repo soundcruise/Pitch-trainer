@@ -1,0 +1,1248 @@
+:root {
+    --bg-color: #121212;
+    --surface-color: #1e1e1e;
+    --primary-color: #00ff88;
+    --secondary-color: #00d2ff;
+    --text-color: #ffffff;
+    --white-key-color: #fdfdfd;
+    --black-key-color: #333333;
+    --key-active-color: #00ff88;
+    --error-color: #ff3366;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+header {
+    text-align: center;
+    width: 100%;
+}
+
+h1 {
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    animation: rainbowShift 4s ease infinite, popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
+    font-size: 2.2rem;
+}
+
+@keyframes rainbowShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0.7) rotate(-3deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-item .label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-item .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.feedback-display {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.3s;
+}
+
+.feedback-correct {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.feedback-wrong {
+    color: var(--error-color);
+    font-weight: bold;
+}
+
+.icon-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-color);
+    padding: 10px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+@media (hover: hover) {
+    .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+.icon-btn:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary-color);
+}
+
+.action-btns {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Piano */
+/* Note Buttons */
+.note-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.note-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+@media (hover: hover) {
+    .note-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
+        border-color: var(--primary-color);
+    }
+}
+
+.note-btn:active {
+    transform: translateY(0) scale(0.92);
+    background: rgba(255, 255, 255, 0.3);
+    border-color: var(--primary-color);
+}
+
+.note-btn.correct {
+    background: var(--primary-color);
+    color: #000;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px var(--primary-color);
+}
+
+.note-btn.wrong {
+    background: var(--error-color);
+    color: white;
+    border-color: var(--error-color);
+    box-shadow: 0 0 20px var(--error-color);
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Piano Layout Toggle Styles */
+.note-buttons.piano-layout {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    background: transparent;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.piano-layout .note-btn {
+    border-radius: 0 0 4px 4px;
+    border: 1px solid #000;
+    position: relative;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 10px;
+    transition: background 0.1s, transform 0.1s;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.piano-layout .note-btn.white-key {
+    width: 45px;
+    height: 120px;
+    background: linear-gradient(to bottom, #fff 0%, #eee 100%);
+    color: #333;
+    z-index: 1;
+}
+
+.piano-layout .note-btn.black-key {
+    width: 30px;
+    height: 75px;
+    background: linear-gradient(to bottom, #333 0%, #000 100%);
+    color: #fff;
+    margin-left: -15px;
+    margin-right: -15px;
+    z-index: 2;
+    font-size: 0.75rem;
+    padding-bottom: 8px;
+}
+
+.piano-layout .note-btn:active,
+.piano-layout .note-btn.active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.piano-layout .note-btn.white-key:active,
+.piano-layout .note-btn.white-key.active {
+    background: #e0e0e0;
+}
+
+.piano-layout .note-btn.black-key:active,
+.piano-layout .note-btn.black-key.active {
+    background: #111;
+}
+
+.piano-layout .note-btn.correct {
+    background: var(--primary-color) !important;
+    color: #000 !important;
+}
+
+.piano-layout .note-btn.wrong {
+    background: var(--error-color) !important;
+    color: #fff !important;
+}
+
+.piano-layout .octave-group {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 0 10px;
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.97);
+    backdrop-filter: blur(20px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 0.5s;
+}
+
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 480px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modal h2,
+.home-title {
+    margin-bottom: 10px;
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.home-title {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 30px;
+    background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbowShift 4s ease infinite;
+    filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
+}
+
+.modal p {
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+}
+
+.stage-selector-label {
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.level-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    align-items: center;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: #000;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 100%;
+    max-width: 250px;
+    touch-action: manipulation;
+}
+
+@media (hover: hover) {
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 255, 136, 0.3);
+    }
+}
+
+.btn-primary:active {
+    transform: translateY(0) scale(0.96);
+    background: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(0, 255, 136, 0.4);
+}
+
+/* 音を確認ボタン */
+.btn-preview {
+    background: linear-gradient(135deg, var(--secondary-color), #a78bfa);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    letter-spacing: 1px;
+    width: 100%;
+    max-width: 250px;
+    margin-bottom: 10px;
+}
+
+.btn-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 210, 255, 0.4);
+}
+
+.btn-preview:active {
+    transform: translateY(0);
+}
+
+.btn-preview.playing {
+    opacity: 0.7;
+    animation: pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        box-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
+    }
+
+    to {
+        box-shadow: 0 0 20px rgba(0, 210, 255, 0.9);
+    }
+}
+
+/* Chord Buttons */
+.chord-buttons {
+    display: none;
+    /* Default hidden, controlled by JS */
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.chord-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+@media (hover: hover) {
+    .chord-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 210, 255, 0.3);
+        border-color: var(--secondary-color);
+    }
+}
+
+.chord-btn:active {
+    transform: translateY(0) scale(0.92);
+    background: rgba(255, 255, 255, 0.3);
+    border-color: var(--secondary-color);
+}
+
+.chord-btn.correct {
+    background: var(--primary-color);
+    color: #000;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px var(--primary-color);
+}
+
+.chord-btn.wrong {
+    background: var(--error-color);
+    color: white;
+    border-color: var(--error-color);
+    box-shadow: 0 0 20px var(--error-color);
+    animation: shake 0.4s ease-in-out;
+}
+
+/* Settings Modal */
+#settings-modal,
+#screen-pro-settings,
+#pro-settings-modal-chord,
+#chord-editor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+#chord-editor-modal {
+    z-index: 1005;
+    /* Display above other modals */
+}
+
+#settings-modal.hidden,
+#screen-pro-settings.hidden,
+#pro-settings-modal-chord.hidden,
+#chord-editor-modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--surface-color);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+.setting-item {
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.octave-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-sm {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--secondary-color);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-sm:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px var(--secondary-color);
+}
+
+#current-octave {
+    font-size: 1.5rem;
+    font-weight: 700;
+    min-width: 40px;
+}
+
+/* 余韻スライダー */
+.sustain-slider {
+    width: 100%;
+    margin-top: 8px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.setting-item.vertical {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.setting-item.vertical label {
+    margin-bottom: 4px;
+}
+
+/* トップページ設定ボタン */
+.btn-home-settings {
+    margin-top: 20px;
+    padding: 10px 24px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+}
+
+.btn-home-settings:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+/* トグルスイッチ */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    transition: background 0.3s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-switch input:checked+.toggle-slider {
+    background: var(--primary-color);
+}
+
+.toggle-switch input:checked+.toggle-slider::before {
+    transform: translateX(24px);
+}
+
+.toggle-switch.small {
+    width: 28px;
+    height: 16px;
+}
+
+.toggle-switch.small .toggle-slider {
+    border-radius: 16px;
+}
+
+.toggle-switch.small .toggle-slider::before {
+    width: 10px;
+    height: 10px;
+    left: 3px;
+    top: 3px;
+}
+
+.toggle-switch.small input:checked+.toggle-slider::before {
+    transform: translateX(12px);
+}
+
+/* カテゴリカード（ホーム画面） */
+.category-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    margin-top: 24px;
+}
+
+.category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    color: #fff;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    touch-action: manipulation;
+}
+
+@media (hover: hover) {
+    .category-card:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.35);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+}
+
+.category-card-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.category-card-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.category-card-sub {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
+
+/* 戻るボタン */
+.btn-back {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+.btn-back:hover {
+    color: #fff;
+}
+
+/* カテゴリセクション（トップページ） */
+.category-section {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.category-section+.category-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.category-icon {
+    font-size: 1.1rem;
+}
+
+.category-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.stage-desc {
+    opacity: 0.75;
+    margin-left: 4px;
+    text-transform: none;
+}
+
+/* Pro Stage Custom Styles */
+.custom-stage-btn {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #000;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.custom-stage-btn:hover {
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+    background: linear-gradient(135deg, #FFD700, #FF8C00);
+}
+
+.pro-settings-content {
+    max-width: 500px;
+    width: 95%;
+    max-height: 90vh;
+    /* 防止 overflow */
+    overflow-y: auto;
+    background: #2a2a2a;
+    /* Slightly lighter background */
+    padding: 24px;
+}
+
+.setting-group {
+    margin-bottom: 24px;
+    text-align: left;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.setting-group h3 {
+    font-size: 1rem;
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 6px;
+    font-weight: 600;
+}
+
+/* Preset Dropdown */
+.preset-select {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+.preset-select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+}
+
+.preset-select option {
+    background: #333;
+    color: #fff;
+}
+
+/* Note Toggles Grid */
+.note-toggles-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    align-items: center;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+/* Black keys row centered and positioned */
+.keyboard-row.black-keys {
+    margin-bottom: -20px;
+    /* Overlap white keys */
+    z-index: 10;
+    pointer-events: none;
+    /* Let clicks pass through gaps */
+}
+
+.keyboard-row.black-keys>* {
+    pointer-events: auto;
+    /* Re-enable clicks on keys */
+}
+
+/* Spacer logic: C# D# [space] F# G# A# */
+.spacer {
+    width: 44px;
+    /* Roughly width + gap */
+    height: 1px;
+    visibility: hidden;
+}
+
+/* Toggle Styles */
+.note-toggle-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.note-toggle {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #888;
+    position: relative;
+}
+
+/* White Keys Style */
+.white-keys .note-toggle {
+    width: 44px;
+    height: 70px;
+    background: #fff;
+    border-radius: 4px 4px 8px 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.white-keys .note-toggle:checked {
+    background: #e0f7fa;
+    /* Light cyan */
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 10px var(--secondary-color) inset;
+}
+
+/* Black Keys Style */
+.black-keys .note-toggle {
+    width: 32px;
+    height: 45px;
+    background: #222;
+    border-radius: 0 0 4px 4px;
+    border: 1px solid #000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+.black-keys .note-toggle:checked {
+    background: #444;
+    /* Slightly lighter */
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--secondary-color);
+}
+
+.note-toggle-wrapper .note-name,
+.note-toggle-wrapper .degree-label {
+    position: absolute;
+    pointer-events: none;
+    z-index: 2;
+    text-align: center;
+    width: 100%;
+    left: 0;
+}
+
+.white-keys .note-toggle-wrapper .note-name {
+    bottom: 10px;
+    color: #444;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.black-keys .note-toggle-wrapper .note-name {
+    bottom: 8px;
+    color: #eee;
+    font-size: 0.7rem;
+}
+
+/* Custom Chord Builder Styles */
+.custom-chord-list {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: max-height 0.3s ease;
+}
+
+.custom-chord-list.expanded {
+    max-height: 60vh;
+}
+
+.custom-chord-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    padding: 20px;
+}
+
+.custom-chord-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.custom-chord-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.custom-chord-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+}
+
+.custom-chord-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-icon:hover {
+    color: #fff;
+}
+
+.btn-icon.delete:hover {
+    color: var(--error-color);
+}
+
+/* Custom Chord Toggle Styling */
+.custom-chord-item.inactive {
+    opacity: 0.5;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: .4s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(18px);
+}
+
+/* Chord Editor Modal Styles */
+.chord-editor-content {
+    max-width: 500px;
+    width: 95%;
+}
+
+.editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.editor-section label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.chord-preview-display {
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--secondary-color);
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+}
+
+.editor-tension-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.tension-label {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tension-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.tension-label span {
+    display: inline-block;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.tension-label input:checked~span {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #000;
+    font-weight: bold;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: #fff;
+}
+
+/* Accidental Note Buttons (In Game) */
+.note-btn.accidental {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    font-size: 0.95rem;
+}
+
