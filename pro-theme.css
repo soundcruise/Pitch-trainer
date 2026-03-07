@@ -1,0 +1,18 @@
+/* pro-theme.css */
+/* Pro版専用のスタイル拡張ファイル */
+/* タイトルのPROバッジ関連のみを適用し、他は共通のstyle.cssに準拠する */
+
+/* PRO Badge within title */
+.pro-badge {
+    font-size: 0.55em;
+    background: linear-gradient(135deg, #e5c07b, #d4af37);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    vertical-align: middle;
+}

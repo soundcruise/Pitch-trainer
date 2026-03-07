@@ -1,12 +1,16 @@
-const CACHE_NAME = 'pitch-trainer-v25';
-const VERSION = '25';
+const CACHE_NAME = 'pitch-trainer-v28';
+const VERSION = '28';
 const ASSETS = [
     './?v=' + VERSION,
     './index.html?v=' + VERSION,
+    './pro.html?v=' + VERSION,
     './style.css?v=' + VERSION,
+    './pro-theme.css?v=' + VERSION,
     './script.js?v=' + VERSION,
     './manifest.json?v=' + VERSION,
-    './icon.png'
+    './manifest-pro.json?v=' + VERSION,
+    './icon.png',
+    './icon_idea/Pro_2.png'
 ];
 
 self.addEventListener('install', (e) => {

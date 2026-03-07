@@ -1936,7 +1936,7 @@ class Game {
         // Pro Setting Button Toggle
         const gameProBtn = document.getElementById('game-pro-settings-btn');
         if (gameProBtn) {
-            gameProBtn.style.display = (this.stage === 99 || this.stage === 199) ? 'flex' : 'none';
+            gameProBtn.style.display = 'flex';
         }
 
         // UI Toggle
