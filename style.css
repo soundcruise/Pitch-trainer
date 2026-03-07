@@ -378,7 +378,26 @@ h1 {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: rainbowShift 4s ease infinite;
-    filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
+}
+
+/* モバイル向けのタイトルサイズ調整 */
+@media (max-width: 480px) {
+
+    .modal h2,
+    .home-title {
+        font-size: 2.2rem;
+        letter-spacing: 1px;
+    }
+
+    .home-title {
+        white-space: nowrap;
+        font-size: 11vw;
+        /* 画面幅に合わせて伸縮し、はみ出しを防ぐ */
+        max-font-size: 2.2rem;
+    }
+}
+
+filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
 }
 
 .modal p {
@@ -1249,4 +1268,3 @@ input:checked+.slider:before {
     border-color: rgba(255, 255, 255, 0.25);
     font-size: 0.95rem;
 }
-
