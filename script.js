@@ -16,6 +16,45 @@ class AudioEngine {
         };
         this.currentInstrument = 'acoustic_guitar';
         this.sustainTime = 0.5; // 余韻の長さ（秒）。設定から変更可能。
+
+        // モバイルブラウザ対策: ユーザー操作でAudioContextを起こすリスナー
+        this._setupResumeHandlers();
+    }
+
+    /**
+     * AudioContextが確実に動作している状態にする
+     * モバイルブラウザでは一定時間操作がないとsuspendされるケースがある
+     */
+    ensureContext() {
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        // AudioContextが壊れた場合（closed）の復旧
+        if (this.ctx.state === 'closed') {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    /**
+     * バックグラウンド復帰、タッチ操作などでAudioContextを自動的に復帰させる
+     */
+    _setupResumeHandlers() {
+        // アプリがフォアグラウンドに戻った時にAudioContextを復帰
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        });
+
+        // タッチ/クリック時にAudioContextを確実に起こす（一度だけ）
+        const resumeOnInteraction = () => {
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+        };
+        document.addEventListener('touchstart', resumeOnInteraction, { passive: true });
+        document.addEventListener('touchend', resumeOnInteraction, { passive: true });
+        document.addEventListener('click', resumeOnInteraction);
     }
 
     playNote(noteName, duration = 1.0, time = 0, keyOffset = 0) {
@@ -44,7 +83,7 @@ class AudioEngine {
      * @param {number} velocity  - 弾く強さ 0.0〜1.0 (省略時 0.7)
      */
     playAcousticGuitar(noteName, duration = 1.0, time = 0, keyOffset = 0, velocity = 0.7) {
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        this.ensureContext();
 
         const frequency = this.notes[noteName];
         if (!frequency) return;
@@ -165,6 +204,8 @@ class AudioEngine {
     }
 
     playChord(chordName, octave = 3, duration = 1.0, time = 0, keyOffset = 0, voicing = null) {
+        this.ensureContext();
+
         const chordIntervals = {
             'C': ['C', 'E', 'G'],
             'F': ['F', 'A', 'C'],
@@ -200,6 +241,7 @@ class AudioEngine {
 
     playCustomChord(chordObj, octave = 3, duration = 1.0, time = 0, keyOffset = 0) {
         if (!chordObj) return;
+        this.ensureContext();
 
         const rootNoteIndex = parseInt(chordObj.root);
         const intervals = [0]; // Root is always 0 relative to itself
@@ -243,7 +285,7 @@ class AudioEngine {
     }
 
     playPiano(noteName, duration = 1.0, time = 0, keyOffset = 0) {
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        this.ensureContext();
 
         const frequency = this.notes[noteName];
         if (!frequency) return;
@@ -271,7 +313,7 @@ class AudioEngine {
     }
 
     playViolin(noteName, duration = 1.0, time = 0, keyOffset = 0) {
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        this.ensureContext();
 
         const frequency = this.notes[noteName];
         if (!frequency) return;
@@ -317,7 +359,7 @@ class AudioEngine {
     }
 
     playElectricGuitar(noteName, duration = 1.0, time = 0, keyOffset = 0) {
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        this.ensureContext();
 
         const frequency = this.notes[noteName];
         if (!frequency) return;
@@ -1810,7 +1852,7 @@ class Game {
         if ((btn && btn.classList.contains('playing'))) return;
 
         // AudioContextを起こす
-        if (this.audio.ctx.state === 'suspended') this.audio.ctx.resume();
+        this.audio.ensureContext();
 
         // 現在の設定でC音（主音）を再生
         const noteName = 'C' + this.baseOctave;

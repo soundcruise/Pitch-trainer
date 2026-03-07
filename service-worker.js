@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pitch-trainer-v7';
+const CACHE_NAME = 'pitch-trainer-v9';
 const ASSETS = [
     './',
     './index.html',

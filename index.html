@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>音感トレ</title>
-    <link rel="stylesheet" href="style.css?v=final43">
+    <link rel="stylesheet" href="style.css?v=final45">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -85,14 +85,16 @@
                 <button class="chord-btn" data-chord="G">G</button>
                 <button class="chord-btn" data-chord="Am">Am</button>
             </div>
-            <div class="control-buttons"
-                style="margin-top: 15px; display: flex; justify-content: center; align-items: center; opacity: 0.8;">
-                <label class="toggle-switch small">
-                    <input type="checkbox" id="answer-mode-toggle" checked>
-                    <span class="toggle-slider"></span>
+            <div class="control-buttons-wrapper" style="margin-top: 15px; display: flex; justify-content: center;">
+                <label class="answer-toggle-label"
+                    style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.06); padding: 6px 14px; border-radius: 50px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.2s; -webkit-tap-highlight-color: transparent; opacity: 0.7;">
+                    <div class="toggle-switch small">
+                        <input type="checkbox" id="answer-mode-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span id="answer-mode-status"
+                        style="font-size: 0.85rem; font-weight: 500; color: rgba(255,255,255,0.8);">回答ON</span>
                 </label>
-                <span id="answer-mode-status"
-                    style="margin-left: 8px; font-size: 0.8rem; font-weight: normal;">回答ON</span>
             </div>
 
         </main>
