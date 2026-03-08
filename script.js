@@ -849,17 +849,27 @@ class Game {
                             console.log("All required chords found, writing to this.customProgressions");
                             const baseId = Date.now();
                             this.customProgressions = [
-                                { id: baseId + 100, name: '基本進行 (C, F, G, C)', chords: [c.id, f.id, g.id, c.id], isActive: true },
-                                { id: baseId + 101, name: 'Pop Standard (C, F, C, G)', chords: [c.id, f.id, c.id, g.id], isActive: true },
-                                { id: baseId + 102, name: 'Pop Standard 2 (C, G, F, G)', chords: [c.id, g.id, f.id, g.id], isActive: true },
-                                { id: baseId + 103, name: '1950s (C, Am, F, G)', chords: [c.id, am.id, f.id, g.id], isActive: true },
-                                { id: baseId + 104, name: '王道進行 (F, G, Em, Am)', chords: [f.id, g.id, em.id, am.id], isActive: true },
-                                { id: baseId + 105, name: '小室進行 (Am, F, G, C)', chords: [am.id, f.id, g.id, c.id], isActive: true },
-                                { id: baseId + 106, name: 'ツーファイブワン (Dm, G, C, Am)', chords: [dm.id, g.id, c.id, am.id], isActive: true },
-                                { id: baseId + 107, name: 'カノン進行前半 (C, G, Am, Em)', chords: [c.id, g.id, am.id, em.id], isActive: true },
-                                { id: baseId + 108, name: 'カノン進行後半 (F, C, F, G)', chords: [f.id, c.id, f.id, g.id], isActive: true },
-                                { id: baseId + 109, name: 'ポップパンク (F, C, G, Am)', chords: [f.id, c.id, g.id, am.id], isActive: true },
-                                { id: baseId + 110, name: 'マイナーツーファイブワン (Am, Dm, G, C)', chords: [am.id, dm.id, g.id, c.id], isActive: true }
+                                { id: baseId + 100, name: '基本進行', chords: [c.id, f.id, g.id, c.id], isActive: true },
+                                { id: baseId + 101, name: 'Pop Standard', chords: [c.id, f.id, c.id, g.id], isActive: true },
+                                { id: baseId + 102, name: 'Pop Standard 2', chords: [c.id, g.id, f.id, g.id], isActive: true },
+                                { id: baseId + 103, name: '1950s', chords: [c.id, am.id, f.id, g.id], isActive: true },
+                                { id: baseId + 104, name: '王道進行', chords: [f.id, g.id, em.id, am.id], isActive: true },
+                                { id: baseId + 105, name: '小室進行', chords: [am.id, f.id, g.id, c.id], isActive: true },
+                                { id: baseId + 106, name: '前ツーファイブワン', chords: [dm.id, g.id, c.id, am.id], isActive: true },
+                                { id: baseId + 107, name: '後ツーファイブワン', chords: [am.id, dm.id, g.id, c.id], isActive: true },
+                                { id: baseId + 108, name: 'カノン進行前半', chords: [c.id, g.id, am.id, em.id], isActive: true },
+                                { id: baseId + 109, name: 'カノン進行後半', chords: [f.id, c.id, f.id, g.id], isActive: true },
+                                { id: baseId + 110, name: 'ポップパンク', chords: [f.id, c.id, g.id, am.id], isActive: true },
+                                { id: baseId + 111, name: 'Let it be進行', chords: [c.id, g.id, am.id, f.id], isActive: true },
+                                { id: baseId + 112, name: '洋楽定番 (6415)', chords: [am.id, f.id, c.id, g.id], isActive: true },
+                                { id: baseId + 113, name: '王道アレンジ (4561)', chords: [f.id, g.id, am.id, c.id], isActive: true },
+                                { id: baseId + 114, name: 'マイナー下降', chords: [am.id, g.id, f.id, g.id], isActive: true },
+                                { id: baseId + 115, name: '強進行 (3625)', chords: [em.id, am.id, dm.id, g.id], isActive: true },
+                                { id: baseId + 116, name: '625強進行 (1625)', chords: [c.id, am.id, dm.id, g.id], isActive: true },
+                                { id: baseId + 117, name: '上昇順次進行 (3456)', chords: [em.id, f.id, g.id, am.id], isActive: true },
+                                { id: baseId + 118, name: '代理ツーファイブ進行 (2316)', chords: [dm.id, em.id, c.id, am.id], isActive: true },
+                                { id: baseId + 119, name: 'トニック進行 (1361)', chords: [c.id, em.id, am.id, c.id], isActive: true },
+                                { id: baseId + 120, name: 'サブドミナント進行 (2345)', chords: [dm.id, em.id, f.id, g.id], isActive: true }
                             ];
                             this.saveCustomData();
                             this.renderCustomProgressionList();
