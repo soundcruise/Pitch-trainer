@@ -412,6 +412,7 @@ class Game {
     constructor() {
         this.audio = new AudioEngine();
         this.currentSequence = [];
+        this.previousSequenceKey = null; // Track previous question to avoid consecutive duplicates
         this.inputIndex = 0;
         this.stage = 1;
         this.baseOctave = 3; // Default to octave 3
@@ -1909,6 +1910,7 @@ class Game {
         }
         this.score = 0;
         this.streak = 0;
+        this.previousSequenceKey = null; // Reset for new game session
         this.updateStats();
         this.isPlaying = true;
         this.isRoundOver = false;
@@ -2111,86 +2113,110 @@ class Game {
         }
     }
 
+    // Helper: serialize a sequence into a comparable string key
+    serializeSequence(seq) {
+        return seq.map(item => {
+            if (typeof item === 'string') return item;
+            if (item && item.id) return item.id;           // custom chord object
+            if (item && item.name) return item.name;       // named chord object
+            if (item && item.note) return item.note + ':' + (item.octaveOffset || 0); // 2-octave note
+            return JSON.stringify(item);
+        }).join(',');
+    }
+
     nextRound() {
         if (!this.isPlaying) return;
 
         this.isBlockingInput = true;
         this.isRoundOver = false;
         this.inputIndex = 0;
-        this.currentSequence = [];
 
         const cfg = this.stageConfig[this.stage] || this.stageConfig[3];
 
-        if (this.stage === 199 && this.proQuestionMode === 'progressions') {
-            const activeProgs = this.customProgressions.filter(p => p.isActive !== false);
-            const poolIds = cfg.pool.map(c => c.id);
+        // Retry loop to avoid consecutive duplicate questions
+        const maxRetries = 10;
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            this.currentSequence = [];
 
-            // Filter progressions where every chord is in the current active pool
-            const validProgs = activeProgs.filter(prog =>
-                prog.chords.every(chordId => poolIds.includes(chordId))
-            );
+            if (this.stage === 199 && this.proQuestionMode === 'progressions') {
+                const activeProgs = this.customProgressions.filter(p => p.isActive !== false);
+                const poolIds = cfg.pool.map(c => c.id);
 
-            if (validProgs.length > 0) {
-                const selectedProg = validProgs[Math.floor(Math.random() * validProgs.length)];
-                // Play the progression EXACTLY as defined, ignoring cfg.count
-                for (let i = 0; i < selectedProg.chords.length; i++) {
-                    const chordId = selectedProg.chords[i];
-                    const chordObj = cfg.pool.find(c => c.id === chordId);
-                    if (chordObj) {
-                        this.currentSequence.push(chordObj);
+                // Filter progressions where every chord is in the current active pool
+                const validProgs = activeProgs.filter(prog =>
+                    prog.chords.every(chordId => poolIds.includes(chordId))
+                );
+
+                if (validProgs.length > 0) {
+                    const selectedProg = validProgs[Math.floor(Math.random() * validProgs.length)];
+                    // Play the progression EXACTLY as defined, ignoring cfg.count
+                    for (let i = 0; i < selectedProg.chords.length; i++) {
+                        const chordId = selectedProg.chords[i];
+                        const chordObj = cfg.pool.find(c => c.id === chordId);
+                        if (chordObj) {
+                            this.currentSequence.push(chordObj);
+                        }
+                    }
+                }
+            } else if (cfg.isChord && this.chordPatternMode === 'progression' && this.stage !== 199) {
+                const baseProgressions = [
+                    ['C', 'F', 'G', 'C'],        // I-IV-V-I
+                    ['C', 'F', 'C', 'G'],        // Pop standard
+                    ['C', 'G', 'F', 'G'],        // Pop standard
+                    ['C', 'Am', 'F', 'G'],       // 1950s progression
+                    ['F', 'G', 'Em', 'Am'],      // Royal Road (王道進行)
+                    ['Am', 'F', 'G', 'C'],       // TK progression (小室進行)
+                    ['Dm', 'G', 'C', 'Am'],      // ii-V-I-vi
+                    ['C', 'G', 'Am', 'Em'],      // Canon progression
+                    ['F', 'C', 'G', 'Am'],       // Pop Punk
+                    ['Am', 'Dm', 'G', 'C']       // Minor ii-V-I
+                ];
+
+                const isCustom = cfg.isCustomChord;
+                // Get available chord names from the pool
+                const poolNames = isCustom ? cfg.pool.map(c => c.name) : cfg.pool;
+
+                // Filter progressions to those where ALL chords are present in the current pool
+                const validProgressions = baseProgressions.filter(prog =>
+                    prog.every(chord => poolNames.includes(chord))
+                );
+
+                if (validProgressions.length > 0) {
+                    // Select a random valid progression
+                    const selectedProg = validProgressions[Math.floor(Math.random() * validProgressions.length)];
+
+                    // Build sequence up to cfg.count by looping the selected progression if needed
+                    for (let i = 0; i < cfg.count; i++) {
+                        const chordName = selectedProg[i % selectedProg.length];
+                        if (isCustom) {
+                            this.currentSequence.push(cfg.pool.find(c => c.name === chordName));
+                        } else {
+                            this.currentSequence.push(chordName);
+                        }
                     }
                 }
             }
-        } else if (cfg.isChord && this.chordPatternMode === 'progression' && this.stage !== 199) {
-            const baseProgressions = [
-                ['C', 'F', 'G', 'C'],        // I-IV-V-I
-                ['C', 'F', 'C', 'G'],        // Pop standard
-                ['C', 'G', 'F', 'G'],        // Pop standard
-                ['C', 'Am', 'F', 'G'],       // 1950s progression
-                ['F', 'G', 'Em', 'Am'],      // Royal Road (王道進行)
-                ['Am', 'F', 'G', 'C'],       // TK progression (小室進行)
-                ['Dm', 'G', 'C', 'Am'],      // ii-V-I-vi
-                ['C', 'G', 'Am', 'Em'],      // Canon progression
-                ['F', 'C', 'G', 'Am'],       // Pop Punk
-                ['Am', 'Dm', 'G', 'C']       // Minor ii-V-I
-            ];
 
-            const isCustom = cfg.isCustomChord;
-            // Get available chord names from the pool
-            const poolNames = isCustom ? cfg.pool.map(c => c.name) : cfg.pool;
-
-            // Filter progressions to those where ALL chords are present in the current pool
-            const validProgressions = baseProgressions.filter(prog =>
-                prog.every(chord => poolNames.includes(chord))
-            );
-
-            if (validProgressions.length > 0) {
-                // Select a random valid progression
-                const selectedProg = validProgressions[Math.floor(Math.random() * validProgressions.length)];
-
-                // Build sequence up to cfg.count by looping the selected progression if needed
+            // Fallback to random if progression mode failed to find a match, or if in random mode
+            if (this.currentSequence.length === 0) {
                 for (let i = 0; i < cfg.count; i++) {
-                    const chordName = selectedProg[i % selectedProg.length];
-                    if (isCustom) {
-                        this.currentSequence.push(cfg.pool.find(c => c.name === chordName));
+                    const randomNote = cfg.pool[Math.floor(Math.random() * cfg.pool.length)];
+                    if (this.stage === 99 && cfg.is2Octave) {
+                        const randomOctaveOffset = Math.floor(Math.random() * 2); // 0 or 1
+                        this.currentSequence.push({ note: randomNote, octaveOffset: randomOctaveOffset });
                     } else {
-                        this.currentSequence.push(chordName);
+                        this.currentSequence.push(randomNote);
                     }
                 }
             }
-        }
 
-        // Fallback to random if progression mode failed to find a match, or if in random mode
-        if (this.currentSequence.length === 0) {
-            for (let i = 0; i < cfg.count; i++) {
-                const randomNote = cfg.pool[Math.floor(Math.random() * cfg.pool.length)];
-                if (this.stage === 99 && cfg.is2Octave) {
-                    const randomOctaveOffset = Math.floor(Math.random() * 2); // 0 or 1
-                    this.currentSequence.push({ note: randomNote, octaveOffset: randomOctaveOffset });
-                } else {
-                    this.currentSequence.push(randomNote);
-                }
+            // Check for consecutive duplicate
+            const currentKey = this.serializeSequence(this.currentSequence);
+            if (currentKey !== this.previousSequenceKey || attempt === maxRetries - 1) {
+                this.previousSequenceKey = currentKey;
+                break; // Accept this sequence
             }
+            // else: duplicate detected, retry
         }
 
         if (this.scaleEnabled) {
