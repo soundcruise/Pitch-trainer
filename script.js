@@ -412,7 +412,7 @@ class Game {
     constructor() {
         this.audio = new AudioEngine();
         this.currentSequence = [];
-        this.previousSequenceKey = null; // Track previous question to avoid consecutive duplicates
+        this.previousSequenceKeys = []; // Track last 2 questions to prevent 3 consecutive duplicates
         this.inputIndex = 0;
         this.stage = 1;
         this.baseOctave = 3; // Default to octave 3
@@ -1910,7 +1910,7 @@ class Game {
         }
         this.score = 0;
         this.streak = 0;
-        this.previousSequenceKey = null; // Reset for new game session
+        this.previousSequenceKeys = []; // Reset for new game session
         this.updateStats();
         this.isPlaying = true;
         this.isRoundOver = false;
@@ -2210,13 +2210,20 @@ class Game {
                 }
             }
 
-            // Check for consecutive duplicate
+            // Check for 3 consecutive duplicates (allow 2, block 3)
             const currentKey = this.serializeSequence(this.currentSequence);
-            if (currentKey !== this.previousSequenceKey || attempt === maxRetries - 1) {
-                this.previousSequenceKey = currentKey;
+            const isTripleDuplicate = this.previousSequenceKeys.length >= 2 &&
+                this.previousSequenceKeys[this.previousSequenceKeys.length - 1] === currentKey &&
+                this.previousSequenceKeys[this.previousSequenceKeys.length - 2] === currentKey;
+            if (!isTripleDuplicate || attempt === maxRetries - 1) {
+                // Keep only the last 2 keys
+                this.previousSequenceKeys.push(currentKey);
+                if (this.previousSequenceKeys.length > 2) {
+                    this.previousSequenceKeys.shift();
+                }
                 break; // Accept this sequence
             }
-            // else: duplicate detected, retry
+            // else: 3rd consecutive duplicate detected, retry
         }
 
         if (this.scaleEnabled) {
