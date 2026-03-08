@@ -4,31 +4,32 @@
 
 /* PRO Badge within title */
 .pro-badge {
-    font-size: 0.7rem;
-    /* Reverted to smaller size */
-    background: linear-gradient(135deg,
-            #d4af37 0%,
-            #fcf6ba 20%,
-            #bf953f 40%,
-            #fbf5b7 60%,
-            #b38728 80%,
-            #d4af37 100%);
+    font-size: 0.85rem;
+    /* Medium-large size */
+    background: linear-gradient(90deg,
+            #bf953f 0%,
+            #fcf6ba 25%,
+            #b38728 50%,
+            #fbf5b7 75%,
+            #bf953f 100%);
     background-size: 200% auto;
     color: #1a1a1a;
-    border: 1px solid rgba(184, 134, 11, 0.6);
-    padding: 3px 12px;
+    border: 1px solid rgba(184, 134, 11, 0.8);
+    padding: 4px 15px;
     /* Balanced padding */
-    border-radius: 4px;
-    /* Sharper, more executive look */
+    border-radius: 5px;
+    /* Slightly smoother but still sharp */
     font-weight: 800;
-    letter-spacing: 2.5px;
-    /* Elegant spacing */
+    letter-spacing: 3px;
+    /* More elegant wide spacing */
     vertical-align: middle;
     box-shadow:
-        0 2px 10px rgba(0, 0, 0, 0.5),
-        inset 0 1px 1px rgba(255, 255, 255, 0.4);
-    /* Inner highlight for metallic look */
-    animation: goldSweep 4s ease-in-out infinite;
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0.5px 1px rgba(255, 255, 255, 0.3);
+    /* Subtle depth for text */
+    animation: goldSweep 3s linear infinite;
+    /* One-directional linear sweep */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -38,35 +39,27 @@
 }
 
 @keyframes goldSweep {
-    0% {
-        background-position: 0% center;
-    }
-
-    50% {
-        background-position: 100% center;
-    }
-
-    100% {
-        background-position: 0% center;
+    to {
+        background-position: 200% center;
     }
 }
 
 /* Mobile Adjustments to prevent overlap with top icons */
 @media (max-width: 480px) {
     #screen-home .home-title {
-        margin-top: 55px;
-        /* Balanced space */
-        margin-bottom: 25px;
+        margin-top: 65px;
+        /* Adjusted space for medium-large badge */
+        margin-bottom: 28px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
     }
 
     .pro-badge {
-        font-size: 0.8rem;
-        /* Slightly larger on mobile but still refined */
-        padding: 4px 14px;
-        letter-spacing: 3px;
+        font-size: 1.0rem;
+        /* Prominent but not oversized on mobile */
+        padding: 6px 20px;
+        letter-spacing: 4px;
     }
 }
