@@ -1486,8 +1486,9 @@ class Game {
             }).join(' - ');
 
             const chordsSpan = document.createElement('div');
-            chordsSpan.style.fontSize = '0.85rem';
-            chordsSpan.style.color = 'rgba(255,255,255,0.7)';
+            chordsSpan.style.fontSize = '1.1rem';
+            chordsSpan.style.fontWeight = 'bold';
+            chordsSpan.style.color = 'var(--primary-color)';
             chordsSpan.style.marginTop = '4px';
             chordsSpan.style.whiteSpace = 'nowrap';
             chordsSpan.style.overflow = 'hidden';
@@ -1580,7 +1581,7 @@ class Game {
 
         if (progToEdit) {
             this.editingProgressionId = progToEdit.id;
-            document.getElementById('progression-name').value = progToEdit.name || '';
+            document.getElementById('progression-name').value = (progToEdit.name || '').replace(/\s*\(.*?\)$/, '');
             progToEdit.chords.forEach(chordId => {
                 this.addProgressionChordSlot(chordId);
             });
