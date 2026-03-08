@@ -759,8 +759,8 @@ class Game {
         const btnAddChord = document.getElementById('btn-add-custom-chord');
         const handleAddChord = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
-            if (this.customChords.length >= 30) {
-                alert("登録できるコードは最大30個までです。");
+            if (this.customChords.length >= 50) {
+                alert("登録できるコードは最大50個までです。");
                 return;
             }
             this.openChordEditor();
@@ -933,8 +933,8 @@ class Game {
         const btnAddProgression = document.getElementById('btn-add-custom-progression');
         const handleAddProg = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
-            if (this.customProgressions.length >= 30) {
-                alert('進行は最大30個まで登録可能です。');
+            if (this.customProgressions.length >= 50) {
+                alert('進行は最大50個まで登録可能です。');
                 return;
             }
             this.openProgressionEditor();
@@ -1042,11 +1042,15 @@ class Game {
             { id: baseId + 103, name: '1950s', chords: [cId, amId, fId, gId], isActive: true },
             { id: baseId + 104, name: '王道進行', chords: [fId, gId, emId, amId], isActive: true },
             { id: baseId + 105, name: '小室進行', chords: [amId, fId, gId, cId], isActive: true },
-            { id: baseId + 106, name: 'ツーファイブワン', chords: [dmId, gId, cId, amId], isActive: true },
-            { id: baseId + 107, name: 'カノン進行前半', chords: [cId, gId, amId, emId], isActive: true },
-            { id: baseId + 108, name: 'カノン進行後半', chords: [fId, cId, fId, gId], isActive: true },
-            { id: baseId + 109, name: 'ポップパンク', chords: [fId, cId, gId, amId], isActive: true },
-            { id: baseId + 110, name: 'マイナーツーファイブワン', chords: [amId, dmId, gId, cId], isActive: true }
+            { id: baseId + 106, name: '前ツーファイブワン', chords: [dmId, gId, cId, amId], isActive: true },
+            { id: baseId + 107, name: '後ツーファイブワン', chords: [amId, dmId, gId, cId], isActive: true },
+            { id: baseId + 108, name: 'カノン進行前半', chords: [cId, gId, amId, emId], isActive: true },
+            { id: baseId + 109, name: 'カノン進行後半', chords: [fId, cId, fId, gId], isActive: true },
+            { id: baseId + 110, name: 'ポップパンク', chords: [fId, cId, gId, amId], isActive: true },
+            { id: baseId + 111, name: 'ポップス定番 (1564)', chords: [cId, gId, amId, fId], isActive: true },
+            { id: baseId + 112, name: '洋楽定番 (6415)', chords: [amId, fId, cId, gId], isActive: true },
+            { id: baseId + 113, name: '王道アレンジ (4561)', chords: [fId, gId, amId, cId], isActive: true },
+            { id: baseId + 114, name: 'マイナー下降', chords: [amId, gId, fId, gId], isActive: true }
         ];
     }
 
@@ -1076,11 +1080,15 @@ class Game {
                             { id: baseId + 103, name: '1950s', chords: [c.id, am.id, f.id, g.id], isActive: true },
                             { id: baseId + 104, name: '王道進行', chords: [f.id, g.id, em.id, am.id], isActive: true },
                             { id: baseId + 105, name: '小室進行', chords: [am.id, f.id, g.id, c.id], isActive: true },
-                            { id: baseId + 106, name: 'ツーファイブワン', chords: [dm.id, g.id, c.id, am.id], isActive: true },
-                            { id: baseId + 107, name: 'カノン進行前半', chords: [c.id, g.id, am.id, em.id], isActive: true },
-                            { id: baseId + 108, name: 'カノン進行後半', chords: [f.id, c.id, f.id, g.id], isActive: true },
-                            { id: baseId + 109, name: 'ポップパンク', chords: [f.id, c.id, g.id, am.id], isActive: true },
-                            { id: baseId + 110, name: 'マイナーツーファイブワン', chords: [am.id, dm.id, g.id, c.id], isActive: true }
+                            { id: baseId + 106, name: '前ツーファイブワン', chords: [dm.id, g.id, c.id, am.id], isActive: true },
+                            { id: baseId + 107, name: '後ツーファイブワン', chords: [am.id, dm.id, g.id, c.id], isActive: true },
+                            { id: baseId + 108, name: 'カノン進行前半', chords: [c.id, g.id, am.id, em.id], isActive: true },
+                            { id: baseId + 109, name: 'カノン進行後半', chords: [f.id, c.id, f.id, g.id], isActive: true },
+                            { id: baseId + 110, name: 'ポップパンク', chords: [f.id, c.id, g.id, am.id], isActive: true },
+                            { id: baseId + 111, name: 'ポップス定番 (1564)', chords: [c.id, g.id, am.id, f.id], isActive: true },
+                            { id: baseId + 112, name: '洋楽定番 (6415)', chords: [am.id, f.id, c.id, g.id], isActive: true },
+                            { id: baseId + 113, name: '王道アレンジ (4561)', chords: [f.id, g.id, am.id, c.id], isActive: true },
+                            { id: baseId + 114, name: 'マイナー下降', chords: [am.id, g.id, f.id, g.id], isActive: true }
                         ];
                         this.saveCustomData(); // Save the newly generated default progression to localStorage
                     } else if (this.customChords.length >= 2) {
@@ -1657,8 +1665,8 @@ class Game {
                 this.customProgressions[index] = { ...progData, id: this.editingProgressionId, isActive: this.customProgressions[index].isActive };
             }
         } else {
-            if (this.customProgressions.length >= 30) {
-                alert('進行は最大30個まで登録可能です。');
+            if (this.customProgressions.length >= 50) {
+                alert('進行は最大50個まで登録可能です。');
                 return;
             }
             progData.id = Date.now();
