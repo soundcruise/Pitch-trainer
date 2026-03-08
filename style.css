@@ -1273,8 +1273,8 @@ input:checked+.slider:before {
     font-size: 0.95rem;
 }
 
-/* Full screen modals for Pro settings on mobile */
-@media (max-width: 480px) {
+/* Full screen modals for Pro settings on mobile and small tablets */
+@media (max-width: 768px) {
 
     #screen-pro-settings,
     #pro-settings-modal-chord,
@@ -1282,19 +1282,29 @@ input:checked+.slider:before {
     #progression-editor-modal {
         padding: 0 !important;
         background: var(--surface-color) !important;
+        height: 100vh !important;
+        /* fallback */
+        height: 100dvh !important;
+        /* modern mobile height */
+        align-items: flex-start !important;
+        /* start from top instead of centering */
     }
 
-    .pro-settings-content,
-    .chord-editor-content {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
+    #screen-pro-settings .modal-content,
+    #pro-settings-modal-chord .modal-content,
+    #chord-editor-modal .modal-content,
+    #progression-editor-modal .modal-content {
+        width: 100vw !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        max-width: none !important;
+        max-height: none !important;
         border-radius: 0 !important;
         padding: 20px 15px !important;
         box-sizing: border-box !important;
         border: none !important;
         overflow-y: auto !important;
         margin: 0 !important;
+        background: var(--surface-color) !important;
     }
 }

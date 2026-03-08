@@ -22,6 +22,41 @@
                 .catch(err => console.error('Service Worker Registry Error:', err));
         }
     </script>
+    <style>
+        /* INJECTED MOBILE MODAL OVERRIDES */
+        @media (max-width: 768px) {
+
+            #screen-pro-settings,
+            #pro-settings-modal-chord,
+            #chord-editor-modal,
+            #progression-editor-modal {
+                padding: 0 !important;
+                background-color: #1a1a1a !important;
+                /* Force HEX for transparency fix */
+                height: 100vh !important;
+                height: 100dvh !important;
+                align-items: flex-start !important;
+            }
+
+            #screen-pro-settings .modal-content,
+            #pro-settings-modal-chord .modal-content,
+            #chord-editor-modal .modal-content,
+            #progression-editor-modal .modal-content {
+                width: 100vw !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                padding: 20px 15px !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                border: none !important;
+                overflow-y: auto !important;
+                background-color: #1a1a1a !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
