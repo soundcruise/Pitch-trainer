@@ -5,31 +5,32 @@
 /* PRO Badge within title */
 .pro-badge {
     font-size: 0.85rem;
-    /* Medium-large size */
-    background: linear-gradient(90deg,
-            #bf953f 0%,
-            #fcf6ba 25%,
-            #b38728 50%,
-            #fbf5b7 75%,
-            #bf953f 100%);
+    /* Keep v4 medium-large size */
+    background: linear-gradient(135deg,
+            #fff2ac 0%,
+            #bf953f 25%,
+            #fcf6ba 50%,
+            #b38728 75%,
+            #fbf5b7 100%);
     background-size: 200% auto;
     color: #1a1a1a;
-    border: 1px solid rgba(184, 134, 11, 0.8);
+    border: 1.5px solid #d4af37;
+    /* More solid border */
     padding: 4px 15px;
-    /* Balanced padding */
     border-radius: 5px;
-    /* Slightly smoother but still sharp */
     font-weight: 800;
     letter-spacing: 3px;
-    /* More elegant wide spacing */
     vertical-align: middle;
+    /* Layered shadow for 3D depth */
     box-shadow:
         0 4px 12px rgba(0, 0, 0, 0.5),
-        inset 0 1px 1px rgba(255, 255, 255, 0.5);
-    text-shadow: 0 0.5px 1px rgba(255, 255, 255, 0.3);
-    /* Subtle depth for text */
-    animation: goldSweep 3s linear infinite;
-    /* One-directional linear sweep */
+        inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    /* Embossed/Carved text effect for "PRO" */
+    text-shadow:
+        0.5px 0.5px 0px rgba(255, 255, 255, 0.8),
+        -0.5px -0.5px 0px rgba(0, 0, 0, 0.4);
+    animation: goldSweep 4s ease-in-out infinite;
+    /* Multi-directional feel */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -39,8 +40,16 @@
 }
 
 @keyframes goldSweep {
-    to {
-        background-position: 200% center;
+    0% {
+        background-position: 0% center;
+    }
+
+    50% {
+        background-position: 100% center;
+    }
+
+    100% {
+        background-position: 0% center;
     }
 }
 
@@ -58,8 +67,10 @@
 
     .pro-badge {
         font-size: 1.0rem;
-        /* Prominent but not oversized on mobile */
         padding: 6px 20px;
         letter-spacing: 4px;
+        text-shadow:
+            0.8px 0.8px 0px rgba(255, 255, 255, 0.8),
+            -0.8px -0.8px 0px rgba(0, 0, 0, 0.4);
     }
 }
