@@ -1080,11 +1080,10 @@ h1 {
     font-weight: bold;
     font-size: 1.1rem;
     color: var(--secondary-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-word;
+    line-height: 1.4;
     min-width: 0;
-    /* Important for flex children to truncate */
+    /* Important for flex children */
 }
 
 .custom-chord-actions {
