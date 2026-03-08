@@ -1272,3 +1272,29 @@ input:checked+.slider:before {
     border-color: rgba(255, 255, 255, 0.25);
     font-size: 0.95rem;
 }
+
+/* Full screen modals for Pro settings on mobile */
+@media (max-width: 480px) {
+
+    #screen-pro-settings,
+    #pro-settings-modal-chord,
+    #chord-editor-modal,
+    #progression-editor-modal {
+        padding: 0 !important;
+        background: var(--surface-color) !important;
+    }
+
+    .pro-settings-content,
+    .chord-editor-content {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        padding: 20px 15px !important;
+        box-sizing: border-box !important;
+        border: none !important;
+        overflow-y: auto !important;
+        margin: 0 !important;
+    }
+}
