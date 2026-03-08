@@ -980,6 +980,7 @@ class Game {
             const container = document.getElementById('progression-sequence-container');
             if (container.children.length > 2) {
                 container.removeChild(container.lastChild);
+                this.updateProgressionChordsDisplay();
             } else {
                 alert('進行には少なくとも2つのコードが必要です。');
             }
@@ -1035,17 +1036,17 @@ class Game {
         ];
 
         this.customProgressions = [
-            { id: baseId + 100, name: '基本進行 (C, F, G, C)', chords: [cId, fId, gId, cId], isActive: true },
-            { id: baseId + 101, name: 'Pop Standard (C, F, C, G)', chords: [cId, fId, cId, gId], isActive: true },
-            { id: baseId + 102, name: 'Pop Standard 2 (C, G, F, G)', chords: [cId, gId, fId, gId], isActive: true },
-            { id: baseId + 103, name: '1950s (C, Am, F, G)', chords: [cId, amId, fId, gId], isActive: true },
-            { id: baseId + 104, name: '王道進行 (F, G, Em, Am)', chords: [fId, gId, emId, amId], isActive: true },
-            { id: baseId + 105, name: '小室進行 (Am, F, G, C)', chords: [amId, fId, gId, cId], isActive: true },
-            { id: baseId + 106, name: 'ツーファイブワン (Dm, G, C, Am)', chords: [dmId, gId, cId, amId], isActive: true },
-            { id: baseId + 107, name: 'カノン進行前半 (C, G, Am, Em)', chords: [cId, gId, amId, emId], isActive: true },
-            { id: baseId + 108, name: 'カノン進行後半 (F, C, F, G)', chords: [fId, cId, fId, gId], isActive: true },
-            { id: baseId + 109, name: 'ポップパンク (F, C, G, Am)', chords: [fId, cId, gId, amId], isActive: true },
-            { id: baseId + 110, name: 'マイナーツーファイブワン (Am, Dm, G, C)', chords: [amId, dmId, gId, cId], isActive: true }
+            { id: baseId + 100, name: '基本進行', chords: [cId, fId, gId, cId], isActive: true },
+            { id: baseId + 101, name: 'Pop Standard', chords: [cId, fId, cId, gId], isActive: true },
+            { id: baseId + 102, name: 'Pop Standard 2', chords: [cId, gId, fId, gId], isActive: true },
+            { id: baseId + 103, name: '1950s', chords: [cId, amId, fId, gId], isActive: true },
+            { id: baseId + 104, name: '王道進行', chords: [fId, gId, emId, amId], isActive: true },
+            { id: baseId + 105, name: '小室進行', chords: [amId, fId, gId, cId], isActive: true },
+            { id: baseId + 106, name: 'ツーファイブワン', chords: [dmId, gId, cId, amId], isActive: true },
+            { id: baseId + 107, name: 'カノン進行前半', chords: [cId, gId, amId, emId], isActive: true },
+            { id: baseId + 108, name: 'カノン進行後半', chords: [fId, cId, fId, gId], isActive: true },
+            { id: baseId + 109, name: 'ポップパンク', chords: [fId, cId, gId, amId], isActive: true },
+            { id: baseId + 110, name: 'マイナーツーファイブワン', chords: [amId, dmId, gId, cId], isActive: true }
         ];
     }
 
@@ -1069,17 +1070,17 @@ class Game {
                     if (c && dm && em && f && g && am) {
                         const baseId = Date.now();
                         this.customProgressions = [
-                            { id: baseId + 100, name: '基本進行 (C, F, G, C)', chords: [c.id, f.id, g.id, c.id], isActive: true },
-                            { id: baseId + 101, name: 'Pop Standard (C, F, C, G)', chords: [c.id, f.id, c.id, g.id], isActive: true },
-                            { id: baseId + 102, name: 'Pop Standard 2 (C, G, F, G)', chords: [c.id, g.id, f.id, g.id], isActive: true },
-                            { id: baseId + 103, name: '1950s (C, Am, F, G)', chords: [c.id, am.id, f.id, g.id], isActive: true },
-                            { id: baseId + 104, name: '王道進行 (F, G, Em, Am)', chords: [f.id, g.id, em.id, am.id], isActive: true },
-                            { id: baseId + 105, name: '小室進行 (Am, F, G, C)', chords: [am.id, f.id, g.id, c.id], isActive: true },
-                            { id: baseId + 106, name: 'ツーファイブワン (Dm, G, C, Am)', chords: [dm.id, g.id, c.id, am.id], isActive: true },
-                            { id: baseId + 107, name: 'カノン進行前半 (C, G, Am, Em)', chords: [c.id, g.id, am.id, em.id], isActive: true },
-                            { id: baseId + 108, name: 'カノン進行後半 (F, C, F, G)', chords: [f.id, c.id, f.id, g.id], isActive: true },
-                            { id: baseId + 109, name: 'ポップパンク (F, C, G, Am)', chords: [f.id, c.id, g.id, am.id], isActive: true },
-                            { id: baseId + 110, name: 'マイナーツーファイブワン (Am, Dm, G, C)', chords: [am.id, dm.id, g.id, c.id], isActive: true }
+                            { id: baseId + 100, name: '基本進行', chords: [c.id, f.id, g.id, c.id], isActive: true },
+                            { id: baseId + 101, name: 'Pop Standard', chords: [c.id, f.id, c.id, g.id], isActive: true },
+                            { id: baseId + 102, name: 'Pop Standard 2', chords: [c.id, g.id, f.id, g.id], isActive: true },
+                            { id: baseId + 103, name: '1950s', chords: [c.id, am.id, f.id, g.id], isActive: true },
+                            { id: baseId + 104, name: '王道進行', chords: [f.id, g.id, em.id, am.id], isActive: true },
+                            { id: baseId + 105, name: '小室進行', chords: [am.id, f.id, g.id, c.id], isActive: true },
+                            { id: baseId + 106, name: 'ツーファイブワン', chords: [dm.id, g.id, c.id, am.id], isActive: true },
+                            { id: baseId + 107, name: 'カノン進行前半', chords: [c.id, g.id, am.id, em.id], isActive: true },
+                            { id: baseId + 108, name: 'カノン進行後半', chords: [f.id, c.id, f.id, g.id], isActive: true },
+                            { id: baseId + 109, name: 'ポップパンク', chords: [f.id, c.id, g.id, am.id], isActive: true },
+                            { id: baseId + 110, name: 'マイナーツーファイブワン', chords: [am.id, dm.id, g.id, c.id], isActive: true }
                         ];
                         this.saveCustomData(); // Save the newly generated default progression to localStorage
                     } else if (this.customChords.length >= 2) {
@@ -1469,7 +1470,8 @@ class Game {
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'chord-name';
-            nameSpan.textContent = prog.name || '名称未設定';
+            // Clean up existing names that might have "(C, F, G, C)" from older app versions
+            nameSpan.textContent = (prog.name || '名称未設定').replace(/\s*\(.*?\)$/, '');
 
             // Subtext for chord count
             const countLabel = document.createElement('span');
@@ -1477,9 +1479,39 @@ class Game {
             countLabel.style.color = 'rgba(255,255,255,0.5)';
             countLabel.textContent = prog.chords.length + 'コード';
 
+            // Generate chords string like "C - F - G - C"
+            const chordsStr = prog.chords.map(chordId => {
+                const c = this.customChords.find(ch => ch.id === chordId);
+                return c ? c.name : '?';
+            }).join(' - ');
+
+            const chordsSpan = document.createElement('div');
+            chordsSpan.style.fontSize = '0.85rem';
+            chordsSpan.style.color = 'rgba(255,255,255,0.7)';
+            chordsSpan.style.marginTop = '4px';
+            chordsSpan.style.whiteSpace = 'nowrap';
+            chordsSpan.style.overflow = 'hidden';
+            chordsSpan.style.textOverflow = 'ellipsis';
+            chordsSpan.textContent = chordsStr;
+
+            const textWrap = document.createElement('div');
+            textWrap.style.display = 'flex';
+            textWrap.style.flexDirection = 'column';
+            textWrap.style.flex = '1';
+            textWrap.style.minWidth = '0';
+
+            const nameRow = document.createElement('div');
+            nameRow.style.display = 'flex';
+            nameRow.style.alignItems = 'baseline';
+            nameRow.style.gap = '8px';
+            nameRow.appendChild(nameSpan);
+            nameRow.appendChild(countLabel);
+
+            textWrap.appendChild(nameRow);
+            textWrap.appendChild(chordsSpan);
+
             nameWrap.appendChild(toggleLabel);
-            nameWrap.appendChild(nameSpan);
-            nameWrap.appendChild(countLabel);
+            nameWrap.appendChild(textWrap);
 
             const actionsDiv = document.createElement('div');
             actionsDiv.style.display = 'flex';
@@ -1583,7 +1615,24 @@ class Game {
             select.appendChild(option);
         });
 
+        select.addEventListener('change', () => this.updateProgressionChordsDisplay());
+
         container.appendChild(select);
+        this.updateProgressionChordsDisplay();
+    }
+
+    updateProgressionChordsDisplay() {
+        const display = document.getElementById('progression-chords-display');
+        const slots = document.querySelectorAll('.progression-chord-slot');
+        if (!display) return;
+
+        const chordsStr = Array.from(slots).map(select => {
+            const chordId = parseInt(select.value);
+            const chord = this.customChords.find(c => c.id === chordId);
+            return chord ? chord.name : '?';
+        }).join(' - ');
+
+        display.textContent = chordsStr;
     }
 
     saveProgressionFromEditor() {
