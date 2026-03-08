@@ -1055,7 +1055,8 @@ class Game {
             { id: baseId + 116, name: '625強進行 (1625)', chords: [cId, amId, dmId, gId], isActive: true },
             { id: baseId + 117, name: '上昇順次進行 (3456)', chords: [emId, fId, gId, amId], isActive: true },
             { id: baseId + 118, name: '代理ツーファイブ進行 (2316)', chords: [dmId, emId, cId, amId], isActive: true },
-            { id: baseId + 119, name: '哀愁トニック進行 (1361)', chords: [cId, emId, amId, cId], isActive: true }
+            { id: baseId + 119, name: 'トニック進行 (1361)', chords: [cId, emId, amId, cId], isActive: true },
+            { id: baseId + 120, name: 'サブドミナント進行 (2345)', chords: [dmId, emId, fId, gId], isActive: true }
         ];
     }
 
@@ -1098,7 +1099,8 @@ class Game {
                             { id: baseId + 116, name: '625強進行 (1625)', chords: [c.id, am.id, dm.id, g.id], isActive: true },
                             { id: baseId + 117, name: '上昇順次進行 (3456)', chords: [em.id, f.id, g.id, am.id], isActive: true },
                             { id: baseId + 118, name: '代理ツーファイブ進行 (2316)', chords: [dm.id, em.id, c.id, am.id], isActive: true },
-                            { id: baseId + 119, name: '哀愁トニック進行 (1361)', chords: [c.id, em.id, am.id, c.id], isActive: true }
+                            { id: baseId + 119, name: 'トニック進行 (1361)', chords: [c.id, em.id, am.id, c.id], isActive: true },
+                            { id: baseId + 120, name: 'サブドミナント進行 (2345)', chords: [dm.id, em.id, f.id, g.id], isActive: true }
                         ];
                         this.saveCustomData(); // Save the newly generated default progression to localStorage
                     } else if (this.customChords.length >= 2) {
