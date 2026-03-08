@@ -561,7 +561,8 @@ h1 {
 #settings-modal,
 #screen-pro-settings,
 #pro-settings-modal-chord,
-#chord-editor-modal {
+#chord-editor-modal,
+#progression-editor-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -583,7 +584,8 @@ h1 {
 #settings-modal.hidden,
 #screen-pro-settings.hidden,
 #pro-settings-modal-chord.hidden,
-#chord-editor-modal.hidden {
+#chord-editor-modal.hidden,
+#progression-editor-modal.hidden {
     display: none;
 }
 
@@ -1073,10 +1075,16 @@ h1 {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-.custom-chord-name {
+.custom-chord-name,
+.chord-name {
     font-weight: bold;
     font-size: 1.1rem;
     color: var(--secondary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    /* Important for flex children to truncate */
 }
 
 .custom-chord-actions {

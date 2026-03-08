@@ -1212,6 +1212,8 @@ class Game {
             nameWrap.style.display = 'flex';
             nameWrap.style.alignItems = 'center';
             nameWrap.style.gap = '10px';
+            nameWrap.style.flex = '1';
+            nameWrap.style.minWidth = '0'; // Allows children to truncate
 
             const toggleLabel = document.createElement('label');
             toggleLabel.className = 'switch';
@@ -1444,6 +1446,8 @@ class Game {
             nameWrap.style.display = 'flex';
             nameWrap.style.alignItems = 'center';
             nameWrap.style.gap = '10px';
+            nameWrap.style.flex = '1';
+            nameWrap.style.minWidth = '0'; // Allows children to truncate
 
             const toggleLabel = document.createElement('label');
             toggleLabel.className = 'switch';
