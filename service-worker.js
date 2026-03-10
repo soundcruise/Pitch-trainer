@@ -44,3 +44,4 @@ self.addEventListener('fetch', (e) => {
         })
     );
 });
+v55 bust
