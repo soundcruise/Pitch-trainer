@@ -38,10 +38,19 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+    // Navigate requests or HTML requests should try network first to prevent getting stuck on old versions
+    if (e.request.mode === 'navigate' ||
+        (e.request.method === 'GET' && e.request.headers.get('accept') && e.request.headers.get('accept').includes('text/html'))) {
+        e.respondWith(
+            fetch(e.request).catch(() => caches.match(e.request, { ignoreSearch: true }))
+        );
+        return;
+    }
+
+    // Default Cache First strategy for resources (CSS, JS, images, etc.)
     e.respondWith(
         caches.match(e.request, { ignoreSearch: true }).then((response) => {
             return response || fetch(e.request);
         })
     );
 });
-v55 bust
