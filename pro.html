@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>音感クルーズ Pro</title>
-    <link rel="stylesheet" href="style.css?v=final48">
-    <link rel="stylesheet" href="pro-theme.css?v=final48">
+    <link rel="stylesheet" href="style.css?v=final49">
+    <link rel="stylesheet" href="pro-theme.css?v=final49">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -74,9 +74,6 @@
             </div>
             <button id="settings-btn" class="icon-btn" style="position: absolute; top: 20px; right: 20px;"
                 title="設定">⚙️</button>
-            <button id="game-pro-settings-btn" class="icon-btn"
-                style="position: absolute; top: 60px; right: 20px; font-size: 0.8rem; display: none;" title="Pro設定">👑
-                <span>Pro設定</span></button>
             <div class="stats">
                 <div class="stat-item" style="min-width: 80px;">
                     <span class="label">Combo</span>
@@ -189,7 +186,7 @@
                             (全７音)</span></button>
 
                     <button id="btn-level-pro" class="btn-primary custom-stage-btn" data-stage="99">👑 Pro <span
-                            class="stage-desc">カスタム設定</span></button>
+                            class="stage-desc">カスタムSTAGE</span></button>
                 </div>
             </div>
 
@@ -235,7 +232,7 @@
                     <button id="btn-level-106" class="btn-primary" data-stage="106">STAGE 6<br><span
                             class="stage-desc">C, F, G, Am, Dm, Em (3和音)</span></button>
                     <button id="btn-level-pro-chord" class="btn-primary custom-stage-btn" data-stage="199">👑
-                        Pro<br><span class="stage-desc">カスタム設定</span></button>
+                        Pro<br><span class="stage-desc">カスタムSTAGE</span></button>
                 </div>
             </div>
         </div>
@@ -257,7 +254,7 @@
                 </div>
                 <div class="setting-item">
                     <label>キー</label>
-                    <select id="key-selector" class="key-select">
+                    <select id="key-selector" class="preset-select">
                         <option value="0">C</option>
                         <option value="1">C# / D♭</option>
                         <option value="2">D</option>
@@ -281,7 +278,7 @@
                 </div>
                 <div class="setting-item">
                     <label>楽器</label>
-                    <select id="instrument-selector" class="instrument-select">
+                    <select id="instrument-selector" class="preset-select">
                         <option value="acoustic_guitar">アコースティックギター</option>
                         <option value="piano">ピアノ</option>
                         <option value="violin">バイオリン</option>
@@ -294,6 +291,11 @@
                         <input type="checkbox" id="scale-toggle" checked>
                         <span class="toggle-slider"></span>
                     </label>
+                </div>
+                <div class="setting-item vertical">
+                    <label><span>基準周波数 (A4)</span>: <span id="hz-value">440</span><span>Hz</span></label>
+                    <input type="range" id="hz-slider" min="430" max="450" step="1" value="440"
+                        class="hz-slider sustain-slider">
                 </div>
                 <div class="setting-item vertical">
                     <label><span>余韻の長さ</span>: <span id="sustain-value">0.5</span><span>秒</span></label>

@@ -2,23 +2,32 @@
 class AudioEngine {
     constructor() {
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        this.notes = {
-            // Octave 2
-            'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47,
-            // Octave 3
-            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94,
-            // Octave 4
-            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
-            // Octave 5
-            'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77,
-            // Octave 6 (Just C6 for high end)
-            'C6': 1046.50
-        };
+        this.baseHz = 440.0;
+        this.notes = {};
+        this._buildNotes();
         this.currentInstrument = 'acoustic_guitar';
         this.sustainTime = 0.5; // 余韻の長さ（秒）。設定から変更可能。
 
         // モバイルブラウザ対策: ユーザー操作でAudioContextを起こすリスナー
         this._setupResumeHandlers();
+    }
+
+    _buildNotes() {
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        this.notes = {};
+        for (let oct = 2; oct <= 6; oct++) {
+            for (let i = 0; i < 12; i++) {
+                if (oct === 6 && i > 0) break; // only up to C6
+                const noteName = noteNames[i] + oct;
+                const midiNote = (oct + 1) * 12 + i;
+                this.notes[noteName] = this.baseHz * Math.pow(2, (midiNote - 69) / 12);
+            }
+        }
+    }
+
+    setBaseHz(hz) {
+        this.baseHz = parseFloat(hz);
+        this._buildNotes();
     }
 
     /**
@@ -509,15 +518,6 @@ class Game {
             }
         });
 
-        // Pro Settings button（ゲーム中ヘッダー、Proステージ用）
-        if (document.getElementById('game-pro-settings-btn')) document.getElementById('game-pro-settings-btn').addEventListener('click', () => {
-            if (this.stage === 99 && this.proSettingsModal) {
-                this.proSettingsModal.classList.remove('hidden');
-            } else if (this.stage === 199 && this.proChordSettingsModal) {
-                this.proChordSettingsModal.classList.remove('hidden');
-            }
-        });
-
         // Settings button（トップページ）
         if (document.getElementById('home-settings-btn')) document.getElementById('home-settings-btn').addEventListener('click', () => {
             if (this.settingsModal) {
@@ -584,6 +584,18 @@ class Game {
 
         // Reset button
         if (document.getElementById('reset-settings')) document.getElementById('reset-settings').addEventListener('click', () => this.resetToDefaults());
+
+        // 基準周波数スライダー
+        const hzSlider = document.getElementById('hz-slider');
+        const hzValue = document.getElementById('hz-value');
+        if (hzSlider) {
+            hzSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                this.audio.setBaseHz(val);
+                if (hzValue) hzValue.textContent = val;
+                this.saveSettings();
+            });
+        }
 
         // 余韻スライダー
         const sustainSlider = document.getElementById('sustain-slider');
@@ -1178,6 +1190,16 @@ class Game {
                     console.log("Game: toggling answer mode to", this.isAnswerMode);
                     this.toggleAnswerMode(this.isAnswerMode);
                 }
+                if (s.baseHz !== undefined) {
+                    this.audio.setBaseHz(s.baseHz);
+                    const hzSlider = document.getElementById('hz-slider');
+                    const hzValue = document.getElementById('hz-value');
+                    if (hzSlider) {
+                        hzSlider.value = this.audio.baseHz;
+                        if (hzValue) hzValue.textContent = this.audio.baseHz;
+                    }
+                }
+
                 if (s.sustainTime !== undefined) {
                     this.audio.sustainTime = s.sustainTime;
                     const sustainSlider = document.getElementById('sustain-slider');
@@ -1210,7 +1232,8 @@ class Game {
                 scaleEnabled: this.scaleEnabled,
                 noteSpeed: this.noteSpeed,
                 isAnswerMode: this.isAnswerMode,
-                sustainTime: this.audio.sustainTime
+                sustainTime: this.audio.sustainTime,
+                baseHz: this.audio.baseHz
             };
             localStorage.setItem('pitchTrainerSettings', JSON.stringify(data));
         } catch (e) {
@@ -1960,6 +1983,12 @@ class Game {
         this.updateKey(0); // Reset to C
         this.updateInstrument('acoustic_guitar'); // Reset to acoustic guitar
         this.updateNotation('doremi'); // Reset to DoReMi
+        // 基準周波数をデフォルト(440Hz)にリセット
+        this.audio.setBaseHz(440);
+        const hzSlider = document.getElementById('hz-slider');
+        const hzValue = document.getElementById('hz-value');
+        if (hzSlider) hzSlider.value = '440';
+        if (hzValue) hzValue.textContent = '440';
         // 余韻をデフォルト(0.5秒)にリセット
         this.audio.sustainTime = 0.5;
         const sustainSlider = document.getElementById('sustain-slider');
@@ -2014,12 +2043,6 @@ class Game {
         } else {
             if (stageDisplay) stageDisplay.style.display = 'none';
             if (appTitle) appTitle.style.display = 'block';
-        }
-
-        // Pro Setting Button Toggle
-        const gameProBtn = document.getElementById('game-pro-settings-btn');
-        if (gameProBtn) {
-            gameProBtn.style.display = 'flex';
         }
 
         // UI Toggle
@@ -2241,16 +2264,26 @@ class Game {
                 }
             } else if (cfg.isChord && this.chordPatternMode === 'progression' && this.stage !== 199) {
                 const baseProgressions = [
-                    ['C', 'F', 'G', 'C'],        // I-IV-V-I
-                    ['C', 'F', 'C', 'G'],        // Pop standard
-                    ['C', 'G', 'F', 'G'],        // Pop standard
-                    ['C', 'Am', 'F', 'G'],       // 1950s progression
-                    ['F', 'G', 'Em', 'Am'],      // Royal Road (王道進行)
-                    ['Am', 'F', 'G', 'C'],       // TK progression (小室進行)
-                    ['Dm', 'G', 'C', 'Am'],      // ii-V-I-vi
-                    ['C', 'G', 'Am', 'Em'],      // Canon progression
-                    ['F', 'C', 'G', 'Am'],       // Pop Punk
-                    ['Am', 'Dm', 'G', 'C']       // Minor ii-V-I
+                    ['C', 'F', 'G', 'C'],        // 基本進行
+                    ['C', 'F', 'C', 'G'],        // Pop Standard
+                    ['C', 'G', 'F', 'G'],        // Pop Standard 2
+                    ['C', 'Am', 'F', 'G'],       // 1950s
+                    ['F', 'G', 'Em', 'Am'],      // 王道進行
+                    ['Am', 'F', 'G', 'C'],       // 小室進行
+                    ['Dm', 'G', 'C', 'Am'],      // 前ツーファイブワン
+                    ['Am', 'Dm', 'G', 'C'],      // 後ツーファイブワン
+                    ['C', 'G', 'Am', 'Em'],      // カノン進行前半
+                    ['F', 'C', 'F', 'G'],        // カノン進行後半
+                    ['F', 'C', 'G', 'Am'],       // ポップパンク
+                    ['C', 'G', 'Am', 'F'],       // Let it be進行
+                    ['Am', 'F', 'C', 'G'],       // 洋楽定番 (6415)
+                    ['F', 'G', 'Am', 'C'],       // 王道アレンジ (4561)
+                    ['Am', 'G', 'F', 'G'],       // マイナー下降
+                    ['Em', 'Am', 'Dm', 'G'],     // 強進行 (3625)
+                    ['C', 'Am', 'Dm', 'G'],      // 625強進行 (1625)
+                    ['Em', 'F', 'G', 'Am'],      // 上昇順次進行 (3456)
+                    ['C', 'Em', 'Am', 'C'],      // トニック進行 (1361)
+                    ['Dm', 'Em', 'F', 'G']       // 上昇順次進行2 (2345)
                 ];
 
                 const isCustom = cfg.isCustomChord;
