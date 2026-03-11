@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ Pro</title>
     <link rel="stylesheet" href="style.css?v=final55">
     <link rel="stylesheet" href="pro-theme.css?v=final55">
@@ -62,7 +62,8 @@
 <body>
     <div class="app-container">
         <header>
-            <div style="position: absolute; top: 20px; left: 20px; display: flex; gap: 8px; align-items: center;">
+            <div
+                style="position: absolute; top: max(20px, env(safe-area-inset-top)); left: max(20px, env(safe-area-inset-left)); display: flex; gap: 8px; align-items: center;">
                 <button id="stage-select-btn" class="icon-btn">← 戻る</button>
                 <button id="top-btn" class="icon-btn">🏠 TOP</button>
             </div>
@@ -72,7 +73,8 @@
                 </div>
                 <div id="current-stage-desc" style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);"></div>
             </div>
-            <button id="settings-btn" class="icon-btn" style="position: absolute; top: 20px; right: 20px;"
+            <button id="settings-btn" class="icon-btn"
+                style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right));"
                 title="設定">⚙️</button>
             <div class="stats">
                 <div class="stat-item" style="min-width: 80px;">
@@ -137,7 +139,8 @@
             <!-- Screen 1: ホーム -->
             <div id="screen-home" class="modal" style="position: relative;">
                 <button id="home-settings-btn" class="icon-btn"
-                    style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="設定">⚙️</button>
+                    style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right)); z-index: 100;"
+                    title="設定">⚙️</button>
                 <h2 class="home-title" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                     音感クルーズ
                     <span class="pro-badge">PRO</span>
@@ -165,7 +168,8 @@
             <!-- Screen 2: メロディ ステージ選択 -->
             <div id="screen-melody" class="modal hidden" style="position: relative;">
                 <button id="melody-settings-btn" class="icon-btn"
-                    style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="設定">⚙️</button>
+                    style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right)); z-index: 100;"
+                    title="設定">⚙️</button>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;">
                     <button class="btn-back" id="btn-back-melody" style="margin-bottom: 0;">←
@@ -194,7 +198,8 @@
             <!-- Screen 3: コード ステージ選択 -->
             <div id="screen-chord" class="modal hidden" style="position: relative;">
                 <button id="chord-settings-btn" class="icon-btn"
-                    style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="設定">⚙️</button>
+                    style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right)); z-index: 100;"
+                    title="設定">⚙️</button>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;">
                     <button class="btn-back" id="btn-back-chord" style="margin-bottom: 0;">←
