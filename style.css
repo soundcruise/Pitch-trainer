@@ -164,7 +164,7 @@ h1 {
 .action-btns {
     display: flex;
     flex-direction: row;
-    gap: 12px;
+    gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
 }
@@ -174,10 +174,12 @@ h1 {
 .note-buttons {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
     flex-wrap: wrap;
     width: 100%;
     margin-top: 20px;
+    margin-bottom: 30px;
+    padding: 0 10px;
 }
 
 .note-btn {
@@ -365,6 +367,13 @@ h1 {
     font-size: 2.8rem;
     font-weight: 700;
     letter-spacing: 2px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-top: 50px;
+    /* Provide space for absolute buttons */
 }
 
 .home-title {
@@ -591,12 +600,12 @@ h1 {
 
 .modal-content {
     background: var(--surface-color);
-    padding: 30px;
+    padding: 40px 30px 30px 30px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
     width: 90%;
-    max-width: 400px;
+    max-width: 440px;
 }
 
 .setting-item {
@@ -744,7 +753,7 @@ h1 {
 .category-cards {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 20px;
     width: 100%;
     margin-top: 24px;
 }
@@ -894,8 +903,8 @@ h1 {
 
 /* Preset Dropdown */
 .preset-select {
-    width: 65%;
-    max-width: 240px;
+    width: 100%;
+    max-width: 280px;
     padding: 12px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);

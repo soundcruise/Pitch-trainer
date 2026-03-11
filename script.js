@@ -424,6 +424,7 @@ class Game {
         this.previousSequenceKeys = []; // Track last 2 questions to prevent 3 consecutive duplicates
         this.inputIndex = 0;
         this.stage = 1;
+        this.baseHz = 440; // Default reference frequency
         this.baseOctave = 3; // Default to octave 3
         this.keyOffset = 0; // Semitones from C (0=C, 1=C#, 2=D, etc.)
         this.instrument = 'acoustic_guitar'; // Default instrument

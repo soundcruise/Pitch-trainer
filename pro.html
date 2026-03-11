@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>音感クルーズ Pro</title>
-    <link rel="stylesheet" href="style.css?v=final50">
-    <link rel="stylesheet" href="pro-theme.css?v=final50">
+    <link rel="stylesheet" href="style.css?v=final55">
+    <link rel="stylesheet" href="pro-theme.css?v=final55">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@
     <div class="app-container">
         <header>
             <div style="position: absolute; top: 20px; left: 20px; display: flex; gap: 8px; align-items: center;">
-                <button id="stage-select-btn" class="icon-btn">← ステージ選択</button>
+                <button id="stage-select-btn" class="icon-btn">← 戻る</button>
                 <button id="top-btn" class="icon-btn">🏠 TOP</button>
             </div>
             <h1>音感クルーズ</h1>
@@ -137,7 +137,7 @@
             <!-- Screen 1: ホーム -->
             <div id="screen-home" class="modal" style="position: relative;">
                 <button id="home-settings-btn" class="icon-btn"
-                    style="position: absolute; top: 15px; right: 15px; z-index: 100;" title="設定">⚙️</button>
+                    style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="設定">⚙️</button>
                 <h2 class="home-title" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                     音感クルーズ
                     <span class="pro-badge">PRO</span>
@@ -163,12 +163,13 @@
             </div>
 
             <!-- Screen 2: メロディ ステージ選択 -->
-            <div id="screen-melody" class="modal hidden">
+            <div id="screen-melody" class="modal hidden" style="position: relative;">
+                <button id="melody-settings-btn" class="icon-btn"
+                    style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="設定">⚙️</button>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;">
                     <button class="btn-back" id="btn-back-melody" style="margin-bottom: 0;">←
                         戻る</button>
-                    <button id="melody-settings-btn" class="icon-btn" title="設定">⚙️</button>
                 </div>
                 <h2 class="home-title">🎵 メロディ音感</h2>
                 <div class="level-buttons" style="margin-top: 24px;">
@@ -191,12 +192,13 @@
             </div>
 
             <!-- Screen 3: コード ステージ選択 -->
-            <div id="screen-chord" class="modal hidden">
+            <div id="screen-chord" class="modal hidden" style="position: relative;">
+                <button id="chord-settings-btn" class="icon-btn"
+                    style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="設定">⚙️</button>
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 10px;">
                     <button class="btn-back" id="btn-back-chord" style="margin-bottom: 0;">←
                         戻る</button>
-                    <button id="chord-settings-btn" class="icon-btn" title="設定">⚙️</button>
                 </div>
                 <h2 class="home-title"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="guitar"
                         role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
@@ -293,9 +295,8 @@
                     </label>
                 </div>
                 <div class="setting-item vertical">
-                    <label><span>基準周波数 (A4)</span>: <span id="hz-value">440</span><span>Hz</span></label>
-                    <input type="range" id="hz-slider" min="430" max="450" step="1" value="440"
-                        class="hz-slider sustain-slider">
+                    <label for="hz-slider">基準周波数 (A4): <span id="current-hz">440</span>Hz</label>
+                    <input type="range" id="hz-slider" class="sustain-slider" min="430" max="450" step="1" value="440">
                 </div>
                 <div class="setting-item vertical">
                     <label><span>余韻の長さ</span>: <span id="sustain-value">0.5</span><span>秒</span></label>
