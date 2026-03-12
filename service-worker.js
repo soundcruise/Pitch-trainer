@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pitch-trainer-v56-clear';
+const CACHE_NAME = 'pitch-trainer-v57-clear';
 
 self.addEventListener('install', (e) => {
     self.skipWaiting();

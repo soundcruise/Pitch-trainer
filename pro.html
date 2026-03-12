@@ -25,19 +25,17 @@
     <style>
         /* INJECTED MOBILE MODAL OVERRIDES */
         @media (max-width: 768px) {
-
             #screen-pro-settings,
             #pro-settings-modal-chord,
             #chord-editor-modal,
             #progression-editor-modal {
-                padding: 0 !important;
                 background-color: #1a1a1a !important;
                 /* Force HEX for transparency fix */
                 height: 100vh !important;
                 height: 100dvh !important;
                 align-items: flex-start !important;
             }
-
+ 
             #screen-pro-settings .modal-content,
             #pro-settings-modal-chord .modal-content,
             #chord-editor-modal .modal-content,
@@ -48,7 +46,7 @@
                 max-width: none !important;
                 max-height: none !important;
                 border-radius: 0 !important;
-                padding: 20px 15px !important;
+                padding: max(20px, calc(env(safe-area-inset-top) + 20px)) 15px 20px 15px !important;
                 margin: 0 !important;
                 box-sizing: border-box !important;
                 border: none !important;
