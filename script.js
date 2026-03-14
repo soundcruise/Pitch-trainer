@@ -444,6 +444,9 @@ class Game {
             'E': 'ミ', 'F': 'ファ', 'F#': 'ファ#', 'G': 'ソ',
             'G#': 'ソ#', 'A': 'ラ', 'A#': 'ラ#', 'B': 'シ'
         };
+        this.chordDegreeMap = {
+            'C': 'Ⅰ', 'Dm': 'Ⅱm', 'Em': 'Ⅲm', 'F': 'Ⅳ', 'G': 'Ⅴ', 'Am': 'Ⅵm'
+        };
         this.chordPatternMode = 'progression'; // 'random' または 'progression'
         this.proQuestionMode = 'chords'; // 'chords' or 'progressions'
         this.customChords = []; // User-defined Pro chords
@@ -1936,8 +1939,22 @@ class Game {
                 }
                 if (style === 'doremi') {
                     btn.textContent = this.doremiMap[noteData] || noteData;
+                } else if (style === 'degree') {
+                    btn.textContent = this.getDegreeName(noteData);
                 } else {
                     btn.textContent = noteData;
+                }
+            });
+        }
+        // Update chord buttons too
+        if (this.chordBtns && this.chordBtns.length > 0) {
+            this.chordBtns.forEach(btn => {
+                const chordData = btn.dataset.chord;
+                if (!chordData) return; // skip custom chord buttons
+                if (style === 'degree') {
+                    btn.textContent = this.chordDegreeMap[chordData] || chordData;
+                } else {
+                    btn.textContent = chordData;
                 }
             });
         }
@@ -2080,6 +2097,12 @@ class Game {
                     const shouldShow = pool.includes(chord);
                     if (shouldShow) {
                         btn.style.display = 'flex';
+                        // Apply degree notation if selected
+                        if (this.notationStyle === 'degree') {
+                            btn.textContent = this.chordDegreeMap[chord] || chord;
+                        } else {
+                            btn.textContent = chord;
+                        }
                     } else {
                         btn.style.setProperty('display', 'none', 'important');
                     }
@@ -2129,10 +2152,10 @@ class Game {
                             } else if (cfg.answerMethod === 'note') {
                                 text = note;
                             } else {
-                                text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : note;
+                                text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
                             }
                         } else {
-                            text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : note;
+                            text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
                         }
                         btn.textContent = text;
 
@@ -2162,10 +2185,10 @@ class Game {
                             } else if (cfg.answerMethod === 'note') {
                                 text = note;
                             } else {
-                                text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : note;
+                                text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
                             }
                         } else {
-                            text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : note;
+                            text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
                         }
                         btn.textContent = text;
 
@@ -2553,13 +2576,19 @@ class Game {
             if (cfg.isCustomChord) {
                 expectedNotes = this.currentSequence.map(c => c.name).join(', ');
             } else {
-                expectedNotes = this.currentSequence.join(', ');
+                if (this.notationStyle === 'degree') {
+                    expectedNotes = this.currentSequence.map(c => this.chordDegreeMap[c] || c).join(', ');
+                } else {
+                    expectedNotes = this.currentSequence.join(', ');
+                }
             }
         } else {
             if (this.stage === 99 && cfg.answerMethod === 'degree') {
                 expectedNotes = this.currentSequence.map(n => this.getDegreeName(n)).join(', ');
             } else if (this.stage === 99 && cfg.answerMethod === 'solfege') {
                 expectedNotes = this.currentSequence.map(n => this.getSolfegeName(n)).join(', ');
+            } else if (this.notationStyle === 'degree') {
+                expectedNotes = this.currentSequence.map(n => this.getDegreeName(n)).join(', ');
             } else {
                 expectedNotes = this.currentSequence.map(n => this.noteToSolfege[n]).join(', ');
             }
