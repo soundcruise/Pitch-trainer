@@ -516,32 +516,16 @@ class Game {
         if (document.getElementById('scale-btn')) document.getElementById('scale-btn').addEventListener('click', () => this.playScaleManual());
 
         // Settings button（ゲーム中ヘッダー）
-        if (document.getElementById('settings-btn')) document.getElementById('settings-btn').addEventListener('click', () => {
-            if (this.settingsModal) {
-                this.settingsModal.classList.remove('hidden');
-            }
-        });
+        if (document.getElementById('settings-btn')) document.getElementById('settings-btn').addEventListener('click', () => this.openSettingsModal());
 
         // Settings button（トップページ）
-        if (document.getElementById('home-settings-btn')) document.getElementById('home-settings-btn').addEventListener('click', () => {
-            if (this.settingsModal) {
-                this.settingsModal.classList.remove('hidden');
-            }
-        });
+        if (document.getElementById('home-settings-btn')) document.getElementById('home-settings-btn').addEventListener('click', () => this.openSettingsModal());
 
         // Settings button（メロディ選択画面）
-        if (document.getElementById('melody-settings-btn')) document.getElementById('melody-settings-btn').addEventListener('click', () => {
-            if (this.settingsModal) {
-                this.settingsModal.classList.remove('hidden');
-            }
-        });
+        if (document.getElementById('melody-settings-btn')) document.getElementById('melody-settings-btn').addEventListener('click', () => this.openSettingsModal());
 
         // Settings button（コード選択画面）
-        if (document.getElementById('chord-settings-btn')) document.getElementById('chord-settings-btn').addEventListener('click', () => {
-            if (this.settingsModal) {
-                this.settingsModal.classList.remove('hidden');
-            }
-        });
+        if (document.getElementById('chord-settings-btn')) document.getElementById('chord-settings-btn').addEventListener('click', () => this.openSettingsModal());
 
         // カテゴリカード → ステージ選択画面
         const showScreen = (screenId) => {
@@ -563,12 +547,17 @@ class Game {
         if (document.getElementById('btn-back-melody')) document.getElementById('btn-back-melody').addEventListener('click', () => showScreen('screen-home'));
         if (document.getElementById('btn-back-chord')) document.getElementById('btn-back-chord').addEventListener('click', () => showScreen('screen-home'));
 
-        // Settings modal close
-        if (document.getElementById('close-settings')) document.getElementById('close-settings').addEventListener('click', () => {
-            if (this.settingsModal) {
-                this.settingsModal.classList.add('hidden');
-            }
-        });
+        if (document.getElementById('confirm-settings')) {
+            document.getElementById('confirm-settings').addEventListener('click', () => this.hideSettingsModal());
+        }
+        if (document.getElementById('cancel-settings')) {
+            document.getElementById('cancel-settings').addEventListener('click', () => {
+                if (this._settingsModalSnapshot) {
+                    this.applySettingsModalData(this._settingsModalSnapshot);
+                }
+                this.hideSettingsModal();
+            });
+        }
 
         // Octave controls
         if (document.getElementById('octave-down')) document.getElementById('octave-down').addEventListener('click', () => this.updateOctave(-1));
@@ -591,12 +580,12 @@ class Game {
 
         // 基準周波数スライダー
         const hzSlider = document.getElementById('hz-slider');
-        const hzValue = document.getElementById('hz-value');
+        const hzDisplay = document.getElementById('current-hz') || document.getElementById('hz-value');
         if (hzSlider) {
             hzSlider.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
                 this.audio.setBaseHz(val);
-                if (hzValue) hzValue.textContent = val;
+                if (hzDisplay) hzDisplay.textContent = val;
                 this.saveSettings();
             });
         }
@@ -1197,10 +1186,10 @@ class Game {
                 if (s.baseHz !== undefined) {
                     this.audio.setBaseHz(s.baseHz);
                     const hzSlider = document.getElementById('hz-slider');
-                    const hzValue = document.getElementById('hz-value');
+                    const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
                     if (hzSlider) {
                         hzSlider.value = this.audio.baseHz;
-                        if (hzValue) hzValue.textContent = this.audio.baseHz;
+                        if (hzSpan) hzSpan.textContent = this.audio.baseHz;
                     }
                 }
 
@@ -1242,6 +1231,80 @@ class Game {
             localStorage.setItem('pitchTrainerSettings', JSON.stringify(data));
         } catch (e) {
             console.error("Failed to save settings to localStorage", e);
+        }
+    }
+
+    captureSettingsModalSnapshot() {
+        this._settingsModalSnapshot = {
+            baseOctave: this.baseOctave,
+            keyOffset: this.keyOffset,
+            instrument: this.instrument,
+            notationStyle: this.notationStyle,
+            scaleEnabled: this.scaleEnabled,
+            noteSpeed: this.noteSpeed,
+            isAnswerMode: this.isAnswerMode,
+            sustainTime: this.audio.sustainTime,
+            baseHz: this.audio.baseHz
+        };
+    }
+
+    applySettingsModalData(s) {
+        if (!s) return;
+        this.isInitializing = true;
+        try {
+            if (s.baseOctave !== undefined) this.updateOctave(s.baseOctave - this.baseOctave);
+            if (s.keyOffset !== undefined) this.updateKey(s.keyOffset);
+            if (s.instrument !== undefined) this.updateInstrument(s.instrument);
+            if (s.notationStyle !== undefined) this.updateNotation(s.notationStyle);
+            if (s.scaleEnabled !== undefined) {
+                this.scaleEnabled = s.scaleEnabled;
+                const scaleToggle = document.getElementById('scale-toggle');
+                if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
+            }
+            if (s.noteSpeed !== undefined) {
+                this.noteSpeed = s.noteSpeed;
+                const speedSlider = document.getElementById('speed-slider');
+                const speedValue = document.getElementById('speed-value');
+                if (speedSlider) speedSlider.value = this.noteSpeed;
+                if (speedValue) speedValue.textContent = this.noteSpeed.toFixed(1);
+            }
+            if (s.isAnswerMode !== undefined) {
+                this.isAnswerMode = s.isAnswerMode;
+                const answerToggle = document.getElementById('answer-mode-toggle');
+                if (answerToggle) answerToggle.checked = this.isAnswerMode;
+                this.toggleAnswerMode(this.isAnswerMode);
+            }
+            if (s.baseHz !== undefined) {
+                this.audio.setBaseHz(s.baseHz);
+                const hzSlider = document.getElementById('hz-slider');
+                const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
+                if (hzSlider) hzSlider.value = this.audio.baseHz;
+                if (hzSpan) hzSpan.textContent = this.audio.baseHz;
+            }
+            if (s.sustainTime !== undefined) {
+                this.audio.sustainTime = s.sustainTime;
+                const sustainSlider = document.getElementById('sustain-slider');
+                const sustainValue = document.getElementById('sustain-value');
+                if (sustainSlider) sustainSlider.value = this.audio.sustainTime;
+                if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
+            }
+        } finally {
+            this.isInitializing = false;
+        }
+        this.saveSettings();
+    }
+
+    openSettingsModal() {
+        this.captureSettingsModalSnapshot();
+        if (this.settingsModal) {
+            this.settingsModal.classList.remove('hidden');
+        }
+    }
+
+    hideSettingsModal() {
+        this._settingsModalSnapshot = null;
+        if (this.settingsModal) {
+            this.settingsModal.classList.add('hidden');
         }
     }
 
@@ -2004,9 +2067,9 @@ class Game {
         // 基準周波数をデフォルト(440Hz)にリセット
         this.audio.setBaseHz(440);
         const hzSlider = document.getElementById('hz-slider');
-        const hzValue = document.getElementById('hz-value');
+        const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
         if (hzSlider) hzSlider.value = '440';
-        if (hzValue) hzValue.textContent = '440';
+        if (hzSpan) hzSpan.textContent = '440';
         // 余韻をデフォルト(0.5秒)にリセット
         this.audio.sustainTime = 0.5;
         const sustainSlider = document.getElementById('sustain-slider');
@@ -2033,9 +2096,7 @@ class Game {
     startGame(level) {
         this.stage = level;
         this.overlay.classList.add('hidden');
-        if (this.settingsModal) {
-            this.settingsModal.classList.add('hidden');
-        }
+        this.hideSettingsModal();
         this.score = 0;
         this.streak = 0;
         this.previousSequenceKeys = []; // Reset for new game session

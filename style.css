@@ -1288,10 +1288,66 @@ input:checked+.slider:before {
     font-family: inherit;
 }
 
-#reset-settings {
+.settings-modal-footer {
+    margin-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     width: 100%;
-    max-width: 250px;
-    margin-bottom: 15px;
+}
+
+.settings-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    max-width: 520px;
+}
+
+.settings-modal-actions .btn-primary,
+.settings-modal-actions .btn-secondary,
+.settings-modal-actions .btn-preview {
+    flex: 1;
+    max-width: none;
+    width: auto;
+    margin: 0;
+    min-width: 0;
+}
+
+.settings-modal-actions .btn-preview {
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* 2行目: リセットは1行固定、キャンセルはコンパクトで幅を譲る */
+.settings-modal-actions--secondary {
+    gap: 10px;
+}
+
+.settings-modal-actions--secondary #reset-settings,
+.settings-modal-actions--secondary #cancel-settings {
+    font-size: clamp(0.75rem, 3.1vw, 0.88rem);
+    white-space: nowrap;
+    line-height: 1.25;
+}
+
+.settings-modal-actions--secondary #reset-settings {
+    flex: 1 1 0%;
+    min-width: 0;
+    font-weight: 600;
+    padding: 10px 12px;
+    letter-spacing: 0.01em;
+}
+
+.settings-modal-actions--secondary #cancel-settings {
+    flex: 0 0 auto;
+    font-weight: 600;
+    padding: 10px 12px;
+    opacity: 0.92;
 }
 
 .btn-secondary:hover {

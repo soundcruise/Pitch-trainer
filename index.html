@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ</title>
-    <link rel="stylesheet" href="style.css?v=58">
+    <link rel="stylesheet" href="style.css?v=62">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -271,15 +271,20 @@
                         class="sustain-slider">
                 </div>
 
-                <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                    <button id="preview-sound" class="btn-preview">🎵 音を確認</button>
-                    <button id="reset-settings" class="btn-secondary">デフォルトに戻す</button>
-                    <button id="close-settings" class="btn-primary">閉じる</button>
+                <div class="settings-modal-footer">
+                    <div class="settings-modal-actions">
+                        <button type="button" id="preview-sound" class="btn-preview">🎵 音を確認</button>
+                        <button type="button" id="confirm-settings" class="btn-primary">決定</button>
+                    </div>
+                    <div class="settings-modal-actions settings-modal-actions--secondary">
+                        <button type="button" id="reset-settings" class="btn-secondary">デフォルトに戻す</button>
+                        <button type="button" id="cancel-settings" class="btn-secondary">キャンセル</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="script.js?v=57"></script>
+    <script src="script.js?v=58"></script>
 </body>
 
 </html>
