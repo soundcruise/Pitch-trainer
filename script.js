@@ -336,7 +336,7 @@ class AudioEngine {
         const end = now + duration + this.sustainTime;
 
         const master = this.ctx.createGain();
-        master.gain.value = 0.44;
+        master.gain.value = 0.64;
         const tone = this.ctx.createBiquadFilter();
         tone.type = 'lowpass';
         tone.Q.value = 0.65;
@@ -361,16 +361,16 @@ class AudioEngine {
 
         // 基音をわずかにずらした2本（複弦のうねり）
         const det = Math.pow(2, 0.85 / 1200);
-        envPartial(f0, 0.19, 0.26, 0.065);
-        envPartial(f0 * det, 0.19, 0.26, 0.065);
+        envPartial(f0, 0.24, 0.33, 0.085);
+        envPartial(f0 * det, 0.24, 0.33, 0.085);
 
         // 高次倍音ほどアタックで強く、すぐ減る
         const highs = [
-            { n: 2, peak: 0.2, quick: 0.095, tail: 0.042 },
-            { n: 3, peak: 0.11, quick: 0.042, tail: 0.02 },
-            { n: 4, peak: 0.052, quick: 0.018, tail: 0.01 },
-            { n: 5, peak: 0.026, quick: 0.007, tail: 0.005 },
-            { n: 6, peak: 0.013, quick: 0.003, tail: 0.0025 }
+            { n: 2, peak: 0.25, quick: 0.12, tail: 0.052 },
+            { n: 3, peak: 0.14, quick: 0.053, tail: 0.026 },
+            { n: 4, peak: 0.066, quick: 0.023, tail: 0.013 },
+            { n: 5, peak: 0.033, quick: 0.009, tail: 0.0065 },
+            { n: 6, peak: 0.017, quick: 0.004, tail: 0.0032 }
         ];
         highs.forEach(p => envPartial(f0 * p.n, p.peak, p.quick, p.tail));
 
@@ -390,7 +390,7 @@ class AudioEngine {
         const end = now + duration + this.sustainTime;
 
         const master = this.ctx.createGain();
-        master.gain.value = 0.42;
+        master.gain.value = 0.62;
         master.connect(this.ctx.destination);
 
         const osc = this.ctx.createOscillator();
@@ -406,7 +406,7 @@ class AudioEngine {
         oscLo.type = 'triangle';
         oscLo.frequency.value = f0 * 0.5;
         const loG = this.ctx.createGain();
-        loG.gain.value = 0.22;
+        loG.gain.value = 0.32;
         oscLo.connect(loG);
         loG.connect(filter);
 
@@ -433,8 +433,8 @@ class AudioEngine {
         gainNode.connect(master);
 
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.28, now + 0.055);
-        gainNode.gain.setValueAtTime(0.26, now + duration);
+        gainNode.gain.linearRampToValueAtTime(0.4, now + 0.055);
+        gainNode.gain.setValueAtTime(0.37, now + duration);
         gainNode.gain.exponentialRampToValueAtTime(0.0001, end);
 
         // 弓の摩擦ノイズ（アタックのみ）
@@ -453,7 +453,7 @@ class AudioEngine {
         nHp.connect(nG);
         nG.connect(master);
         nG.gain.setValueAtTime(0, now);
-        nG.gain.linearRampToValueAtTime(0.045, now + 0.012);
+        nG.gain.linearRampToValueAtTime(0.058, now + 0.012);
         nG.gain.exponentialRampToValueAtTime(0.0001, now + 0.052);
         nSrc.start(now);
         nSrc.stop(now + 0.056);
