@@ -1321,6 +1321,10 @@ input:checked+.slider:before {
 .settings-modal-actions .btn-preview {
     text-align: center;
     box-sizing: border-box;
+    white-space: nowrap;
+    font-size: clamp(0.72rem, 3.4vw, 0.95rem);
+    padding: 10px 8px;
+    letter-spacing: 0.02em;
 }
 
 /* 2行目: リセットは1行固定、キャンセルはコンパクトで幅を譲る */

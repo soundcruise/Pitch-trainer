@@ -166,6 +166,13 @@ class AudioEngine {
             writePos = (writePos + 1) % delayLength;
         }
 
+        // ピックアタック（ごく短いノイズ）で弾き始めを自然に
+        const pickSamples = Math.min(Math.ceil(sampleRate * 0.006), totalSamples);
+        for (let n = 0; n < pickSamples; n++) {
+            const env = Math.exp(-n / Math.max(1, sampleRate * 0.0018));
+            output[n] += (Math.random() * 2 - 1) * (0.055 + velocity * 0.06) * env;
+        }
+
         // ── 2e. 末尾フェードアウト（ブツ切れ防止） ───────────────────
         const fadeStartSample = Math.floor(totalSamples * 0.80);
         for (let n = fadeStartSample; n < totalSamples; n++) {
@@ -197,6 +204,13 @@ class AudioEngine {
         bodyRes2.Q.value = 2.0;
         bodyRes2.gain.value = 3; // +3dB
 
+        // 低域 3: ~240Hz（胴の厚み）
+        const bodyRes3 = this.ctx.createBiquadFilter();
+        bodyRes3.type = 'peaking';
+        bodyRes3.frequency.value = 240;
+        bodyRes3.Q.value = 1.2;
+        bodyRes3.gain.value = 1.8;
+
         // 中域プレゼンス（弦の倍音を引き立てる ~2kHz）
         const presence = this.ctx.createBiquadFilter();
         presence.type = 'peaking';
@@ -215,10 +229,11 @@ class AudioEngine {
         outputGain.gain.value = 0.25 + velocity * 0.35; // velocity: 0→0.25, 1→0.60
 
         // ── 6. ノード接続 ─────────────────────────────────────────────
-        // source → bodyRes1 → bodyRes2 → presence → highCut → outputGain → destination
+        // source → bodyRes1 → bodyRes2 → bodyRes3 → presence → highCut → outputGain → destination
         source.connect(bodyRes1);
         bodyRes1.connect(bodyRes2);
-        bodyRes2.connect(presence);
+        bodyRes2.connect(bodyRes3);
+        bodyRes3.connect(presence);
         presence.connect(highCut);
         highCut.connect(outputGain);
         outputGain.connect(this.ctx.destination);
@@ -316,26 +331,52 @@ class AudioEngine {
         const frequency = this.notes[noteName];
         if (!frequency) return;
 
-        const transposedFrequency = frequency * Math.pow(2, keyOffset / 12);
+        const f0 = frequency * Math.pow(2, keyOffset / 12);
         const now = time || this.ctx.currentTime;
+        const end = now + duration + this.sustainTime;
 
-        // Piano synthesis: Triangle wave with harmonics
-        const osc = this.ctx.createOscillator();
-        const gainNode = this.ctx.createGain();
+        const master = this.ctx.createGain();
+        master.gain.value = 0.44;
+        const tone = this.ctx.createBiquadFilter();
+        tone.type = 'lowpass';
+        tone.Q.value = 0.65;
+        master.connect(tone);
+        tone.connect(this.ctx.destination);
 
-        osc.type = 'triangle';
-        osc.frequency.value = transposedFrequency;
+        const envPartial = (freqHz, peak, quickLevel, sustainLevel) => {
+            const osc = this.ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = freqHz;
+            const g = this.ctx.createGain();
+            osc.connect(g);
+            g.connect(master);
+            g.gain.setValueAtTime(0, now);
+            g.gain.linearRampToValueAtTime(peak, now + 0.0025);
+            g.gain.exponentialRampToValueAtTime(Math.max(quickLevel, 0.0001), now + 0.042);
+            g.gain.exponentialRampToValueAtTime(Math.max(sustainLevel, 0.0001), now + duration * 0.52);
+            g.gain.exponentialRampToValueAtTime(0.0001, end);
+            osc.start(now);
+            osc.stop(end);
+        };
 
-        osc.connect(gainNode);
-        gainNode.connect(this.ctx.destination);
+        // 基音をわずかにずらした2本（複弦のうねり）
+        const det = Math.pow(2, 0.85 / 1200);
+        envPartial(f0, 0.19, 0.26, 0.065);
+        envPartial(f0 * det, 0.19, 0.26, 0.065);
 
-        // Piano envelope: Fast attack, decay controlled by sustainTime
-        gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.4, now + 0.005); // Fast attack
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration + this.sustainTime);
+        // 高次倍音ほどアタックで強く、すぐ減る
+        const highs = [
+            { n: 2, peak: 0.2, quick: 0.095, tail: 0.042 },
+            { n: 3, peak: 0.11, quick: 0.042, tail: 0.02 },
+            { n: 4, peak: 0.052, quick: 0.018, tail: 0.01 },
+            { n: 5, peak: 0.026, quick: 0.007, tail: 0.005 },
+            { n: 6, peak: 0.013, quick: 0.003, tail: 0.0025 }
+        ];
+        highs.forEach(p => envPartial(f0 * p.n, p.peak, p.quick, p.tail));
 
-        osc.start(now);
-        osc.stop(now + duration + this.sustainTime);
+        tone.frequency.setValueAtTime(Math.min(11000, f0 * 13), now);
+        tone.frequency.exponentialRampToValueAtTime(Math.min(7200, f0 * 8.5), now + 0.038);
+        tone.frequency.exponentialRampToValueAtTime(Math.max(2000, f0 * 3.6), now + duration * 0.42);
     }
 
     playViolin(noteName, duration = 1.0, time = 0, keyOffset = 0) {
@@ -344,44 +385,85 @@ class AudioEngine {
         const frequency = this.notes[noteName];
         if (!frequency) return;
 
-        const transposedFrequency = frequency * Math.pow(2, keyOffset / 12);
+        const f0 = frequency * Math.pow(2, keyOffset / 12);
         const now = time || this.ctx.currentTime;
+        const end = now + duration + this.sustainTime;
 
-        // Violin synthesis: Sawtooth with bandpass filter and vibrato
+        const master = this.ctx.createGain();
+        master.gain.value = 0.42;
+        master.connect(this.ctx.destination);
+
         const osc = this.ctx.createOscillator();
+        const oscLo = this.ctx.createOscillator();
         const filter = this.ctx.createBiquadFilter();
+        const body = this.ctx.createBiquadFilter();
         const gainNode = this.ctx.createGain();
         const vibrato = this.ctx.createOscillator();
         const vibratoGain = this.ctx.createGain();
 
         osc.type = 'sawtooth';
-        osc.frequency.value = transposedFrequency;
+        osc.frequency.value = f0;
+        oscLo.type = 'triangle';
+        oscLo.frequency.value = f0 * 0.5;
+        const loG = this.ctx.createGain();
+        loG.gain.value = 0.22;
+        oscLo.connect(loG);
+        loG.connect(filter);
 
-        // Vibrato (6Hz, ~10 cents depth)
-        vibrato.frequency.value = 6;
-        vibratoGain.gain.value = transposedFrequency * 0.006; // ~10 cents
+        vibrato.frequency.value = 5.2;
+        vibratoGain.gain.setValueAtTime(0, now);
+        vibratoGain.gain.linearRampToValueAtTime(f0 * 0.0055, now + 0.09);
         vibrato.connect(vibratoGain);
         vibratoGain.connect(osc.frequency);
 
-        // Bandpass filter for formant
         filter.type = 'bandpass';
-        filter.frequency.value = 1000;
-        filter.Q.value = 2;
+        filter.Q.value = 2.4;
+        filter.frequency.setValueAtTime(Math.max(550, f0 * 1.1), now);
+        filter.frequency.exponentialRampToValueAtTime(Math.min(3200, f0 * 5.5), now + 0.11);
+        filter.frequency.exponentialRampToValueAtTime(Math.min(2400, f0 * 4.2), now + duration * 0.65);
+
+        body.type = 'peaking';
+        body.frequency.value = 280;
+        body.Q.value = 0.9;
+        body.gain.value = 2.5;
 
         osc.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(this.ctx.destination);
+        filter.connect(body);
+        body.connect(gainNode);
+        gainNode.connect(master);
 
-        // Violin envelope: Slow attack, sustained, release controlled by sustainTime
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.25, now + 0.05); // Slow attack (bowing)
-        gainNode.gain.setValueAtTime(0.25, now + duration); // Sustain
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration + this.sustainTime);
+        gainNode.gain.linearRampToValueAtTime(0.28, now + 0.055);
+        gainNode.gain.setValueAtTime(0.26, now + duration);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, end);
+
+        // 弓の摩擦ノイズ（アタックのみ）
+        const sr = this.ctx.sampleRate;
+        const nLen = Math.ceil(0.055 * sr);
+        const nBuf = this.ctx.createBuffer(1, nLen, sr);
+        const nd = nBuf.getChannelData(0);
+        for (let i = 0; i < nLen; i++) nd[i] = (Math.random() * 2 - 1) * 0.45;
+        const nSrc = this.ctx.createBufferSource();
+        nSrc.buffer = nBuf;
+        const nHp = this.ctx.createBiquadFilter();
+        nHp.type = 'highpass';
+        nHp.frequency.value = 1800;
+        const nG = this.ctx.createGain();
+        nSrc.connect(nHp);
+        nHp.connect(nG);
+        nG.connect(master);
+        nG.gain.setValueAtTime(0, now);
+        nG.gain.linearRampToValueAtTime(0.045, now + 0.012);
+        nG.gain.exponentialRampToValueAtTime(0.0001, now + 0.052);
+        nSrc.start(now);
+        nSrc.stop(now + 0.056);
 
         vibrato.start(now);
+        oscLo.start(now);
         osc.start(now);
-        vibrato.stop(now + duration + this.sustainTime);
-        osc.stop(now + duration + this.sustainTime);
+        vibrato.stop(end);
+        oscLo.stop(end);
+        osc.stop(end);
     }
 
     playElectricGuitar(noteName, duration = 1.0, time = 0, keyOffset = 0) {
@@ -390,45 +472,73 @@ class AudioEngine {
         const frequency = this.notes[noteName];
         if (!frequency) return;
 
-        const transposedFrequency = frequency * Math.pow(2, keyOffset / 12);
+        const f0 = frequency * Math.pow(2, keyOffset / 12);
         const now = time || this.ctx.currentTime;
+        const end = now + duration + this.sustainTime;
 
-        // Electric guitar: Square wave with distortion and long sustain
-        const osc = this.ctx.createOscillator();
-        const filter = this.ctx.createBiquadFilter();
+        const mix = this.ctx.createGain();
+        mix.gain.value = 0.34;
+
+        const oscSaw = this.ctx.createOscillator();
+        const oscSq = this.ctx.createOscillator();
+        oscSaw.type = 'sawtooth';
+        oscSq.type = 'square';
+        oscSaw.frequency.value = f0;
+        oscSq.frequency.value = f0;
+        const gSaw = this.ctx.createGain();
+        const gSq = this.ctx.createGain();
+        gSaw.gain.value = 0.62;
+        gSq.gain.value = 0.28;
+        oscSaw.connect(gSaw);
+        oscSq.connect(gSq);
+        gSaw.connect(mix);
+        gSq.connect(mix);
+
         const distortion = this.ctx.createWaveShaper();
-        const gainNode = this.ctx.createGain();
-
-        osc.type = 'square';
-        osc.frequency.value = transposedFrequency;
-
-        // Subtle distortion curve
-        const curve = new Float32Array(256);
-        for (let i = 0; i < 256; i++) {
-            const x = (i - 128) / 128;
-            curve[i] = Math.tanh(x * 1.5); // Soft clipping
+        const curve = new Float32Array(512);
+        for (let i = 0; i < 512; i++) {
+            const x = (i - 256) / 256;
+            curve[i] = Math.tanh(x * 2.35) * 0.92 + Math.sign(x) * 0.04 * (1 - Math.exp(-Math.abs(x) * 4));
         }
         distortion.curve = curve;
+        distortion.oversample = '2x';
 
-        // Lowpass filter
+        const pre = this.ctx.createBiquadFilter();
+        pre.type = 'peaking';
+        pre.frequency.value = 420;
+        pre.Q.value = 0.85;
+        pre.gain.value = -5;
+
+        const filter = this.ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(5000, now);
-        filter.frequency.exponentialRampToValueAtTime(1000, now + 0.3);
-        filter.Q.value = 1;
+        filter.Q.value = 0.85;
+        filter.frequency.setValueAtTime(7200, now);
+        filter.frequency.exponentialRampToValueAtTime(2400, now + 0.08);
+        filter.frequency.exponentialRampToValueAtTime(1500, now + duration * 0.5);
 
-        osc.connect(distortion);
-        distortion.connect(filter);
-        filter.connect(gainNode);
+        const air = this.ctx.createBiquadFilter();
+        air.type = 'highshelf';
+        air.frequency.value = 2800;
+        air.gain.value = -2.5;
+
+        const gainNode = this.ctx.createGain();
+
+        mix.connect(distortion);
+        distortion.connect(pre);
+        pre.connect(filter);
+        filter.connect(air);
+        air.connect(gainNode);
         gainNode.connect(this.ctx.destination);
 
-        // Electric guitar envelope: Fast attack, sustain controlled by sustainTime
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.2, now + 0.005);
-        gainNode.gain.setValueAtTime(0.2, now + duration);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration + this.sustainTime);
+        gainNode.gain.linearRampToValueAtTime(0.26, now + 0.004);
+        gainNode.gain.setValueAtTime(0.24, now + duration);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, end);
 
-        osc.start(now);
-        osc.stop(now + duration + this.sustainTime);
+        oscSaw.start(now);
+        oscSq.start(now);
+        oscSaw.stop(end);
+        oscSq.stop(end);
     }
 }
 
