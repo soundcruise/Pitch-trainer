@@ -31,16 +31,32 @@ class AudioEngine {
     }
 
     /**
-     * AudioContextが確実に動作している状態にする
-     * モバイルブラウザでは一定時間操作がないとsuspendされるケースがある
+     * AudioContextが確実に動作している状態にする（同期的・最善努力）
+     * 再生直前は resumeContext() を await すること（iOS スリープ復帰対策）
      */
     ensureContext() {
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-        // AudioContextが壊れた場合（closed）の復旧
-        if (this.ctx.state === 'closed') {
+        if (!this.ctx || this.ctx.state === 'closed') {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            void this.ctx.resume();
+        }
+    }
+
+    /**
+     * スリープ・バックグラウンド後に必ず await する。resume() 完了前に currentTime で
+     * スケジュールすると無音になる（特に iOS Safari）。
+     */
+    async resumeContext() {
+        try {
+            if (!this.ctx || this.ctx.state === 'closed') {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (this.ctx.state === 'suspended') {
+                await this.ctx.resume();
+            }
+        } catch (e) {
+            console.warn('PitchTrainer: AudioContext resume failed', e);
         }
     }
 
@@ -48,21 +64,22 @@ class AudioEngine {
      * バックグラウンド復帰、タッチ操作などでAudioContextを自動的に復帰させる
      */
     _setupResumeHandlers() {
-        // アプリがフォアグラウンドに戻った時にAudioContextを復帰
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && this.ctx.state === 'suspended') {
-                this.ctx.resume();
-            }
-        });
+        const tryResume = () => {
+            void this.resumeContext();
+        };
 
-        // タッチ/クリック時にAudioContextを確実に起こす（一度だけ）
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) tryResume();
+        });
+        window.addEventListener('pageshow', tryResume);
+        window.addEventListener('focus', tryResume);
+
         const resumeOnInteraction = () => {
-            if (this.ctx.state === 'suspended') {
-                this.ctx.resume();
-            }
+            void this.resumeContext();
         };
         document.addEventListener('touchstart', resumeOnInteraction, { passive: true });
         document.addEventListener('touchend', resumeOnInteraction, { passive: true });
+        document.addEventListener('pointerdown', resumeOnInteraction, { passive: true });
         document.addEventListener('click', resumeOnInteraction);
     }
 
@@ -796,9 +813,10 @@ class Game {
         }
 
         const btnPreviewChord = document.getElementById('btn-preview-chord');
-        const handlePreviewChord = (e) => {
+        const handlePreviewChord = async (e) => {
             if (e.type === 'touchstart') e.preventDefault();
             const chordData = this.readChordEditorState();
+            await this.audio.resumeContext();
             this.audio.playCustomChord(chordData, this.baseOctave, 1.5, 0, this.keyOffset);
 
             // Add playing class for visual feedback
@@ -1005,8 +1023,9 @@ class Game {
         }
 
         const btnPreviewProgression = document.getElementById('btn-preview-progression');
-        const handlePreviewProg = (e) => {
+        const handlePreviewProg = async (e) => {
             if (e.type === 'touchstart') e.preventDefault();
+            await this.audio.resumeContext();
             const slots = document.querySelectorAll('.progression-chord-slot');
             const chords = Array.from(slots).map(select => parseInt(select.value));
             const now = this.audio.ctx.currentTime;
@@ -1366,9 +1385,10 @@ class Game {
             playBtn.className = 'btn-icon';
             playBtn.innerHTML = '▶';
             playBtn.title = '再生';
-            playBtn.onclick = (e) => {
+            playBtn.onclick = async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                await this.audio.resumeContext();
                 this.audio.playCustomChord(chord, this.baseOctave, 1.5, 0, this.keyOffset);
             };
 
@@ -1639,10 +1659,10 @@ class Game {
             playBtn.className = 'btn-icon';
             playBtn.innerHTML = '▶';
             playBtn.title = '試聴';
-            playBtn.onclick = (e) => {
+            playBtn.onclick = async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Play chords in sequence
+                await this.audio.resumeContext();
                 const now = this.audio.ctx.currentTime;
                 prog.chords.forEach((chordId, index) => {
                     const chord = this.customChords.find(c => c.id === chordId);
@@ -2031,14 +2051,13 @@ class Game {
      * 設定の「音を確認」ボタン
      * 現在の楽器・キー・オクターブ・余韻を全て反映してC音を再生する
      */
-    previewSound() {
+    async previewSound() {
         const btn = document.getElementById('preview-sound');
 
         // 再生中は連打防止
         if ((btn && btn.classList.contains('playing'))) return;
 
-        // AudioContextを起こす
-        this.audio.ensureContext();
+        await this.audio.resumeContext();
 
         // 現在の設定でC音（主音）を再生
         const noteName = 'C' + this.baseOctave;
@@ -2282,11 +2301,12 @@ class Game {
         }
 
         // Small delay before first note
-        setTimeout(() => this.nextRound(), 500 / this.noteSpeed);
+        setTimeout(() => void this.nextRound(), 500 / this.noteSpeed);
     }
 
 
-    playScale(callback) {
+    async playScale(callback) {
+        await this.audio.resumeContext();
         const scale = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'];
         const noteDuration = 0.13 / this.noteSpeed; // スピードに連動
         const now = this.audio.ctx.currentTime;
@@ -2298,7 +2318,10 @@ class Game {
 
         // Callback after scale finishes (speed-adjusted)
         if (callback) {
-            setTimeout(callback, (scale.length * noteDuration * 1000) + 250 / this.noteSpeed);
+            const delay = (scale.length * noteDuration * 1000) + 250 / this.noteSpeed;
+            setTimeout(() => {
+                Promise.resolve(callback()).catch(() => {});
+            }, delay);
         }
     }
 
@@ -2313,7 +2336,7 @@ class Game {
         }).join(',');
     }
 
-    nextRound() {
+    async nextRound() {
         if (!this.isPlaying) return;
 
         this.isBlockingInput = true;
@@ -2427,14 +2450,14 @@ class Game {
 
         if (this.scaleEnabled) {
             this.showFeedback('音階を聴いてください...');
-            this.playScale(() => {
+            void this.playScale(async () => {
                 this.showFeedback('問題を聴いてください...');
-                this.playSequence();
+                await this.playSequence();
                 this.isBlockingInput = false;
             });
         } else {
             this.showFeedback('問題を聴いてください...');
-            this.playSequence();
+            await this.playSequence();
             this.isBlockingInput = false;
         }
     }
@@ -2466,9 +2489,10 @@ class Game {
         this.applyTranslations(); // Refresh translations for home screen
     }
 
-    playSequence() {
+    async playSequence() {
         if (!this.currentSequence.length) return;
 
+        await this.audio.resumeContext();
         const now = this.audio.ctx.currentTime;
         const noteDuration = 0.8 / this.noteSpeed;
         const gap = 0.2 / this.noteSpeed;
@@ -2501,25 +2525,27 @@ class Game {
         // We can just play the sequence.
         if (this.currentSequence.length) {
             this.showFeedback('問題を聴いてください...');
-            this.playSequence();
+            void this.playSequence();
             // No blocking input
         }
     }
 
-    playTonic() {
+    async playTonic() {
         if (this.isPlaying) {
-            // Play the tonic note (C in the current key/octave)
+            await this.audio.resumeContext();
             this.audio.playNote('C' + this.baseOctave, 1.0, 0, this.keyOffset);
         }
     }
 
     playScaleManual() {
         // Play the scale (ドレミファソラシド) anytime the button is pressed
-        this.playScale();
+        void this.playScale();
     }
 
-    handleInput(note, inputOctaveOffset = 0) {
+    async handleInput(note, inputOctaveOffset = 0) {
         if (!this.isPlaying || !this.currentSequence.length) return;
+
+        await this.audio.resumeContext();
 
         const cfg = this.stageConfig[this.stage];
 
@@ -2622,7 +2648,7 @@ class Game {
         this.showFeedback('正解！ 素晴らしい！', 'correct');
 
         setTimeout(() => {
-            this.nextRound();
+            void this.nextRound();
         }, 750 / this.noteSpeed);
     }
 
@@ -2673,7 +2699,7 @@ class Game {
 
             // Replay correct sequence with highlights
             setTimeout(() => {
-                this.playSequence();
+                void this.playSequence();
 
                 // playSequence と同じ間隔でハイライト
                 const noteDuration = 0.8 / this.noteSpeed;
@@ -2705,7 +2731,7 @@ class Game {
 
                 // Delay based on sequence length × interval
                 const stageLen = this.currentSequence.length;
-                setTimeout(() => this.nextRound(), (stageLen * intervalMs) + 750 / this.noteSpeed);
+                setTimeout(() => void this.nextRound(), (stageLen * intervalMs) + 750 / this.noteSpeed);
             }, 500 / this.noteSpeed);
         }, 250 / this.noteSpeed);
     }
