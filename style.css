@@ -390,6 +390,18 @@ header {
     filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
 }
 
+/* 通常版トップ: 設定歯車とタイトルのすき間 */
+#screen-home.modal {
+    padding-top: max(56px, calc(env(safe-area-inset-top) + 40px));
+}
+
+#screen-home .home-title {
+    box-sizing: border-box;
+    margin-top: 6px;
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
 /* モバイル向けのタイトルサイズ調整 */
 @media (max-width: 480px) {
 
@@ -403,6 +415,11 @@ header {
         white-space: nowrap;
         font-size: min(11vw, 2.2rem);
         /* 画面幅に合わせて伸縮し、はみ出しを防ぐ */
+    }
+
+    #screen-home .home-title {
+        padding-left: 1rem;
+        padding-right: 2.75rem;
     }
 }
 
