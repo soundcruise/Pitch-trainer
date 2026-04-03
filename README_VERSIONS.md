@@ -10,13 +10,13 @@
 - **URL（推奨・PWA用）**: [https://soundcruise.github.io/Pitch-trainer/standard/](https://soundcruise.github.io/Pitch-trainer/standard/)
 - **入口（リダイレクト）**: [https://soundcruise.github.io/Pitch-trainer/](https://soundcruise.github.io/Pitch-trainer/) は自動で `standard/` へ移動します。
 - **特徴**: 基礎的なトレーニングに特化したシンプル構成。Proカスタム設定は表示されません。
-- **アイコン**: 青背景のロゴ (`icon.png`)
+- **アイコン**: PWA 用は軽量の `icon_pwa_192.png` / `icon_pwa_512.png`（高解像度の `icon.png` もリポジトリに残しています）
 
 ### 👑 Pro版 (Pro Version)
 - **URL（会員向け・PWA用）**: `https://soundcruise.github.io/Pitch-trainer/pro_k3m9/`（`pro_` のあとに推測しにくい4文字 `k3m9`）
 - **旧URL**: `pro.html`、以前の `pro/`、`prok3m9/` は **開けないか廃止** です。会員の方のみ、共有された `pro_k3m9/` のURLをご利用ください。
 - **特徴**: すべての機能を利用可能。ホーム画面のタイトルに `PRO` バッジが表示されます。
-- **アイコン（PWA / ホーム画面）**: `icon_idea/android_pro.png`
+- **アイコン（PWA / ホーム画面）**: 軽量の `icon_idea/android_pro_pwa_192.png` / `android_pro_pwa_512.png`
 - **注意**: リポジトリが **公開** の場合、GitHub 上のフォルダ名から URL が分かる可能性があります。厳密に伏せたい場合は非公開リポジトリや別ホスティングを検討してください。
 
 ---

@@ -1,6 +1,6 @@
 /** アプリの版表示（リリースのたびにここを更新してください） */
 const PITCH_TRAINER_APP_VERSION = '1.0.0';
-const PITCH_TRAINER_BUILD = 76;
+const PITCH_TRAINER_BUILD = 77;
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
