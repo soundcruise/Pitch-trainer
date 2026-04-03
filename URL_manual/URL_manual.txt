@@ -14,7 +14,7 @@ URL（推奨・PWA用）: https://soundcruise.github.io/Pitch-trainer/standard/
 
 【 👑 Pro版 (Pro Version) 】
 URL（会員向け・PWA用）: https://soundcruise.github.io/Pitch-trainer/prok3m9/
-入口: pro.html は自動で prok3m9/ へ
+旧URL（pro.html 等）: 無効（アプリは開きません）
 特徴: すべての機能を利用可能。ホーム画面のタイトルに「PRO」バッジが表示されます。
 アイコン: icon_idea/android_pro.png
 
