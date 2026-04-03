@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "音感クルーズ Pro",
+  "short_name": "音感クルーズ Pro",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#ffd700",
+  "description": "絶対音感トレーニングアプリ「音感クルーズ」のプロバージョン。",
+  "icons": [
+    {
+      "src": "../icon_idea/Pro_4.png?v=1",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icon_idea/Pro_4.png?v=1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

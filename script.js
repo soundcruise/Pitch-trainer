@@ -1,9 +1,32 @@
 /** アプリの版表示（リリースのたびにここを更新してください） */
 const PITCH_TRAINER_APP_VERSION = '1.0.0';
-const PITCH_TRAINER_BUILD = 71;
+const PITCH_TRAINER_BUILD = 74;
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
+}
+
+/** ルート直下の旧SW（scope が / 全体）が残ると standard/ と pro/ が混ざるため解除する */
+function unregisterLegacyRootServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => {
+            const sw = reg.active || reg.waiting || reg.installing;
+            if (!sw) return;
+            try {
+                const u = new URL(sw.scriptURL);
+                const p = u.pathname;
+                if (p.endsWith('/standard/service-worker.js') || p.endsWith('/pro/service-worker.js')) {
+                    return;
+                }
+                if (p.endsWith('/service-worker.js')) {
+                    void reg.unregister();
+                }
+            } catch (_) {
+                /* ignore */
+            }
+        });
+    });
 }
 
 // AudioEngine Class
@@ -3204,6 +3227,7 @@ function setupAppRefreshAndSwUpdates() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    unregisterLegacyRootServiceWorker();
     window.game = new Game();
     setupAppRefreshAndSwUpdates();
 });

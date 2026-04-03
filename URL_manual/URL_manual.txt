@@ -7,14 +7,16 @@
 --------------------------------------------------
 
 【 🎵 通常版 (Standard Version) 】
-URL: https://soundcruise.github.io/Pitch-trainer/
+URL（推奨・PWA用）: https://soundcruise.github.io/Pitch-trainer/standard/
+入口: https://soundcruise.github.io/Pitch-trainer/ （自動で standard/ へ）
 特徴: 基礎的なトレーニングに特化したシンプル構成。Proカスタム設定は表示されません。
 アイコン: 青背景のロゴ (icon.png)
 
 【 👑 Pro版 (Pro Version) 】
-URL: https://soundcruise.github.io/Pitch-trainer/pro.html
+URL（推奨・PWA用）: https://soundcruise.github.io/Pitch-trainer/pro/
+入口: pro.html は自動で pro/ へ
 特徴: すべての機能を利用可能。ホーム画面のタイトルに「PRO」バッジが表示されます。
-アイコン: ロゴが全面に配置されたデザイン (icon_idea/Pro_2.png)
+アイコン: ロゴが全面に配置されたデザイン (icon_idea/Pro_4.png など)
 
 --------------------------------------------------
 2. アプリとしてインストールする方法 (PWA)
@@ -22,7 +24,7 @@ URL: https://soundcruise.github.io/Pitch-trainer/pro.html
 
 iPhoneやAndroidのホーム画面に「独立したアプリ」として追加する手順です。
 
-(1) 上記それぞれのURLをスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます。
+(1) 通常版は …/standard/、Pro版は …/pro/ をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます。
 (2) ブラウザのメニューから「ホーム画面に追加」を選択します。
 (3) 通常版とPro版をそれぞれ追加することで、ホーム画面に2つのアイコンが並び、別々のアプリとして使い分けることができます。
 
