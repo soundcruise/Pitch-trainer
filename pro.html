@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-app-edition="Pro">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ Pro</title>
-    <link rel="stylesheet" href="style.css?v=63">
+    <link rel="stylesheet" href="style.css?v=67">
     <link rel="stylesheet" href="pro-theme.css?v=61">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,6 +131,11 @@
                     <span id="answer-mode-status"
                         style="font-size: 0.85rem; font-weight: 500; color: rgba(255,255,255,0.8);">回答ON</span>
                 </label>
+            </div>
+
+            <div id="in-game-refresh-bar" class="in-game-refresh-bar" aria-label="バージョンとページの再読み込み">
+                <span id="app-version-display" class="app-version-display"></span>
+                <button type="button" class="btn-secondary btn-in-game-refresh js-reload-app">ページを更新</button>
             </div>
 
         </main>
@@ -437,8 +442,6 @@
                     </select>
                 </div>
 
-
-
                 <div class="pro-settings-modal-footer">
                     <button type="button" id="btn-start-pro" class="btn-primary">決定</button>
                     <div class="pro-settings-modal-subactions">
@@ -618,6 +621,12 @@
             </div>
         </div>
 
+        <div id="app-update-banner" class="app-update-banner hidden" role="status" aria-live="polite">
+            <span class="app-update-banner-text">新しい版があります。再読み込みで反映されます。</span>
+            <button type="button" id="app-update-reload-btn" class="btn-primary btn-banner-reload">再読み込み</button>
+            <button type="button" id="app-update-dismiss-btn" class="btn-banner-dismiss" aria-label="閉じる">×</button>
+        </div>
+
     </div>
     </div>
 
@@ -659,7 +668,7 @@
             </div>
         </div>
     </div>
-    <script src="script.js?v=63"></script>
+    <script src="script.js?v=68"></script>
 </body>
 
 </html>

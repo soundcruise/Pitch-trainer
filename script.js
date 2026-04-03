@@ -1,3 +1,11 @@
+/** アプリの版表示（リリースのたびにここを更新してください） */
+const PITCH_TRAINER_APP_VERSION = '1.0.0';
+const PITCH_TRAINER_BUILD = 68;
+
+function isPitchTrainerPro() {
+    return document.documentElement.dataset.appEdition === 'Pro';
+}
+
 // AudioEngine Class
 class AudioEngine {
     constructor() {
@@ -710,10 +718,10 @@ class Game {
         // Reset button
         if (document.getElementById('reset-settings')) document.getElementById('reset-settings').addEventListener('click', () => this.resetToDefaults());
 
-        // 基準周波数スライダー
+        // 基準周波数・余韻・問題スピードは Pro 版のみ操作可能
         const hzSlider = document.getElementById('hz-slider');
         const hzDisplay = document.getElementById('current-hz') || document.getElementById('hz-value');
-        if (hzSlider) {
+        if (hzSlider && isPitchTrainerPro()) {
             hzSlider.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
                 this.audio.setBaseHz(val);
@@ -722,10 +730,9 @@ class Game {
             });
         }
 
-        // 余韻スライダー
         const sustainSlider = document.getElementById('sustain-slider');
         const sustainValue = document.getElementById('sustain-value');
-        if (sustainSlider) {
+        if (sustainSlider && isPitchTrainerPro()) {
             sustainSlider.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
                 this.audio.sustainTime = val;
@@ -750,15 +757,16 @@ class Game {
             this.saveSettings();
         });
 
-        // 問題スピードスライダー
         const speedSlider = document.getElementById('speed-slider');
         const speedValue = document.getElementById('speed-value');
-        if (speedSlider) speedSlider.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            this.noteSpeed = val;
-            if (speedValue) speedValue.textContent = val.toFixed(1);
-            this.saveSettings();
-        });
+        if (speedSlider && isPitchTrainerPro()) {
+            speedSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                this.noteSpeed = val;
+                if (speedValue) speedValue.textContent = val.toFixed(1);
+                this.saveSettings();
+            });
+        }
 
         // 回答モード切替（トグルスイッチ）
         const answerToggle = document.getElementById('answer-mode-toggle');
@@ -1282,6 +1290,26 @@ class Game {
         }
     }
 
+    /** 通常版では A4=440Hz・余韻0.5秒・スピード1.0x に固定（表示も合わせる） */
+    clampStandardEditionSoundSettings() {
+        if (isPitchTrainerPro()) return;
+        this.audio.setBaseHz(440);
+        this.audio.sustainTime = 0.5;
+        this.noteSpeed = 1.0;
+        const hzSlider = document.getElementById('hz-slider');
+        const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
+        if (hzSlider) hzSlider.value = '440';
+        if (hzSpan) hzSpan.textContent = '440';
+        const sustainSlider = document.getElementById('sustain-slider');
+        const sustainValue = document.getElementById('sustain-value');
+        if (sustainSlider) sustainSlider.value = '0.5';
+        if (sustainValue) sustainValue.textContent = '0.5';
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
+        if (speedSlider) speedSlider.value = '1.0';
+        if (speedValue) speedValue.textContent = '1.0';
+    }
+
     loadSettings() {
         try {
             const data = localStorage.getItem('pitchTrainerSettings');
@@ -1301,13 +1329,33 @@ class Game {
                     const scaleToggle = document.getElementById('scale-toggle');
                     if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
                 }
-                if (s.noteSpeed !== undefined) {
-                    this.noteSpeed = s.noteSpeed;
-                    const speedSlider = document.getElementById('speed-slider');
-                    const speedValue = document.getElementById('speed-value');
-                    if (speedSlider) {
-                        speedSlider.value = this.noteSpeed;
-                        if (speedValue) speedValue.textContent = this.noteSpeed.toFixed(1);
+                if (isPitchTrainerPro()) {
+                    if (s.noteSpeed !== undefined) {
+                        this.noteSpeed = s.noteSpeed;
+                        const speedSlider = document.getElementById('speed-slider');
+                        const speedValue = document.getElementById('speed-value');
+                        if (speedSlider) {
+                            speedSlider.value = this.noteSpeed;
+                            if (speedValue) speedValue.textContent = this.noteSpeed.toFixed(1);
+                        }
+                    }
+                    if (s.baseHz !== undefined) {
+                        this.audio.setBaseHz(s.baseHz);
+                        const hzSlider = document.getElementById('hz-slider');
+                        const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
+                        if (hzSlider) {
+                            hzSlider.value = this.audio.baseHz;
+                            if (hzSpan) hzSpan.textContent = this.audio.baseHz;
+                        }
+                    }
+                    if (s.sustainTime !== undefined) {
+                        this.audio.sustainTime = s.sustainTime;
+                        const sustainSlider = document.getElementById('sustain-slider');
+                        const sustainValue = document.getElementById('sustain-value');
+                        if (sustainSlider) {
+                            sustainSlider.value = this.audio.sustainTime;
+                            if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
+                        }
                     }
                 }
                 if (s.isAnswerMode !== undefined) {
@@ -1317,27 +1365,7 @@ class Game {
                     console.log("Game: toggling answer mode to", this.isAnswerMode);
                     this.toggleAnswerMode(this.isAnswerMode);
                 }
-                if (s.baseHz !== undefined) {
-                    this.audio.setBaseHz(s.baseHz);
-                    const hzSlider = document.getElementById('hz-slider');
-                    const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
-                    if (hzSlider) {
-                        hzSlider.value = this.audio.baseHz;
-                        if (hzSpan) hzSpan.textContent = this.audio.baseHz;
-                    }
-                }
 
-                if (s.sustainTime !== undefined) {
-                    this.audio.sustainTime = s.sustainTime;
-                    const sustainSlider = document.getElementById('sustain-slider');
-                    const sustainValue = document.getElementById('sustain-value');
-                    if (sustainSlider) {
-                        sustainSlider.value = this.audio.sustainTime;
-                        if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
-                    }
-                }
-
-                this.isInitializing = false;
                 this.isInitializing = false;
             } else {
                 this.updateNotation('doremi');
@@ -1346,6 +1374,7 @@ class Game {
             console.error("Failed to load settings from localStorage", e);
             this.isInitializing = false;
         }
+        this.clampStandardEditionSoundSettings();
     }
 
     saveSettings() {
@@ -1357,11 +1386,13 @@ class Game {
                 instrument: this.instrument,
                 notationStyle: this.notationStyle,
                 scaleEnabled: this.scaleEnabled,
-                noteSpeed: this.noteSpeed,
-                isAnswerMode: this.isAnswerMode,
-                sustainTime: this.audio.sustainTime,
-                baseHz: this.audio.baseHz
+                isAnswerMode: this.isAnswerMode
             };
+            if (isPitchTrainerPro()) {
+                data.noteSpeed = this.noteSpeed;
+                data.sustainTime = this.audio.sustainTime;
+                data.baseHz = this.audio.baseHz;
+            }
             localStorage.setItem('pitchTrainerSettings', JSON.stringify(data));
         } catch (e) {
             console.error("Failed to save settings to localStorage", e);
@@ -1375,11 +1406,13 @@ class Game {
             instrument: this.instrument,
             notationStyle: this.notationStyle,
             scaleEnabled: this.scaleEnabled,
-            noteSpeed: this.noteSpeed,
-            isAnswerMode: this.isAnswerMode,
-            sustainTime: this.audio.sustainTime,
-            baseHz: this.audio.baseHz
+            isAnswerMode: this.isAnswerMode
         };
+        if (isPitchTrainerPro()) {
+            this._settingsModalSnapshot.noteSpeed = this.noteSpeed;
+            this._settingsModalSnapshot.sustainTime = this.audio.sustainTime;
+            this._settingsModalSnapshot.baseHz = this.audio.baseHz;
+        }
     }
 
     applySettingsModalData(s) {
@@ -1395,32 +1428,36 @@ class Game {
                 const scaleToggle = document.getElementById('scale-toggle');
                 if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
             }
-            if (s.noteSpeed !== undefined) {
-                this.noteSpeed = s.noteSpeed;
-                const speedSlider = document.getElementById('speed-slider');
-                const speedValue = document.getElementById('speed-value');
-                if (speedSlider) speedSlider.value = this.noteSpeed;
-                if (speedValue) speedValue.textContent = this.noteSpeed.toFixed(1);
+            if (isPitchTrainerPro()) {
+                if (s.noteSpeed !== undefined) {
+                    this.noteSpeed = s.noteSpeed;
+                    const speedSlider = document.getElementById('speed-slider');
+                    const speedValue = document.getElementById('speed-value');
+                    if (speedSlider) speedSlider.value = this.noteSpeed;
+                    if (speedValue) speedValue.textContent = this.noteSpeed.toFixed(1);
+                }
+                if (s.baseHz !== undefined) {
+                    this.audio.setBaseHz(s.baseHz);
+                    const hzSlider = document.getElementById('hz-slider');
+                    const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
+                    if (hzSlider) hzSlider.value = this.audio.baseHz;
+                    if (hzSpan) hzSpan.textContent = this.audio.baseHz;
+                }
+                if (s.sustainTime !== undefined) {
+                    this.audio.sustainTime = s.sustainTime;
+                    const sustainSlider = document.getElementById('sustain-slider');
+                    const sustainValue = document.getElementById('sustain-value');
+                    if (sustainSlider) sustainSlider.value = this.audio.sustainTime;
+                    if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
+                }
+            } else {
+                this.clampStandardEditionSoundSettings();
             }
             if (s.isAnswerMode !== undefined) {
                 this.isAnswerMode = s.isAnswerMode;
                 const answerToggle = document.getElementById('answer-mode-toggle');
                 if (answerToggle) answerToggle.checked = this.isAnswerMode;
                 this.toggleAnswerMode(this.isAnswerMode);
-            }
-            if (s.baseHz !== undefined) {
-                this.audio.setBaseHz(s.baseHz);
-                const hzSlider = document.getElementById('hz-slider');
-                const hzSpan = document.getElementById('current-hz') || document.getElementById('hz-value');
-                if (hzSlider) hzSlider.value = this.audio.baseHz;
-                if (hzSpan) hzSpan.textContent = this.audio.baseHz;
-            }
-            if (s.sustainTime !== undefined) {
-                this.audio.sustainTime = s.sustainTime;
-                const sustainSlider = document.getElementById('sustain-slider');
-                const sustainValue = document.getElementById('sustain-value');
-                if (sustainSlider) sustainSlider.value = this.audio.sustainTime;
-                if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
             }
         } finally {
             this.isInitializing = false;
@@ -1429,6 +1466,7 @@ class Game {
     }
 
     openSettingsModal() {
+        this.clampStandardEditionSoundSettings();
         this.captureSettingsModalSnapshot();
         if (this.settingsModal) {
             this.settingsModal.classList.remove('hidden');
@@ -2115,6 +2153,39 @@ class Game {
             return this.proSolfegeFlatBySharpNote[note];
         }
         return this.getSolfegeName(note);
+    }
+
+    /**
+     * メロディ1音分を不正解メッセージ用の文字列にする。
+     * 2オクターブ時は item が { note, octaveOffset } になるため、note 名を取り出してから表記変換する。
+     */
+    formatMelodySequenceItemForFeedback(item, cfg) {
+        let noteName;
+        let octaveOffset = 0;
+        if (typeof item === 'object' && item !== null && item.note) {
+            noteName = item.note;
+            octaveOffset = item.octaveOffset || 0;
+        } else if (typeof item === 'string') {
+            noteName = item;
+        } else {
+            return String(item);
+        }
+        let label;
+        if (this.stage === 99 && cfg.answerMethod === 'degree') {
+            label = this.getDegreeName(noteName);
+        } else if (this.stage === 99 && cfg.answerMethod === 'solfege') {
+            label = this.getProSolfegeDisplay(noteName);
+        } else if (this.stage === 99 && cfg.answerMethod === 'note') {
+            label = this.getProNoteLetterDisplay(noteName);
+        } else if (this.notationStyle === 'degree') {
+            label = this.getDegreeName(noteName);
+        } else {
+            label = this.noteToSolfege[noteName] || noteName;
+        }
+        if (cfg.is2Octave && typeof item === 'object' && item !== null && item.note !== undefined) {
+            label += octaveOffset === 0 ? '（下）' : '（上）';
+        }
+        return label;
     }
 
     syncProAccidentalToggleUi() {
@@ -2879,7 +2950,7 @@ class Game {
                 this.handleCorrect();
             }
         } else {
-            this.handleWrong(note);
+            this.handleWrong(note, inputOctaveOffset);
         }
     }
 
@@ -2914,7 +2985,7 @@ class Game {
         }, 750 / this.noteSpeed);
     }
 
-    handleWrong(note) {
+    handleWrong(note, inputOctaveOffset = 0) {
         this.isRoundOver = true;
         this.streak = 0;
         this.updateStats();
@@ -2922,27 +2993,21 @@ class Game {
         let expectedNotes;
         const cfg = this.stageConfig[this.stage] || this.stageConfig[3];
         if (cfg.isChord) {
+            const chordLabel = (c) => (typeof c === 'object' && c !== null && c.name ? c.name : c);
             if (cfg.isCustomChord) {
-                expectedNotes = this.currentSequence.map(c => c.name).join(', ');
+                expectedNotes = this.currentSequence.map((c) => chordLabel(c)).join(', ');
             } else {
                 if (this.notationStyle === 'degree') {
-                    expectedNotes = this.currentSequence.map(c => this.chordDegreeMap[c] || c).join(', ');
+                    expectedNotes = this.currentSequence.map((c) => {
+                        const name = chordLabel(c);
+                        return this.chordDegreeMap[name] || name;
+                    }).join(', ');
                 } else {
-                    expectedNotes = this.currentSequence.join(', ');
+                    expectedNotes = this.currentSequence.map((c) => chordLabel(c)).join(', ');
                 }
             }
         } else {
-            if (this.stage === 99 && cfg.answerMethod === 'degree') {
-                expectedNotes = this.currentSequence.map(n => this.getDegreeName(n)).join(', ');
-            } else if (this.stage === 99 && cfg.answerMethod === 'solfege') {
-                expectedNotes = this.currentSequence.map(n => this.getProSolfegeDisplay(n)).join(', ');
-            } else if (this.stage === 99 && cfg.answerMethod === 'note') {
-                expectedNotes = this.currentSequence.map(n => this.getProNoteLetterDisplay(n)).join(', ');
-            } else if (this.notationStyle === 'degree') {
-                expectedNotes = this.currentSequence.map(n => this.getDegreeName(n)).join(', ');
-            } else {
-                expectedNotes = this.currentSequence.map(n => this.noteToSolfege[n]).join(', ');
-            }
+            expectedNotes = this.currentSequence.map((item) => this.formatMelodySequenceItemForFeedback(item, cfg)).join(', ');
         }
         this.showFeedback('不正解... 正解は: ' + expectedNotes, 'wrong');
 
@@ -2954,7 +3019,14 @@ class Game {
                 key = document.querySelector('.chord-btn[data-chord="' + note + '"]');
             }
         } else {
-            key = document.querySelector('.note-btn[data-note="' + note + '"]');
+            if (cfg.is2Octave && typeof note === 'string') {
+                key = document.querySelector(
+                    `.note-btn[data-note="${note}"][data-octave-offset="${inputOctaveOffset}"]`
+                );
+            }
+            if (!key) {
+                key = document.querySelector('.note-btn[data-note="' + note + '"]');
+            }
         }
         if (key) key.classList.add('wrong');
 
@@ -2980,10 +3052,18 @@ class Game {
                             if (cfg.isCustomChord) {
                                 correctKey = document.querySelector('.chord-btn[data-chordid="' + item.id + '"]');
                             } else {
-                                correctKey = document.querySelector('.chord-btn[data-chord="' + item + '"]');
+                                const chordName = typeof item === 'object' && item !== null && item.name ? item.name : item;
+                                correctKey = document.querySelector('.chord-btn[data-chord="' + chordName + '"]');
                             }
                         } else {
-                            correctKey = document.querySelector('.note-btn[data-note="' + item + '"]');
+                            if (typeof item === 'object' && item !== null && item.note !== undefined && cfg.is2Octave) {
+                                correctKey = document.querySelector(
+                                    `.note-btn[data-note="${item.note}"][data-octave-offset="${item.octaveOffset || 0}"]`
+                                );
+                            } else {
+                                const noteStr = typeof item === 'object' && item !== null && item.note ? item.note : item;
+                                correctKey = document.querySelector('.note-btn[data-note="' + noteStr + '"]');
+                            }
                         }
 
                         if (correctKey) {
@@ -3009,7 +3089,92 @@ class Game {
     }
 }
 
+/**
+ * ページを読み直す（キャッシュを避けやすいようクエリを付与）
+ */
+function reloadAppWithCacheBust() {
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('_r', String(Date.now()));
+        window.location.replace(url.toString());
+    } catch (e) {
+        window.location.reload();
+    }
+}
+
+function getPitchTrainerVersionLabel() {
+    const edition = document.documentElement.dataset.appEdition;
+    const ed = edition ? ` · ${edition}` : '';
+    return `Ver ${PITCH_TRAINER_APP_VERSION}（${PITCH_TRAINER_BUILD}）${ed}`;
+}
+
+function applyAppVersionDisplay() {
+    const el = document.getElementById('app-version-display');
+    if (el) el.textContent = getPitchTrainerVersionLabel();
+}
+
+/**
+ * 右下「ページを更新」＋サービスワーカーで新しい版を検知したときのバナー
+ */
+function setupAppRefreshAndSwUpdates() {
+    applyAppVersionDisplay();
+    document.querySelectorAll('.js-reload-app').forEach((btn) => {
+        btn.addEventListener('click', () => reloadAppWithCacheBust());
+    });
+
+    const banner = document.getElementById('app-update-banner');
+    const updateReload = document.getElementById('app-update-reload-btn');
+    const updateDismiss = document.getElementById('app-update-dismiss-btn');
+
+    function showUpdateBanner() {
+        if (banner) banner.classList.remove('hidden');
+    }
+
+    function hideUpdateBanner() {
+        if (banner) banner.classList.add('hidden');
+    }
+
+    if (updateReload) {
+        updateReload.addEventListener('click', () => reloadAppWithCacheBust());
+    }
+    if (updateDismiss) {
+        updateDismiss.addEventListener('click', hideUpdateBanner);
+    }
+
+    if (!('serviceWorker' in navigator)) return;
+
+    function attachUpdateListener(reg) {
+        if (!reg || reg.__pitchTrainerUpdateHook) return;
+        reg.__pitchTrainerUpdateHook = true;
+
+        if (reg.waiting && navigator.serviceWorker.controller) {
+            showUpdateBanner();
+        }
+
+        reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener('statechange', () => {
+                if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateBanner();
+                }
+            });
+        });
+    }
+
+    navigator.serviceWorker.ready.then((reg) => attachUpdateListener(reg));
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            navigator.serviceWorker.getRegistration().then((r) => {
+                if (r) void r.update();
+            });
+        }
+    });
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     window.game = new Game();
+    setupAppRefreshAndSwUpdates();
 });

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ</title>
-    <link rel="stylesheet" href="style.css?v=63">
+    <link rel="stylesheet" href="style.css?v=67">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -94,6 +94,11 @@
                     <span id="answer-mode-status"
                         style="font-size: 0.85rem; font-weight: 500; color: rgba(255,255,255,0.8);">回答ON</span>
                 </label>
+            </div>
+
+            <div id="in-game-refresh-bar" class="in-game-refresh-bar" aria-label="バージョンとページの再読み込み">
+                <span id="app-version-display" class="app-version-display"></span>
+                <button type="button" class="btn-secondary btn-in-game-refresh js-reload-app">ページを更新</button>
             </div>
 
         </main>
@@ -255,20 +260,26 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-                <div class="setting-item vertical">
-                    <label for="hz-slider">基準周波数 (A4): <span id="current-hz">440</span>Hz</label>
-                    <input type="range" id="hz-slider" class="hz-slider sustain-slider" min="430" max="450" step="1"
-                        value="440">
-                </div>
-                <div class="setting-item vertical">
-                    <label><span>余韻の長さ</span>: <span id="sustain-value">0.5</span><span>秒</span></label>
-                    <input type="range" id="sustain-slider" min="0.01" max="1.0" step="0.01" value="0.5"
-                        class="sustain-slider">
-                </div>
-                <div class="setting-item vertical">
-                    <label><span>問題のスピード</span>: <span id="speed-value">1.0</span>x</label>
-                    <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0"
-                        class="sustain-slider">
+                <div class="settings-pro-only-block" aria-label="Pro版専用の設定">
+                    <div class="settings-pro-only-banner">
+                        <span class="pro-only-settings-badge">PRO</span>
+                        <span class="settings-pro-only-text">次の3項目は Pro 版で変更できます（通常版は固定値です）</span>
+                    </div>
+                    <div class="setting-item vertical settings-pro-only-row">
+                        <label for="hz-slider">基準周波数 (A4): <span id="current-hz">440</span>Hz</label>
+                        <input type="range" id="hz-slider" class="hz-slider sustain-slider" min="430" max="450" step="1"
+                            value="440" disabled aria-disabled="true">
+                    </div>
+                    <div class="setting-item vertical settings-pro-only-row">
+                        <label><span>余韻の長さ</span>: <span id="sustain-value">0.5</span><span>秒</span></label>
+                        <input type="range" id="sustain-slider" min="0.01" max="1.0" step="0.01" value="0.5"
+                            class="sustain-slider" disabled aria-disabled="true">
+                    </div>
+                    <div class="setting-item vertical settings-pro-only-row">
+                        <label><span>問題のスピード</span>: <span id="speed-value">1.0</span>x</label>
+                        <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0"
+                            class="sustain-slider" disabled aria-disabled="true">
+                    </div>
                 </div>
 
                 <div class="settings-modal-footer">
@@ -283,8 +294,14 @@
                 </div>
             </div>
         </div>
+
+        <div id="app-update-banner" class="app-update-banner hidden" role="status" aria-live="polite">
+            <span class="app-update-banner-text">新しい版があります。再読み込みで反映されます。</span>
+            <button type="button" id="app-update-reload-btn" class="btn-primary btn-banner-reload">再読み込み</button>
+            <button type="button" id="app-update-dismiss-btn" class="btn-banner-dismiss" aria-label="閉じる">×</button>
+        </div>
     </div>
-    <script src="script.js?v=63"></script>
+    <script src="script.js?v=68"></script>
 </body>
 
 </html>
