@@ -1,6 +1,6 @@
 ■ 「音感クルーズ」公開URLと操作マニュアル
 
-アプリの通常版とPro版の使い分け、およびそれぞれの公開URLとインストール手順についてまとめました。
+アプリの通常版・お試しベータ版・Pro版の使い分け、および公開URLとインストール手順についてまとめました。
 
 --------------------------------------------------
 1. 公開URL (GitHub Pages)
@@ -10,13 +10,19 @@
 URL（推奨・PWA用）: https://soundcruise.github.io/Pitch-trainer/standard/
 入口: https://soundcruise.github.io/Pitch-trainer/ （自動で standard/ へ）
 特徴: 基礎的なトレーニングに特化したシンプル構成。Proカスタム設定は表示されません。
-アイコン: 青背景のロゴ (icon.png)
+アイコン: 軽量PWA用 icon_pwa_192 / icon_pwa_512
+
+【 🧪 お試しベータ版 (Beta) 】
+URL（PWA用）: https://soundcruise.github.io/Pitch-trainer/beta/
+入口: beta.html は自動で beta/ へ
+特徴: メロディ・コードとも STAGE 1〜4 のみ。トップにベータロゴ。
+アイコン: icon_idea/beta_pwa_192 / beta_pwa_512
 
 【 👑 Pro版 (Pro Version) 】
 URL（会員向け・PWA用）: https://soundcruise.github.io/Pitch-trainer/pro_k3m9/
 旧URL（pro.html 等）: 無効（アプリは開きません）
 特徴: すべての機能を利用可能。ホーム画面のタイトルに「PRO」バッジが表示されます。
-アイコン: icon_idea/android_pro.png
+アイコン: icon_idea/android_pro_pwa_192 / android_pro_pwa_512
 
 --------------------------------------------------
 2. アプリとしてインストールする方法 (PWA)
@@ -24,7 +30,7 @@ URL（会員向け・PWA用）: https://soundcruise.github.io/Pitch-trainer/pro_
 
 iPhoneやAndroidのホーム画面に「独立したアプリ」として追加する手順です。
 
-(1) 通常版は …/standard/、Pro版は会員に共有した …/pro_k3m9/ をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます。
+(1) 通常版は …/standard/、ベータは …/beta/、Pro版は会員に共有した …/pro_k3m9/ をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます。
 (2) ブラウザのメニューから「ホーム画面に追加」を選択します。
 (3) 通常版とPro版をそれぞれ追加することで、ホーム画面に2つのアイコンが並び、別々のアプリとして使い分けることができます。
 
