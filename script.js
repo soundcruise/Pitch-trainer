@@ -1,6 +1,5 @@
-/** アプリの版表示（リリースのたびにここを更新してください） */
+/** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
 const PITCH_TRAINER_APP_VERSION = '1.1.0';
-const PITCH_TRAINER_BUILD = 79;
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -3178,7 +3177,7 @@ function reloadAppWithCacheBust() {
 function getPitchTrainerVersionLabel() {
     const edition = document.documentElement.dataset.appEdition;
     const ed = edition ? ` · ${edition}` : '';
-    return `Ver ${PITCH_TRAINER_APP_VERSION}（${PITCH_TRAINER_BUILD}）${ed}`;
+    return `Ver ${PITCH_TRAINER_APP_VERSION}${ed}`;
 }
 
 function applyAppVersionDisplay() {
