@@ -1,6 +1,6 @@
 /** アプリの版表示（リリースのたびにここを更新してください） */
 const PITCH_TRAINER_APP_VERSION = '1.0.0';
-const PITCH_TRAINER_BUILD = 75;
+const PITCH_TRAINER_BUILD = 76;
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -16,7 +16,11 @@ function unregisterLegacyRootServiceWorker() {
             try {
                 const u = new URL(sw.scriptURL);
                 const p = u.pathname;
-                if (p.endsWith('/standard/service-worker.js') || p.endsWith('/prok3m9/service-worker.js')) {
+                if (p.endsWith('/standard/service-worker.js') || p.endsWith('/pro_k3m9/service-worker.js')) {
+                    return;
+                }
+                if (p.endsWith('/prok3m9/service-worker.js')) {
+                    void reg.unregister();
                     return;
                 }
                 if (p.endsWith('/pro/service-worker.js')) {
