@@ -1,6 +1,6 @@
 /** アプリの版表示（リリースのたびにここを更新してください） */
 const PITCH_TRAINER_APP_VERSION = '1.0.0';
-const PITCH_TRAINER_BUILD = 68;
+const PITCH_TRAINER_BUILD = 71;
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -700,12 +700,16 @@ class Game {
         }
 
         // Octave controls
-        if (document.getElementById('octave-down')) document.getElementById('octave-down').addEventListener('click', () => this.updateOctave(-1));
-        if (document.getElementById('octave-up')) document.getElementById('octave-up').addEventListener('click', () => this.updateOctave(1));
-
-        // Key selector
-        if (this.keySelector) {
-            this.keySelector.addEventListener('change', (e) => this.updateKey(parseInt(e.target.value)));
+        if (isPitchTrainerPro()) {
+            if (document.getElementById('octave-down')) {
+                document.getElementById('octave-down').addEventListener('click', () => this.updateOctave(-1));
+            }
+            if (document.getElementById('octave-up')) {
+                document.getElementById('octave-up').addEventListener('click', () => this.updateOctave(1));
+            }
+            if (this.keySelector) {
+                this.keySelector.addEventListener('change', (e) => this.updateKey(parseInt(e.target.value, 10)));
+            }
         }
 
         // Instrument selector
@@ -1310,6 +1314,15 @@ class Game {
         if (speedValue) speedValue.textContent = '1.0';
     }
 
+    /** 通常版ではキー=C（0）・基準オクターブ=3 に固定 */
+    clampStandardEditionKeyOctave() {
+        if (isPitchTrainerPro()) return;
+        this.baseOctave = 3;
+        this.keyOffset = 0;
+        if (this.currentOctaveEl) this.currentOctaveEl.textContent = '3';
+        if (this.keySelector) this.keySelector.value = '0';
+    }
+
     loadSettings() {
         try {
             const data = localStorage.getItem('pitchTrainerSettings');
@@ -1317,8 +1330,10 @@ class Game {
                 const s = JSON.parse(data);
                 this.isInitializing = true; // Add flag to prevent saveSettings during loading
 
-                if (s.baseOctave !== undefined) this.updateOctave(s.baseOctave - this.baseOctave);
-                if (s.keyOffset !== undefined) this.updateKey(s.keyOffset);
+                if (isPitchTrainerPro()) {
+                    if (s.baseOctave !== undefined) this.updateOctave(s.baseOctave - this.baseOctave);
+                    if (s.keyOffset !== undefined) this.updateKey(s.keyOffset);
+                }
                 if (s.instrument !== undefined) this.updateInstrument(s.instrument);
                 if (s.notationStyle !== undefined) {
                     console.log("Game: updating notation to", s.notationStyle);
@@ -1375,23 +1390,35 @@ class Game {
             this.isInitializing = false;
         }
         this.clampStandardEditionSoundSettings();
+        this.clampStandardEditionKeyOctave();
     }
 
     saveSettings() {
         if (this.isInitializing) return; // Don't save while loading
         try {
             const data = {
-                baseOctave: this.baseOctave,
-                keyOffset: this.keyOffset,
                 instrument: this.instrument,
                 notationStyle: this.notationStyle,
                 scaleEnabled: this.scaleEnabled,
                 isAnswerMode: this.isAnswerMode
             };
             if (isPitchTrainerPro()) {
+                data.baseOctave = this.baseOctave;
+                data.keyOffset = this.keyOffset;
                 data.noteSpeed = this.noteSpeed;
                 data.sustainTime = this.audio.sustainTime;
                 data.baseHz = this.audio.baseHz;
+            } else {
+                // 通常版は Pro 用の値を書き換えない（同じ端末で Pro を使うときのため）
+                try {
+                    const prevRaw = localStorage.getItem('pitchTrainerSettings');
+                    if (prevRaw) {
+                        const prev = JSON.parse(prevRaw);
+                        ['baseOctave', 'keyOffset', 'noteSpeed', 'sustainTime', 'baseHz'].forEach((k) => {
+                            if (prev[k] !== undefined) data[k] = prev[k];
+                        });
+                    }
+                } catch (e) { /* ignore */ }
             }
             localStorage.setItem('pitchTrainerSettings', JSON.stringify(data));
         } catch (e) {
@@ -1401,14 +1428,14 @@ class Game {
 
     captureSettingsModalSnapshot() {
         this._settingsModalSnapshot = {
-            baseOctave: this.baseOctave,
-            keyOffset: this.keyOffset,
             instrument: this.instrument,
             notationStyle: this.notationStyle,
             scaleEnabled: this.scaleEnabled,
             isAnswerMode: this.isAnswerMode
         };
         if (isPitchTrainerPro()) {
+            this._settingsModalSnapshot.baseOctave = this.baseOctave;
+            this._settingsModalSnapshot.keyOffset = this.keyOffset;
             this._settingsModalSnapshot.noteSpeed = this.noteSpeed;
             this._settingsModalSnapshot.sustainTime = this.audio.sustainTime;
             this._settingsModalSnapshot.baseHz = this.audio.baseHz;
@@ -1419,16 +1446,9 @@ class Game {
         if (!s) return;
         this.isInitializing = true;
         try {
-            if (s.baseOctave !== undefined) this.updateOctave(s.baseOctave - this.baseOctave);
-            if (s.keyOffset !== undefined) this.updateKey(s.keyOffset);
-            if (s.instrument !== undefined) this.updateInstrument(s.instrument);
-            if (s.notationStyle !== undefined) this.updateNotation(s.notationStyle);
-            if (s.scaleEnabled !== undefined) {
-                this.scaleEnabled = s.scaleEnabled;
-                const scaleToggle = document.getElementById('scale-toggle');
-                if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
-            }
             if (isPitchTrainerPro()) {
+                if (s.baseOctave !== undefined) this.updateOctave(s.baseOctave - this.baseOctave);
+                if (s.keyOffset !== undefined) this.updateKey(s.keyOffset);
                 if (s.noteSpeed !== undefined) {
                     this.noteSpeed = s.noteSpeed;
                     const speedSlider = document.getElementById('speed-slider');
@@ -1451,7 +1471,15 @@ class Game {
                     if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
                 }
             } else {
+                this.clampStandardEditionKeyOctave();
                 this.clampStandardEditionSoundSettings();
+            }
+            if (s.instrument !== undefined) this.updateInstrument(s.instrument);
+            if (s.notationStyle !== undefined) this.updateNotation(s.notationStyle);
+            if (s.scaleEnabled !== undefined) {
+                this.scaleEnabled = s.scaleEnabled;
+                const scaleToggle = document.getElementById('scale-toggle');
+                if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
             }
             if (s.isAnswerMode !== undefined) {
                 this.isAnswerMode = s.isAnswerMode;
@@ -1467,6 +1495,7 @@ class Game {
 
     openSettingsModal() {
         this.clampStandardEditionSoundSettings();
+        this.clampStandardEditionKeyOctave();
         this.captureSettingsModalSnapshot();
         if (this.settingsModal) {
             this.settingsModal.classList.remove('hidden');

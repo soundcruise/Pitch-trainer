@@ -632,6 +632,43 @@ header {
     align-items: center;
 }
 
+/* 一般設定モーダル: ラベル＋プルダウンを1行に（キー・音名表記・楽器など） */
+#settings-modal .modal-content>.setting-item:not(.vertical) {
+    flex-wrap: nowrap;
+    gap: 8px 10px;
+    min-width: 0;
+}
+
+#settings-modal .modal-content>.setting-item:not(.vertical)>label:first-of-type {
+    flex: 0 0 auto;
+    margin: 0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+#settings-modal .modal-content>.setting-item:not(.vertical)>.preset-select {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    padding: 7px 26px 7px 9px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    background-position: right 7px center;
+    background-size: 13px;
+}
+
+#settings-modal .modal-content>.setting-item:not(.vertical)>.octave-control {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-end;
+}
+
+#settings-modal .modal-content>.setting-item:not(.vertical)>.toggle-switch {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
 /* 通常版設定: Pro専用スライダー（見た目で区別） */
 .settings-pro-only-block {
     margin: 8px 0 18px;
@@ -678,8 +715,58 @@ header {
     color: rgba(255, 255, 255, 0.48);
 }
 
-.settings-pro-only-block input[type="range"][disabled] {
+.settings-pro-only-block input[type="range"][disabled],
+.settings-pro-only-block select.preset-select:disabled {
     opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Pro枠内の横並び（キー・オクターブ）も1行で収める */
+#settings-modal .settings-pro-only-block .setting-item:not(.vertical) {
+    flex-wrap: nowrap;
+    gap: 8px 10px;
+    min-width: 0;
+}
+
+#settings-modal .settings-pro-only-block .setting-item:not(.vertical)>label:first-of-type {
+    flex: 0 0 auto;
+    margin: 0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+#settings-modal .settings-pro-only-block .setting-item:not(.vertical)>.preset-select {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    padding: 7px 26px 7px 9px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    background-position: right 7px center;
+    background-size: 13px;
+}
+
+#settings-modal .settings-pro-only-block .setting-item:not(.vertical)>.octave-control {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-end;
+}
+
+.settings-pro-only-block .octave-control .btn-sm:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.settings-pro-only-block .octave-control .btn-sm:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.settings-pro-only-block #current-octave {
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .octave-control {
