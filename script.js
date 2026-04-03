@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.1.0';
+const PITCH_TRAINER_APP_VERSION = '1.1.1';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -53,6 +53,8 @@ class AudioEngine {
         this._buildNotes();
         this.currentInstrument = 'acoustic_guitar';
         this.sustainTime = 0.5; // 余韻の長さ（秒）。設定から変更可能。
+        this._lastKnownTime = 0;
+        this._frozenSince = 0;
 
         // モバイルブラウザ対策: ユーザー操作でAudioContextを起こすリスナー
         this._setupResumeHandlers();
@@ -76,46 +78,76 @@ class AudioEngine {
         this._buildNotes();
     }
 
-    /**
-     * AudioContextが確実に動作している状態にする（同期的・最善努力）
-     * 再生直前は resumeContext() を await すること（iOS スリープ復帰対策）
-     */
+    _isContextFrozen() {
+        if (!this.ctx) return true;
+        const t = this.ctx.currentTime;
+        if (t !== this._lastKnownTime) {
+            this._lastKnownTime = t;
+            this._frozenSince = 0;
+            return false;
+        }
+        if (this._frozenSince === 0) {
+            this._frozenSince = Date.now();
+            return false;
+        }
+        return Date.now() - this._frozenSince > 300;
+    }
+
+    _forceNewContext() {
+        try { if (this.ctx) this.ctx.close(); } catch (_) { /* ignore */ }
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this._lastKnownTime = 0;
+        this._frozenSince = 0;
+    }
+
     ensureContext() {
         if (!this.ctx || this.ctx.state === 'closed') {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (this.ctx.state === 'suspended') {
+            this._forceNewContext();
+        } else if (this.ctx.state === 'suspended') {
             void this.ctx.resume();
+        } else if (this._isContextFrozen()) {
+            this._forceNewContext();
         }
     }
 
-    /**
-     * スリープ・バックグラウンド後に必ず await する。resume() 完了前に currentTime で
-     * スケジュールすると無音になる（特に iOS Safari）。
-     */
     async resumeContext() {
         try {
             if (!this.ctx || this.ctx.state === 'closed') {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this._forceNewContext();
             }
             if (this.ctx.state === 'suspended') {
                 await this.ctx.resume();
             }
+            if (this.ctx.state === 'running' && this._isContextFrozen()) {
+                this._forceNewContext();
+                if (this.ctx.state === 'suspended') {
+                    await this.ctx.resume();
+                }
+            }
+            const t0 = this.ctx.currentTime;
+            await new Promise(r => setTimeout(r, 50));
+            if (this.ctx.state === 'running' && this.ctx.currentTime === t0) {
+                this._forceNewContext();
+                if (this.ctx.state === 'suspended') {
+                    await this.ctx.resume();
+                }
+            }
         } catch (e) {
-            console.warn('PitchTrainer: AudioContext resume failed', e);
+            console.warn('PitchTrainer: AudioContext resume failed, forcing new context', e);
+            this._forceNewContext();
         }
     }
 
-    /**
-     * バックグラウンド復帰、タッチ操作などでAudioContextを自動的に復帰させる
-     */
     _setupResumeHandlers() {
         const tryResume = () => {
             void this.resumeContext();
         };
 
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) tryResume();
+            if (!document.hidden) {
+                this._frozenSince = 0;
+                tryResume();
+            }
         });
         window.addEventListener('pageshow', tryResume);
         window.addEventListener('focus', tryResume);
