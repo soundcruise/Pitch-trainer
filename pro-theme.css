@@ -2,6 +2,53 @@
 /* Pro版専用のスタイル拡張ファイル */
 /* タイトルのPROバッジ関連のみを適用し、他は共通のstyle.cssに準拠する */
 
+/* 問題画面ヘッダー右上: Pro設定・一般設定を同じ枠サイズで並べる */
+.header-game-settings-wrap {
+    position: absolute;
+    top: max(20px, env(safe-area-inset-top));
+    right: max(20px, env(safe-area-inset-right));
+    z-index: 5;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.icon-btn.icon-btn-header-pair {
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    margin: 0;
+    justify-content: center;
+    border-radius: 12px;
+    line-height: 1;
+}
+
+/* トップ: タイトル＋PROを画面中央に */
+.pro-home-title {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 14px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.pro-home-title-text {
+    display: inline-block;
+}
+
 /* PRO Badge within title */
 .pro-badge {
     font-size: 0.85rem;
@@ -53,16 +100,73 @@
     }
 }
 
+/* Pro設定モーダル下部: 決定＋サブ操作 */
+.pro-settings-modal-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pro-settings-modal-footer .btn-primary {
+    width: 100%;
+    max-width: 280px;
+}
+
+.pro-settings-modal-subactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+    max-width: 420px;
+}
+
+.pro-settings-modal-subactions .btn-secondary {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Proメロディ: 変化音 ♯ / ♭ トグル */
+.pro-accidental-row {
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pro-accidental-label {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.pro-accidental-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pro-accidental-mark {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.75);
+    min-width: 1.25em;
+    text-align: center;
+}
+
 /* Mobile Adjustments to prevent overlap with top icons */
 @media (max-width: 480px) {
-    #screen-home .home-title {
+    #screen-home .home-title.pro-home-title {
         margin-top: 65px;
-        /* Adjusted space for medium-large badge */
         margin-bottom: 28px;
-        display: flex;
         flex-direction: column;
-        align-items: center;
         gap: 12px;
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
     }
 
     .pro-badge {

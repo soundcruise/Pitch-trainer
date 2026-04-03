@@ -576,6 +576,11 @@ class Game {
         };
         this.chordPatternMode = 'progression'; // 'random' または 'progression'
         this.proQuestionMode = 'chords'; // 'chords' or 'progressions'
+        /** Proメロディ: 変化音を ♯ / ♭ どちらで見せるか（内部キーは常に C# 形式） */
+        this.proAccidentalDisplay = 'sharp';
+        this.proSharpToFlatLetter = { 'C#': 'D♭', 'D#': 'E♭', 'F#': 'G♭', 'G#': 'A♭', 'A#': 'B♭' };
+        this.proSolfegeFlatBySharpNote = { 'C#': 'レ♭', 'D#': 'ミ♭', 'F#': 'ソ♭', 'G#': 'ラ♭', 'A#': 'シ♭' };
+        this.loadProMelodyAccidentalPref();
         this.customChords = []; // User-defined Pro chords
         this.customProgressions = []; // User-defined Pro progressions
         this.naturalNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
@@ -773,9 +778,12 @@ class Game {
         // --- Pro Stage Logic ---
         this.proSettingsModal = document.getElementById('screen-pro-settings');
 
-        // Open Pro Settings
         if (document.getElementById('btn-level-pro')) document.getElementById('btn-level-pro').addEventListener('click', () => {
-            if (this.proSettingsModal) this.proSettingsModal.classList.remove('hidden');
+            if (this.proSettingsModal) {
+                this.syncProAccidentalToggleUi();
+                this.refreshProNoteToggleLabels();
+                this.proSettingsModal.classList.remove('hidden');
+            }
         });
 
         // Cancel Pro Settings
@@ -783,10 +791,17 @@ class Game {
             if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
         });
 
-        // Start Pro Game
-        if (document.getElementById('btn-start-pro')) document.getElementById('btn-start-pro').addEventListener('click', () => {
-            this.startProGame();
-        });
+        if (document.getElementById('btn-start-pro')) {
+            document.getElementById('btn-start-pro').addEventListener('click', () => this.confirmProMelodySettings());
+        }
+        if (document.getElementById('btn-reset-pro-melody')) {
+            document.getElementById('btn-reset-pro-melody').addEventListener('click', () => this.resetProMelodySettingsToDefaults());
+        }
+
+        const inGameProBtn = document.getElementById('in-game-pro-settings-btn');
+        if (inGameProBtn) {
+            inGameProBtn.addEventListener('click', () => this.openInGameProSettings());
+        }
 
         // Pro Count Slider Logic
         const proCountSlider = document.getElementById('pro-count-slider');
@@ -807,34 +822,21 @@ class Game {
             this.applyScalePreset(presetSelect.value); // App load initializer
         }
 
-        // Answer Method Logic for Pro Settings Keyboard Display
         const answerMethodSelect = document.getElementById('pro-answer-method');
         if (answerMethodSelect) {
-            answerMethodSelect.addEventListener('change', (e) => {
-                const method = e.target.value;
-                document.querySelectorAll('.note-toggle-wrapper').forEach(wrapper => {
-                    const checkbox = wrapper.querySelector('.note-toggle');
-                    const noteNameLabel = wrapper.querySelector('.note-name');
-                    const degreeLabel = wrapper.querySelector('.degree-label');
+            answerMethodSelect.addEventListener('change', () => this.refreshProNoteToggleLabels());
+        }
 
-                    if (checkbox && noteNameLabel) {
-                        const note = checkbox.dataset.note;
-                        if (method === 'degree') {
-                            noteNameLabel.textContent = this.getDegreeName(note);
-                        } else if (method === 'solfege') {
-                            noteNameLabel.textContent = this.getSolfegeName(note);
-                        } else {
-                            noteNameLabel.textContent = note; // default note name
-                        }
-                    }
-
-                    // User requested to change the main text, so we hide the sub-label entirely
-                    if (degreeLabel) {
-                        degreeLabel.style.display = 'none';
-                    }
-                });
+        const proAccToggle = document.getElementById('pro-accidental-toggle');
+        if (proAccToggle) {
+            proAccToggle.addEventListener('change', () => {
+                this.proAccidentalDisplay = proAccToggle.checked ? 'flat' : 'sharp';
+                this.saveProMelodyAccidentalPref();
+                this.refreshProNoteToggleLabels();
             });
-            // Trigger initial setup
+        }
+        this.syncProAccidentalToggleUi();
+        if (answerMethodSelect) {
             answerMethodSelect.dispatchEvent(new Event('change'));
         }
 
@@ -859,13 +861,16 @@ class Game {
         });
 
         const btnStartProChord = document.getElementById('btn-start-pro-chord');
-        const handleStartProChord = (e) => {
-            if (e.type === 'touchstart') e.preventDefault(); // Prevent double firing
-            this.startProChordGame();
+        const handleConfirmProChord = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.confirmProChordSettings();
         };
         if (btnStartProChord) {
-            btnStartProChord.addEventListener('click', handleStartProChord);
-            btnStartProChord.addEventListener('touchstart', handleStartProChord, { passive: false });
+            btnStartProChord.addEventListener('click', handleConfirmProChord);
+            btnStartProChord.addEventListener('touchstart', handleConfirmProChord, { passive: false });
+        }
+        if (document.getElementById('btn-reset-pro-chord')) {
+            document.getElementById('btn-reset-pro-chord').addEventListener('click', () => this.resetProChordSettingsToDefaults());
         }
 
         // Expand/Collapse Chord List
@@ -2014,17 +2019,17 @@ class Game {
         }
     }
 
-    startProChordGame() {
+    /** Proコード設定を stageConfig に反映。失敗時 false */
+    applyProChordSettingsFromUI() {
         const activeChords = this.customChords.filter(c => c.isActive !== false);
 
         if (activeChords.length === 0) {
             alert('少なくとも1つのコードを選択してください。');
-            return;
+            return false;
         }
 
         const countVal = parseInt(document.getElementById('pro-chord-count-slider').value) || 4;
 
-        // For stage 199, we pass the active custom objects directly into the pool
         this.stageConfig[199] = {
             pool: activeChords,
             count: countVal,
@@ -2033,12 +2038,41 @@ class Game {
             label: 'Pro Stage',
             description: 'カスタム設定'
         };
+        return true;
+    }
 
+    startProChordGame() {
+        if (!this.applyProChordSettingsFromUI()) return;
         if (this.proChordSettingsModal) {
             this.proChordSettingsModal.classList.add('hidden');
         }
-
         this.startGame(199);
+    }
+
+    confirmProChordSettings() {
+        if (!this.applyProChordSettingsFromUI()) return;
+        if (this.proChordSettingsModal) {
+            this.proChordSettingsModal.classList.add('hidden');
+        }
+        const inGame = this.isPlaying && this.stage === 199;
+        this.startGame(199, { preserveProgress: inGame });
+    }
+
+    resetProChordSettingsToDefaults() {
+        document.querySelectorAll('input[name="pro-question-mode"]').forEach(r => {
+            r.checked = r.value === 'chords';
+        });
+        this.proQuestionMode = 'chords';
+        const cs = document.getElementById('pro-chord-count-slider');
+        const cv = document.getElementById('pro-chord-count-value');
+        if (cs) cs.value = '4';
+        if (cv) cv.textContent = '4';
+        if (confirm('カスタムコード・進行のリストも、公式の初期セットに戻しますか？\n（いいえ＝出題モードとコード数だけ戻します）')) {
+            this.loadDefaultCustomChords();
+            this.saveCustomData();
+            this.renderCustomChordList();
+            if (this.renderCustomProgressionList) this.renderCustomProgressionList();
+        }
     }
 
     getDegreeName(note) {
@@ -2053,8 +2087,65 @@ class Game {
         return this.noteToSolfege[note] || note;
     }
 
-    startProGame() {
-        // Collect selected notes
+    loadProMelodyAccidentalPref() {
+        try {
+            const v = localStorage.getItem('pitchTrainerProAccidentalDisplay');
+            if (v === 'flat' || v === 'sharp') this.proAccidentalDisplay = v;
+        } catch (e) { /* ignore */ }
+    }
+
+    saveProMelodyAccidentalPref() {
+        try {
+            localStorage.setItem('pitchTrainerProAccidentalDisplay', this.proAccidentalDisplay);
+        } catch (e) { /* ignore */ }
+    }
+
+    /** Pro用: 音名表示（C# または D♭） */
+    getProNoteLetterDisplay(note) {
+        if (!note || !note.includes('#')) return note;
+        if (this.proAccidentalDisplay === 'flat') {
+            return this.proSharpToFlatLetter[note] || note;
+        }
+        return note;
+    }
+
+    /** Pro用: 階名表示（シャープ系 or フラット系） */
+    getProSolfegeDisplay(note) {
+        if (this.proAccidentalDisplay === 'flat' && this.proSolfegeFlatBySharpNote[note]) {
+            return this.proSolfegeFlatBySharpNote[note];
+        }
+        return this.getSolfegeName(note);
+    }
+
+    syncProAccidentalToggleUi() {
+        const acc = document.getElementById('pro-accidental-toggle');
+        if (acc) acc.checked = this.proAccidentalDisplay === 'flat';
+    }
+
+    refreshProNoteToggleLabels() {
+        const methodEl = document.getElementById('pro-answer-method');
+        if (!methodEl) return;
+        const method = methodEl.value || 'solfege';
+        document.querySelectorAll('.note-toggle-wrapper').forEach(wrapper => {
+            const checkbox = wrapper.querySelector('.note-toggle');
+            const noteNameLabel = wrapper.querySelector('.note-name');
+            const degreeLabel = wrapper.querySelector('.degree-label');
+            if (checkbox && noteNameLabel) {
+                const note = checkbox.dataset.note;
+                if (method === 'degree') {
+                    noteNameLabel.textContent = this.getDegreeName(note);
+                } else if (method === 'solfege') {
+                    noteNameLabel.textContent = this.getProSolfegeDisplay(note);
+                } else {
+                    noteNameLabel.textContent = this.getProNoteLetterDisplay(note);
+                }
+            }
+            if (degreeLabel) degreeLabel.style.display = 'none';
+        });
+    }
+
+    /** Proメロディ設定を stageConfig に反映。失敗時 false */
+    applyProMelodySettingsFromUI() {
         const selectedNotes = [];
         document.querySelectorAll('.note-toggle:checked').forEach(t => {
             selectedNotes.push(t.dataset.note);
@@ -2062,34 +2153,88 @@ class Game {
 
         if (selectedNotes.length === 0) {
             alert('少なくとも1つの音を選択してください。');
-            return;
+            return false;
         }
 
-        // Get Note Count
         const count = parseInt(document.getElementById('pro-count-slider').value) || 4;
-
-        // Get 2-Octave Mode
         const is2Octave = document.getElementById('pro-2octave-toggle') ? document.getElementById('pro-2octave-toggle').checked : false;
-
-        // Get Keyboard Layout Mode
         const isPianoLayout = document.getElementById('pro-keyboard-layout-toggle') ? document.getElementById('pro-keyboard-layout-toggle').checked : false;
-
-        // Get Answer Method
         const answerMethod = document.getElementById('pro-answer-method').value || 'note';
+        const accEl = document.getElementById('pro-accidental-toggle');
+        if (accEl) {
+            this.proAccidentalDisplay = accEl.checked ? 'flat' : 'sharp';
+        }
+        this.saveProMelodyAccidentalPref();
 
-        // Update Stage Config 99
         this.stageConfig[99].pool = selectedNotes;
         this.stageConfig[99].count = count;
         this.stageConfig[99].is2Octave = is2Octave;
         this.stageConfig[99].isPianoLayout = isPianoLayout;
         this.stageConfig[99].answerMethod = answerMethod;
         this.stageConfig[99].description = selectedNotes.length + '音 / ' + count + '問' + (is2Octave ? ' (2Oct)' : '');
+        return true;
+    }
 
-        // Hide Modal
+    startProGame() {
+        if (!this.applyProMelodySettingsFromUI()) return;
         if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
-
-        // Start Game
         this.startGame(99);
+    }
+
+    confirmProMelodySettings() {
+        if (!this.applyProMelodySettingsFromUI()) return;
+        if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
+        const inGame = this.isPlaying && this.stage === 99;
+        this.startGame(99, { preserveProgress: inGame });
+    }
+
+    resetProMelodySettingsToDefaults() {
+        const presetSelect = document.getElementById('scale-preset-select');
+        if (presetSelect) {
+            presetSelect.value = 'major';
+            this.applyScalePreset('major');
+        }
+        const slider = document.getElementById('pro-count-slider');
+        const valSpan = document.getElementById('pro-count-value');
+        if (slider) slider.value = '4';
+        if (valSpan) valSpan.textContent = '4';
+        document.querySelectorAll('.note-toggle').forEach(t => {
+            const n = t.dataset.note;
+            t.checked = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].includes(n);
+        });
+        const t2 = document.getElementById('pro-2octave-toggle');
+        if (t2) t2.checked = false;
+        const t3 = document.getElementById('pro-keyboard-layout-toggle');
+        if (t3) t3.checked = true;
+        const am = document.getElementById('pro-answer-method');
+        if (am) {
+            am.value = 'solfege';
+            am.dispatchEvent(new Event('change'));
+        }
+        const acc = document.getElementById('pro-accidental-toggle');
+        if (acc) acc.checked = false;
+        this.proAccidentalDisplay = 'sharp';
+        this.saveProMelodyAccidentalPref();
+        this.refreshProNoteToggleLabels();
+    }
+
+    openInGameProSettings() {
+        if (this.stage === 99 && this.proSettingsModal) {
+            this.syncProAccidentalToggleUi();
+            this.refreshProNoteToggleLabels();
+            this.proSettingsModal.classList.remove('hidden');
+        } else if (this.stage === 199 && this.proChordSettingsModal) {
+            this.renderCustomChordList();
+            if (this.renderCustomProgressionList) this.renderCustomProgressionList();
+            this.proChordSettingsModal.classList.remove('hidden');
+        }
+    }
+
+    updateInGameProSettingsButton() {
+        const btn = document.getElementById('in-game-pro-settings-btn');
+        if (!btn) return;
+        const show = this.isPlaying && (this.stage === 99 || this.stage === 199);
+        btn.style.display = show ? 'flex' : 'none';
     }
 
     updateOctave(delta) {
@@ -2222,14 +2367,17 @@ class Game {
         if (this.comboEl) this.comboEl.textContent = this.streak;
     }
 
-    startGame(level) {
+    startGame(level, options = {}) {
+        const preserveProgress = options.preserveProgress === true;
         this.stage = level;
         this.overlay.classList.add('hidden');
         this.hideSettingsModal();
-        this.score = 0;
-        this.streak = 0;
-        this.previousSequenceKeys = []; // Reset for new game session
-        this.updateStats();
+        if (!preserveProgress) {
+            this.score = 0;
+            this.streak = 0;
+            this.previousSequenceKeys = []; // Reset for new game session
+            this.updateStats();
+        }
         this.isPlaying = true;
         this.isRoundOver = false;
 
@@ -2338,11 +2486,11 @@ class Game {
                             if (cfg.answerMethod === 'degree') {
                                 text = this.getDegreeName(note);
                             } else if (cfg.answerMethod === 'solfege') {
-                                text = this.getSolfegeName(note);
+                                text = this.getProSolfegeDisplay(note);
                             } else if (cfg.answerMethod === 'note') {
-                                text = note;
+                                text = this.getProNoteLetterDisplay(note);
                             } else {
-                                text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
+                                text = this.notationStyle === 'doremi' ? (this.getProSolfegeDisplay(note)) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : this.getProNoteLetterDisplay(note));
                             }
                         } else {
                             text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
@@ -2371,11 +2519,11 @@ class Game {
                             if (cfg.answerMethod === 'degree') {
                                 text = this.getDegreeName(note);
                             } else if (cfg.answerMethod === 'solfege') {
-                                text = this.getSolfegeName(note);
+                                text = this.getProSolfegeDisplay(note);
                             } else if (cfg.answerMethod === 'note') {
-                                text = note;
+                                text = this.getProNoteLetterDisplay(note);
                             } else {
-                                text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
+                                text = this.notationStyle === 'doremi' ? (this.getProSolfegeDisplay(note)) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : this.getProNoteLetterDisplay(note));
                             }
                         } else {
                             text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
@@ -2409,6 +2557,8 @@ class Game {
             this.noteButtonsContainer.style.display = 'flex';
             this.chordButtonsContainer.style.display = 'none';
         }
+
+        this.updateInGameProSettingsButton();
 
         // Small delay before first note
         setTimeout(() => void this.nextRound(), 500 / this.noteSpeed);
@@ -2574,6 +2724,7 @@ class Game {
 
     showStageSelector() {
         this.isPlaying = false;
+        this.updateInGameProSettingsButton();
         this.overlay.classList.remove('hidden');
         // 最後に選んだカテゴリ画面に戻る
         ['screen-home', 'screen-melody', 'screen-chord'].forEach(id => {
@@ -2584,6 +2735,7 @@ class Game {
 
     showHomeScreen() {
         this.isPlaying = false;
+        this.updateInGameProSettingsButton();
         this.overlay.classList.remove('hidden');
         ['screen-home', 'screen-melody', 'screen-chord'].forEach(id => {
             if (document.getElementById(id)) document.getElementById(id).classList.add('hidden');
@@ -2783,7 +2935,9 @@ class Game {
             if (this.stage === 99 && cfg.answerMethod === 'degree') {
                 expectedNotes = this.currentSequence.map(n => this.getDegreeName(n)).join(', ');
             } else if (this.stage === 99 && cfg.answerMethod === 'solfege') {
-                expectedNotes = this.currentSequence.map(n => this.getSolfegeName(n)).join(', ');
+                expectedNotes = this.currentSequence.map(n => this.getProSolfegeDisplay(n)).join(', ');
+            } else if (this.stage === 99 && cfg.answerMethod === 'note') {
+                expectedNotes = this.currentSequence.map(n => this.getProNoteLetterDisplay(n)).join(', ');
             } else if (this.notationStyle === 'degree') {
                 expectedNotes = this.currentSequence.map(n => this.getDegreeName(n)).join(', ');
             } else {

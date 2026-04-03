@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ Pro</title>
     <link rel="stylesheet" href="style.css?v=63">
-    <link rel="stylesheet" href="pro-theme.css?v=57">
+    <link rel="stylesheet" href="pro-theme.css?v=61">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -71,9 +71,11 @@
                 </div>
                 <div id="current-stage-desc" style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);"></div>
             </div>
-            <button id="settings-btn" class="icon-btn"
-                style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right));"
-                title="設定">⚙️</button>
+            <div class="header-game-settings-wrap">
+                <button type="button" id="in-game-pro-settings-btn" class="icon-btn icon-btn-header-pair"
+                    style="display: none;" title="Pro設定">👑</button>
+                <button type="button" id="settings-btn" class="icon-btn icon-btn-header-pair" title="設定">⚙️</button>
+            </div>
             <div class="stats">
                 <div class="stat-item" style="min-width: 80px;">
                     <span class="label">Combo</span>
@@ -139,8 +141,8 @@
                 <button id="home-settings-btn" class="icon-btn"
                     style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right)); z-index: 100;"
                     title="設定">⚙️</button>
-                <h2 class="home-title" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    音感クルーズ
+                <h2 class="home-title pro-home-title">
+                    <span class="pro-home-title-text">音感クルーズ</span>
                     <span class="pro-badge">PRO</span>
                 </h2>
                 <div class="category-cards">
@@ -415,6 +417,17 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
+                <div class="setting-item pro-accidental-row">
+                    <span class="pro-accidental-label">変化音の表記</span>
+                    <div class="pro-accidental-toggle-wrap">
+                        <span class="pro-accidental-mark" aria-hidden="true">♯</span>
+                        <label class="toggle-switch" title="オフ=シャープ、オン=フラット">
+                            <input type="checkbox" id="pro-accidental-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="pro-accidental-mark" aria-hidden="true">♭</span>
+                    </div>
+                </div>
                 <div class="setting-item">
                     <label>回答表示</label>
                     <select id="pro-answer-method" class="preset-select" style="width: 150px;">
@@ -426,9 +439,12 @@
 
 
 
-                <div class="action-buttons">
-                    <button id="btn-start-pro" class="btn-primary">スタート</button>
-                    <button id="btn-cancel-pro" class="btn-secondary">キャンセル</button>
+                <div class="pro-settings-modal-footer">
+                    <button type="button" id="btn-start-pro" class="btn-primary">決定</button>
+                    <div class="pro-settings-modal-subactions">
+                        <button type="button" id="btn-reset-pro-melody" class="btn-secondary">デフォルトに戻す</button>
+                        <button type="button" id="btn-cancel-pro" class="btn-secondary">キャンセル</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -496,9 +512,12 @@
 
 
 
-                <div class="action-buttons">
-                    <button id="btn-start-pro-chord" class="btn-primary">スタート</button>
-                    <button id="btn-cancel-pro-chord" class="btn-secondary">キャンセル</button>
+                <div class="pro-settings-modal-footer">
+                    <button type="button" id="btn-start-pro-chord" class="btn-primary">決定</button>
+                    <div class="pro-settings-modal-subactions">
+                        <button type="button" id="btn-reset-pro-chord" class="btn-secondary">デフォルトに戻す</button>
+                        <button type="button" id="btn-cancel-pro-chord" class="btn-secondary">キャンセル</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -640,7 +659,7 @@
             </div>
         </div>
     </div>
-    <script src="script.js?v=61"></script>
+    <script src="script.js?v=63"></script>
 </body>
 
 </html>
