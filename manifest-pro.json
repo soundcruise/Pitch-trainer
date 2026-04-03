@@ -1,8 +1,8 @@
 {
-    "id": "./pro.html",
+    "id": "./prok3m9/",
     "name": "音感クルーズ Pro",
     "short_name": "音感クルーズ Pro",
-    "start_url": "./pro.html",
+    "start_url": "./prok3m9/",
     "scope": "./",
     "display": "standalone",
     "orientation": "portrait",
@@ -11,13 +11,13 @@
     "description": "絶対音感トレーニングアプリ「音感クルーズ」のプロバージョン。",
     "icons": [
         {
-            "src": "icon_idea/Pro_4.png?v=1",
+            "src": "icon_idea/android_pro.png?v=1",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icon_idea/Pro_4.png?v=1",
+            "src": "icon_idea/android_pro.png?v=1",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
