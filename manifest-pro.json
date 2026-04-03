@@ -1,7 +1,9 @@
 {
+    "id": "./pro.html",
     "name": "音感クルーズ Pro",
     "short_name": "音感クルーズ Pro",
     "start_url": "./pro.html",
+    "scope": "./",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#121212",
