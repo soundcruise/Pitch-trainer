@@ -25,7 +25,7 @@ URL（PWA用）: https://soundcruise.github.io/Pitch-trainer/beta/
 公開URL（PWA用）: リポジトリには記載しません。YouTube 有料メンバー向けの案内で共有してください。
 旧URL（pro.html 等）: 無効（アプリは開きません）
 特徴: すべての機能を利用可能。ホーム画面のタイトルに「PRO」バッジが表示されます。
-アイコン: icon_idea/android_pro_pwa_192 / android_pro_pwa_512
+アイコン: 通常版と同じ icon_pwa_192 / icon_pwa_512。ホーム画面の名前も「音感クルーズ」（通常版と同じ表記）
 
 --------------------------------------------------
 2. アプリとしてインストールする方法 (PWA)
