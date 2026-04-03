@@ -15,7 +15,7 @@
 ### 🧪 お試しベータ版 (Beta)
 - **URL（PWA用）**: [https://soundcruise.github.io/Pitch-trainer/beta/](https://soundcruise.github.io/Pitch-trainer/beta/)
 - **短い入口**: [beta.html](https://soundcruise.github.io/Pitch-trainer/beta.html) は自動で `beta/` へ移動します。
-- **特徴**: メンバー向けテスト用。**メロディ音感・コード音感とも STAGE 1〜4 のみ**（それ以上は選べず、内部でもブロックします）。トップにベータ用ロゴを表示します。
+- **特徴**: メンバー向けテスト用。**メロディ音感・コード音感とも STAGE 1〜4 のみ**（それ以上は選べず、内部でもブロックします）。トップのタイトル下に「お試しベータ」と表示します。
 - **アイコン**: `icon_idea/beta.png` を元にした軽量 `beta_pwa_192.png` / `beta_pwa_512.png`
 
 ### 👑 Pro版 (Pro Version)
