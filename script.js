@@ -592,28 +592,6 @@ class AudioEngine {
         gainNode.gain.setValueAtTime(0.37, now + duration);
         gainNode.gain.exponentialRampToValueAtTime(0.0001, end);
 
-        // 弓の摩擦ノイズ（アタックのみ）
-        const sr = this.ctx.sampleRate;
-        const nLen = Math.ceil(0.055 * sr);
-        const nBuf = this.ctx.createBuffer(1, nLen, sr);
-        const nd = nBuf.getChannelData(0);
-        for (let i = 0; i < nLen; i++) nd[i] = (Math.random() * 2 - 1) * 0.45;
-        const nSrc = this.ctx.createBufferSource();
-        this._trackScheduledSource(nSrc);
-        nSrc.buffer = nBuf;
-        const nHp = this.ctx.createBiquadFilter();
-        nHp.type = 'highpass';
-        nHp.frequency.value = 1800;
-        const nG = this.ctx.createGain();
-        nSrc.connect(nHp);
-        nHp.connect(nG);
-        nG.connect(master);
-        nG.gain.setValueAtTime(0, now);
-        nG.gain.linearRampToValueAtTime(0.058, now + 0.012);
-        nG.gain.exponentialRampToValueAtTime(0.0001, now + 0.052);
-        nSrc.start(now);
-        nSrc.stop(now + 0.056);
-
         vibrato.start(now);
         oscLo.start(now);
         osc.start(now);
@@ -2554,7 +2532,7 @@ class Game {
 
     /**
      * 設定の「音を確認」ボタン
-     * 現在の楽器・キー・オクターブ・余韻を全て反映してC音を再生する
+     * 現在の楽器・キー・オクターブ・余韻・問題スピードを反映してC音を再生する
      */
     async previewSound() {
         const btn = document.getElementById('preview-sound');
@@ -2564,9 +2542,9 @@ class Game {
 
         await this.audio.resumeContext();
 
-        // 現在の設定でC音（主音）を再生
+        // 問題再生・回答プレビューと同じ 0.8/noteSpeed（Pro のスピード設定と一致）
         const noteName = 'C' + this.baseOctave;
-        const previewDuration = 0.8;
+        const previewDuration = 0.8 / this.noteSpeed;
 
         this.audio.playNote(noteName, previewDuration, 0, this.keyOffset);
 
@@ -3087,16 +3065,17 @@ class Game {
 
         const cfg = this.stageConfig[this.stage];
 
-        // Visual feedback for click & play sound
+        // 問題再生（playSequence）と同じ発音長＋余韻のかかり方にそろえる（ピアノ等でタップ音だけ短く聞こえないように）
+        const answerPreviewDuration = 0.8 / this.noteSpeed;
+
         if (cfg.isChord) {
             if (cfg.isCustomChord) {
-                this.audio.playCustomChord(note, this.baseOctave, 0.5, 0, this.keyOffset);
+                this.audio.playCustomChord(note, this.baseOctave, answerPreviewDuration, 0, this.keyOffset);
             } else {
-                // Play with specific voicing if defined
-                this.audio.playChord(note, this.baseOctave, 0.5, 0, this.keyOffset, cfg.chordVoicing);
+                this.audio.playChord(note, this.baseOctave, answerPreviewDuration, 0, this.keyOffset, cfg.chordVoicing);
             }
         } else {
-            this.audio.playNote(note + (this.baseOctave + inputOctaveOffset), 0.3, 0, this.keyOffset);
+            this.audio.playNote(note + (this.baseOctave + inputOctaveOffset), answerPreviewDuration, 0, this.keyOffset);
         }
 
         // Check if answer mode is disabled (preview only)
