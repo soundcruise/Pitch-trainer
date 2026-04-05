@@ -100,10 +100,29 @@ class AudioEngine {
         this._frozenSince = 0;
     }
 
+    /** Safari 等の interrupted 状態も suspended と同様に扱う */
+    _needsResume(state) {
+        return state === 'suspended' || state === 'interrupted';
+    }
+
+    async _resumeIfNeeded() {
+        if (!this.ctx || this.ctx.state === 'closed') return;
+        if (this._needsResume(this.ctx.state)) {
+            await this.ctx.resume();
+        }
+    }
+
+    /** ページ遷移・リロード直前に呼ぶと、固まったコンテキストの残骸を減らせる */
+    closeContextForNavigation() {
+        try {
+            if (this.ctx && this.ctx.state !== 'closed') this.ctx.close();
+        } catch (_) { /* ignore */ }
+    }
+
     ensureContext() {
         if (!this.ctx || this.ctx.state === 'closed') {
             this._forceNewContext();
-        } else if (this.ctx.state === 'suspended') {
+        } else if (this._needsResume(this.ctx.state)) {
             void this.ctx.resume();
         } else if (this._isContextFrozen()) {
             this._forceNewContext();
@@ -115,23 +134,18 @@ class AudioEngine {
             if (!this.ctx || this.ctx.state === 'closed') {
                 this._forceNewContext();
             }
-            if (this.ctx.state === 'suspended') {
-                await this.ctx.resume();
-            }
+            await this._resumeIfNeeded();
             if (this.ctx.state === 'running' && this._isContextFrozen()) {
                 this._forceNewContext();
-                if (this.ctx.state === 'suspended') {
-                    await this.ctx.resume();
-                }
+                await this._resumeIfNeeded();
             }
             const t0 = this.ctx.currentTime;
             await new Promise(r => setTimeout(r, 50));
             if (this.ctx.state === 'running' && this.ctx.currentTime === t0) {
                 this._forceNewContext();
-                if (this.ctx.state === 'suspended') {
-                    await this.ctx.resume();
-                }
+                await this._resumeIfNeeded();
             }
+            await this._resumeIfNeeded();
         } catch (e) {
             console.warn('PitchTrainer: AudioContext resume failed, forcing new context', e);
             this._forceNewContext();
@@ -149,8 +163,22 @@ class AudioEngine {
                 tryResume();
             }
         });
-        window.addEventListener('pageshow', tryResume);
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) {
+                this._lastKnownTime = 0;
+                this._frozenSince = 0;
+            }
+            void this.resumeContext();
+        });
         window.addEventListener('focus', tryResume);
+
+        const onPageLifecycleResume = () => {
+            this._lastKnownTime = 0;
+            this._frozenSince = 0;
+            void this.resumeContext();
+        };
+        document.addEventListener('resume', onPageLifecycleResume);
+        window.addEventListener('resume', onPageLifecycleResume);
 
         const resumeOnInteraction = () => {
             void this.resumeContext();
@@ -2735,8 +2763,13 @@ class Game {
 
         this.updateInGameProSettingsButton();
 
-        // Small delay before first note
-        setTimeout(() => void this.nextRound(), 500 / this.noteSpeed);
+        // 初回問題の前に AudioContext を確実に running にしてから nextRound（無音の競合を減らす）
+        setTimeout(async () => {
+            try {
+                await this.audio.resumeContext();
+            } catch (_) { /* ignore */ }
+            void this.nextRound();
+        }, 500 / this.noteSpeed);
     }
 
 
@@ -2773,6 +2806,10 @@ class Game {
 
     async nextRound() {
         if (!this.isPlaying) return;
+
+        try {
+            await this.audio.resumeContext();
+        } catch (_) { /* ignore */ }
 
         this.isBlockingInput = true;
         this.isRoundOver = false;
@@ -2923,7 +2960,12 @@ class Game {
         if (stageDisplay) stageDisplay.style.display = 'none';
         if (appTitle) appTitle.style.display = 'block';
 
-        this.applyTranslations(); // Refresh translations for home screen
+        this.applyTranslations();
+    }
+
+    /** 将来の多言語切り替え用。未定義のままだと例外になるため空実装 */
+    applyTranslations() {
+        /* no-op */
     }
 
     async playSequence() {
@@ -3197,6 +3239,11 @@ class Game {
  * ページを読み直す（キャッシュを避けやすいようクエリを付与）
  */
 function reloadAppWithCacheBust() {
+    try {
+        if (window.game && window.game.audio && typeof window.game.audio.closeContextForNavigation === 'function') {
+            window.game.audio.closeContextForNavigation();
+        }
+    } catch (_) { /* ignore */ }
     try {
         const url = new URL(window.location.href);
         url.searchParams.set('_r', String(Date.now()));
