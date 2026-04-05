@@ -23,34 +23,42 @@
         }
     </script>
     <style>
-        /* INJECTED MOBILE MODAL OVERRIDES */
+        /* Pro 全画面モーダル: style.css と同じく外側だけスクロール・blur オフ（この style は後勝ちするためここでも明示） */
         @media (max-width: 768px) {
             #screen-pro-settings,
             #pro-settings-modal-chord,
             #chord-editor-modal,
             #progression-editor-modal {
                 background-color: #1a1a1a !important;
-                /* Force HEX for transparency fix */
                 height: 100vh !important;
                 height: 100dvh !important;
                 align-items: flex-start !important;
+                justify-content: flex-start !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: contain;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
             }
- 
+
             #screen-pro-settings .modal-content,
             #pro-settings-modal-chord .modal-content,
             #chord-editor-modal .modal-content,
             #progression-editor-modal .modal-content {
                 width: 100vw !important;
-                min-height: 100vh !important;
-                min-height: 100dvh !important;
+                min-height: 0 !important;
                 max-width: none !important;
                 max-height: none !important;
                 border-radius: 0 !important;
-                padding: max(20px, calc(env(safe-area-inset-top) + 20px)) 15px 20px 15px !important;
+                padding: 20px 15px !important;
+                padding-top: max(20px, calc(env(safe-area-inset-top) + 20px)) !important;
+                padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
                 margin: 0 !important;
                 box-sizing: border-box !important;
                 border: none !important;
-                overflow-y: auto !important;
+                overflow: visible !important;
+                overflow-y: visible !important;
                 background-color: #1a1a1a !important;
             }
         }
