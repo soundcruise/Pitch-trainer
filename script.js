@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.1.1';
+const PITCH_TRAINER_APP_VERSION = '1.1.2';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -58,6 +58,20 @@ class AudioEngine {
 
         // モバイルブラウザ対策: ユーザー操作でAudioContextを起こすリスナー
         this._setupResumeHandlers();
+        this.requestPlaybackAudioSession();
+    }
+
+    /**
+     * iPhone のマナーモード（サイレントスイッチ）:
+     * 対応ブラウザ（iOS 17 以降の Safari 等）では Audio Session を playback にすると、
+     * Web Audio が「メディア再生」扱いになり、マナー中でもスピーカーから鳴ることがある。
+     * 未対応の Safari / 古い iOS では OS の仕様のまま（マナーで無音になり得る）。
+     */
+    requestPlaybackAudioSession() {
+        try {
+            const as = typeof navigator !== 'undefined' && navigator.audioSession;
+            if (as) as.type = 'playback';
+        } catch (_) { /* ignore */ }
     }
 
     _buildNotes() {
@@ -120,6 +134,7 @@ class AudioEngine {
     }
 
     ensureContext() {
+        this.requestPlaybackAudioSession();
         if (!this.ctx || this.ctx.state === 'closed') {
             this._forceNewContext();
         } else if (this._needsResume(this.ctx.state)) {
@@ -130,6 +145,7 @@ class AudioEngine {
     }
 
     async resumeContext() {
+        this.requestPlaybackAudioSession();
         try {
             if (!this.ctx || this.ctx.state === 'closed') {
                 this._forceNewContext();
