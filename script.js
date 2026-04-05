@@ -55,6 +55,8 @@ class AudioEngine {
         this.sustainTime = 0.5; // 余韻の長さ（秒）。設定から変更可能。
         this._lastKnownTime = 0;
         this._frozenSince = 0;
+        /** @type {AudioScheduledSourceNode[]} 再生中の音をまとめて止めるため */
+        this._scheduledSources = [];
 
         // モバイルブラウザ対策: ユーザー操作でAudioContextを起こすリスナー
         this._setupResumeHandlers();
@@ -72,6 +74,30 @@ class AudioEngine {
             const as = typeof navigator !== 'undefined' && navigator.audioSession;
             if (as) as.type = 'playback';
         } catch (_) { /* ignore */ }
+    }
+
+    _trackScheduledSource(node) {
+        if (node && this._scheduledSources) this._scheduledSources.push(node);
+    }
+
+    /** 登録済みの発音を即座に止める（画面遷移・別ステージ・次の問題など） */
+    stopAllScheduledSounds() {
+        if (!this.ctx || this.ctx.state === 'closed') {
+            this._scheduledSources = [];
+            return;
+        }
+        const t = this.ctx.currentTime;
+        const list = this._scheduledSources;
+        this._scheduledSources = [];
+        for (let i = 0; i < list.length; i++) {
+            const node = list[i];
+            try {
+                node.stop(t);
+            } catch (_) { /* 既に stop 済みなど */ }
+            try {
+                node.disconnect();
+            } catch (_) { /* ignore */ }
+        }
     }
 
     _buildNotes() {
@@ -110,6 +136,7 @@ class AudioEngine {
     _forceNewContext() {
         try { if (this.ctx) this.ctx.close(); } catch (_) { /* ignore */ }
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this._scheduledSources = [];
         this._lastKnownTime = 0;
         this._frozenSince = 0;
     }
@@ -131,6 +158,7 @@ class AudioEngine {
         try {
             if (this.ctx && this.ctx.state !== 'closed') this.ctx.close();
         } catch (_) { /* ignore */ }
+        this._scheduledSources = [];
     }
 
     ensureContext() {
@@ -308,6 +336,7 @@ class AudioEngine {
 
         const source = this.ctx.createBufferSource();
         source.buffer = audioBuffer;
+        this._trackScheduledSource(source);
 
         // ── 4. ボディ共鳴フィルタ（箱鳴りのシミュレーション） ─────────
         // ギターボディの低域共鳴（80〜200Hz付近）を再現
@@ -467,6 +496,7 @@ class AudioEngine {
 
         const envPartial = (freqHz, peak, quickLevel, sustainLevel) => {
             const osc = this.ctx.createOscillator();
+            this._trackScheduledSource(osc);
             osc.type = 'sine';
             osc.frequency.value = freqHz;
             const g = this.ctx.createGain();
@@ -516,11 +546,14 @@ class AudioEngine {
         master.connect(this.ctx.destination);
 
         const osc = this.ctx.createOscillator();
+        this._trackScheduledSource(osc);
         const oscLo = this.ctx.createOscillator();
+        this._trackScheduledSource(oscLo);
         const filter = this.ctx.createBiquadFilter();
         const body = this.ctx.createBiquadFilter();
         const gainNode = this.ctx.createGain();
         const vibrato = this.ctx.createOscillator();
+        this._trackScheduledSource(vibrato);
         const vibratoGain = this.ctx.createGain();
 
         osc.type = 'sawtooth';
@@ -566,6 +599,7 @@ class AudioEngine {
         const nd = nBuf.getChannelData(0);
         for (let i = 0; i < nLen; i++) nd[i] = (Math.random() * 2 - 1) * 0.45;
         const nSrc = this.ctx.createBufferSource();
+        this._trackScheduledSource(nSrc);
         nSrc.buffer = nBuf;
         const nHp = this.ctx.createBiquadFilter();
         nHp.type = 'highpass';
@@ -602,7 +636,9 @@ class AudioEngine {
         mix.gain.value = 0.34;
 
         const oscSaw = this.ctx.createOscillator();
+        this._trackScheduledSource(oscSaw);
         const oscSq = this.ctx.createOscillator();
+        this._trackScheduledSource(oscSq);
         oscSaw.type = 'sawtooth';
         oscSq.type = 'square';
         oscSaw.frequency.value = f0;
@@ -2587,6 +2623,7 @@ class Game {
             const okChord = level >= 101 && level <= 104;
             if (!okMelody && !okChord) return;
         }
+        this.audio.stopAllScheduledSounds();
         const preserveProgress = options.preserveProgress === true;
         this.stage = level;
         this.overlay.classList.add('hidden');
@@ -2791,6 +2828,7 @@ class Game {
 
     async playScale(callback) {
         await this.audio.resumeContext();
+        this.audio.stopAllScheduledSounds();
         const scale = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'];
         const noteDuration = 0.13 / this.noteSpeed; // スピードに連動
         const now = this.audio.ctx.currentTime;
@@ -2826,6 +2864,8 @@ class Game {
         try {
             await this.audio.resumeContext();
         } catch (_) { /* ignore */ }
+
+        this.audio.stopAllScheduledSounds();
 
         this.isBlockingInput = true;
         this.isRoundOver = false;
@@ -2951,6 +2991,7 @@ class Game {
     }
 
     showStageSelector() {
+        this.audio.stopAllScheduledSounds();
         this.isPlaying = false;
         this.updateInGameProSettingsButton();
         this.overlay.classList.remove('hidden');
@@ -2962,6 +3003,7 @@ class Game {
     }
 
     showHomeScreen() {
+        this.audio.stopAllScheduledSounds();
         this.isPlaying = false;
         this.updateInGameProSettingsButton();
         this.overlay.classList.remove('hidden');
@@ -2988,6 +3030,7 @@ class Game {
         if (!this.currentSequence.length) return;
 
         await this.audio.resumeContext();
+        this.audio.stopAllScheduledSounds();
         const now = this.audio.ctx.currentTime;
         const noteDuration = 0.8 / this.noteSpeed;
         const gap = 0.2 / this.noteSpeed;
