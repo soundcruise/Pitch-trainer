@@ -680,7 +680,7 @@ class Game {
             // Chord Stages
             101: { pool: ['C', 'F', 'G'], count: 4, isChord: true, chordVoicing: [0, 2], label: 'Stage 1', description: 'C, F, G (2和音)' },
             102: { pool: ['C', 'F', 'G'], count: 4, isChord: true, chordVoicing: [0, 1, 2], label: 'Stage 2', description: 'C, F, G (3和音)' },
-            103: { pool: ['C', 'F', 'G', 'Am'], count: 4, isChord: true, chordVoicing: [0, 1], label: 'Stage 3', description: 'C, F, G, Am (2和音)' },
+            103: { pool: ['C', 'F', 'G', 'Am'], count: 4, isChord: true, chordVoicing: [0, 2], label: 'Stage 3', description: 'C, F, G, Am (2和音)' },
             104: { pool: ['C', 'F', 'G', 'Am'], count: 4, isChord: true, chordVoicing: [0, 1, 2], label: 'Stage 4', description: 'C, F, G, Am (3和音)' },
             105: { pool: ['C', 'F', 'G', 'Am', 'Dm', 'Em'], count: 4, isChord: true, chordVoicing: [0, 2], label: 'Stage 5', description: 'C, F, G, Am, Dm, Em (2和音)' },
             106: { pool: ['C', 'F', 'G', 'Am', 'Dm', 'Em'], count: 4, isChord: true, chordVoicing: [0, 1, 2], label: 'Stage 6', description: 'C, F, G, Am, Dm, Em (3和音)' },
