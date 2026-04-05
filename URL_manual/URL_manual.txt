@@ -2,8 +2,7 @@
 
 アプリの通常版・お試しベータ版・Pro版の使い分け、および公開URLとインストール手順についてまとめました。
 
-※ Pro版の **https:// から始まるフル URL** は、会員向けにのみ案内し、**このリポジトリのテキストには載せていません**。
-  自分用メモの置き方は「Pro_URLはリポジトリ外で管理.txt」を参照してください。
+※ Pro版 URL は下記に記載しています。**リポジトリを公開している場合**は、会員以外にも見える点に注意してください。
 
 --------------------------------------------------
 1. 公開URL (GitHub Pages)
@@ -22,7 +21,8 @@ URL（PWA用）: https://soundcruise.github.io/Pitch-trainer/beta/
 アイコン: icon_idea/beta_pwa_192 / beta_pwa_512
 
 【 👑 Pro版 (Pro Version) 】
-公開URL（PWA用）: リポジトリには記載しません。YouTube 有料メンバー向けの案内で共有してください。
+URL（会員向け・PWA用）: https://soundcruise.github.io/Pitch-trainer/pro_k3m9/
+（YouTube 有料メンバー向けの案内では、このURLを共有してください）
 旧URL（pro.html 等）: 無効（アプリは開きません）
 特徴: すべての機能を利用可能。ホーム画面のタイトルに「PRO」バッジが表示されます。
 アイコン: 通常版と同じ icon_pwa_192 / icon_pwa_512。ホーム画面の名前も「音感クルーズ」（通常版と同じ表記）
@@ -33,7 +33,7 @@ URL（PWA用）: https://soundcruise.github.io/Pitch-trainer/beta/
 
 iPhoneやAndroidのホーム画面に「独立したアプリ」として追加する手順です。
 
-(1) 通常版は …/standard/、ベータは …/beta/、Pro版は **会員向けに案内している URL** をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます。
+(1) 通常版は …/standard/、ベータは …/beta/、Pro版は …/pro_k3m9/ をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます。
 (2) ブラウザのメニューから「ホーム画面に追加」を選択します。
 (3) 必要な版だけ、または複数版を追加して使い分けます。
 
