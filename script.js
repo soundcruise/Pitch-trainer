@@ -700,6 +700,8 @@ class Game {
         this.noteSpeed = 1.0;    // 問題の再生スピード（0.5～2.0）
         this.lastCategory = 'screen-melody'; // 最後に選んだカテゴリ画面
         this.isAnswerMode = true; // 回答モード (true: 回答する, false: 音確認のみ)
+        /** 通常版で Pro STAGE の「決定」後、出題せず案内だけ出すモード */
+        this.standardProPreviewMode = false;
         this.notationStyle = 'doremi'; // Added notation preference
         // Dictionary for Note naming
         this.doremiMap = {
@@ -2241,6 +2243,10 @@ class Game {
         if (this.proChordSettingsModal) {
             this.proChordSettingsModal.classList.add('hidden');
         }
+        if (!isPitchTrainerPro()) {
+            this.startGame(199, { standardProPreview: true });
+            return;
+        }
         this.startGame(199);
     }
 
@@ -2248,6 +2254,10 @@ class Game {
         if (!this.applyProChordSettingsFromUI()) return;
         if (this.proChordSettingsModal) {
             this.proChordSettingsModal.classList.add('hidden');
+        }
+        if (!isPitchTrainerPro()) {
+            this.startGame(199, { standardProPreview: true });
+            return;
         }
         const inGame = this.isPlaying && this.stage === 199;
         this.startGame(199, { preserveProgress: inGame });
@@ -2406,12 +2416,20 @@ class Game {
     startProGame() {
         if (!this.applyProMelodySettingsFromUI()) return;
         if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
+        if (!isPitchTrainerPro()) {
+            this.startGame(99, { standardProPreview: true });
+            return;
+        }
         this.startGame(99);
     }
 
     confirmProMelodySettings() {
         if (!this.applyProMelodySettingsFromUI()) return;
         if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
+        if (!isPitchTrainerPro()) {
+            this.startGame(99, { standardProPreview: true });
+            return;
+        }
         const inGame = this.isPlaying && this.stage === 99;
         this.startGame(99, { preserveProgress: inGame });
     }
@@ -2614,6 +2632,7 @@ class Game {
         }
         this.isPlaying = true;
         this.isRoundOver = false;
+        this.standardProPreviewMode = options.standardProPreview === true;
 
         const cfg = this.stageConfig[this.stage] || this.stageConfig[3];
         const pool = cfg.pool;
@@ -2794,6 +2813,19 @@ class Game {
 
         this.updateInGameProSettingsButton();
 
+        if (this.standardProPreviewMode) {
+            this.currentSequence = [];
+            this.isRoundOver = true;
+            this.inputIndex = 0;
+            this.isBlockingInput = false;
+            void this.audio.resumeContext().catch(() => {});
+            this.showFeedback(
+                'このSTAGEはPro版専用の機能です。遊ぶにはPro版をご利用ください',
+                'pro-preview'
+            );
+            return;
+        }
+
         // 初回問題の前に AudioContext を確実に running にしてから nextRound（無音の競合を減らす）
         setTimeout(async () => {
             try {
@@ -2838,6 +2870,7 @@ class Game {
 
     async nextRound() {
         if (!this.isPlaying) return;
+        if (this.standardProPreviewMode) return;
 
         try {
             await this.audio.resumeContext();
@@ -2971,6 +3004,7 @@ class Game {
     showStageSelector() {
         this.audio.stopAllScheduledSounds();
         this.isPlaying = false;
+        this.standardProPreviewMode = false;
         this.updateInGameProSettingsButton();
         this.overlay.classList.remove('hidden');
         // 最後に選んだカテゴリ画面に戻る
@@ -2983,6 +3017,7 @@ class Game {
     showHomeScreen() {
         this.audio.stopAllScheduledSounds();
         this.isPlaying = false;
+        this.standardProPreviewMode = false;
         this.updateInGameProSettingsButton();
         this.overlay.classList.remove('hidden');
         ['screen-home', 'screen-melody', 'screen-chord'].forEach(id => {
@@ -3036,6 +3071,7 @@ class Game {
     }
 
     replaySequence() {
+        if (this.standardProPreviewMode) return;
         // Allow replay even if playing, but reset blocking if we want to handle overlap visually
         // For now, just play. User asked to allow input during play, so we shouldn't block input.
         // We can just play the sequence.
@@ -3060,6 +3096,7 @@ class Game {
 
     async handleInput(note, inputOctaveOffset = 0) {
         if (!this.isPlaying || !this.currentSequence.length) return;
+        if (this.standardProPreviewMode) return;
 
         await this.audio.resumeContext();
 

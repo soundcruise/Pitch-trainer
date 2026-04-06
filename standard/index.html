@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ</title>
     <link rel="stylesheet" href="../style.css?v=74">
+    <link rel="stylesheet" href="../pro-theme.css?v=61">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -20,6 +21,46 @@
                 .then(() => console.log('Service Worker Registered (standard)'));
         }
     </script>
+    <style>
+        @media (max-width: 768px) {
+            #screen-pro-settings,
+            #pro-settings-modal-chord,
+            #chord-editor-modal,
+            #progression-editor-modal {
+                background-color: #1a1a1a !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: contain;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            #screen-pro-settings .modal-content,
+            #pro-settings-modal-chord .modal-content,
+            #chord-editor-modal .modal-content,
+            #progression-editor-modal .modal-content {
+                width: 100vw !important;
+                min-height: 0 !important;
+                max-width: none !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                padding: 20px 15px !important;
+                padding-top: max(20px, calc(env(safe-area-inset-top) + 20px)) !important;
+                padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                border: none !important;
+                overflow: visible !important;
+                overflow-y: visible !important;
+                background-color: #1a1a1a !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -36,9 +77,11 @@
                 </div>
                 <div id="current-stage-desc" style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);"></div>
             </div>
-            <button id="settings-btn" class="icon-btn"
-                style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right));"
-                title="設定">⚙️</button>
+            <div class="header-game-settings-wrap">
+                <button type="button" id="in-game-pro-settings-btn" class="icon-btn icon-btn-header-pair"
+                    style="display: none;" title="Pro設定">👑</button>
+                <button type="button" id="settings-btn" class="icon-btn icon-btn-header-pair" title="設定">⚙️</button>
+            </div>
             <div class="stats">
                 <div class="stat-item" style="min-width: 80px;">
                     <span class="label">Combo</span>
@@ -154,6 +197,15 @@
                             (全７音)</span></button>
                     <button id="btn-level-6" class="btn-primary" data-stage="6">Stage 6 <span class="stage-desc">4音
                             (全７音)</span></button>
+
+                    <div class="pro-stage-teaser-wrap">
+                        <button id="btn-level-pro" type="button"
+                            class="btn-primary custom-stage-btn pro-stage-teaser">👑 PROカスタムSTAGE</button>
+                        <div class="pro-stage-teaser-caption">
+                            <span class="pro-stage-teaser-caption-lock" aria-hidden="true">🔒</span>
+                            <span class="pro-stage-teaser-caption-text">Pro版専用（中身の確認だけできます）</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -200,11 +252,303 @@
                             class="stage-desc">C, F, G, Am, Dm, Em (2和音)</span></button>
                     <button id="btn-level-106" class="btn-primary" data-stage="106">STAGE 6<br><span
                             class="stage-desc">C, F, G, Am, Dm, Em (3和音)</span></button>
+
+                    <div class="pro-stage-teaser-wrap">
+                        <button id="btn-level-pro-chord" type="button"
+                            class="btn-primary custom-stage-btn pro-stage-teaser">👑 PROカスタムSTAGE</button>
+                        <div class="pro-stage-teaser-caption">
+                            <span class="pro-stage-teaser-caption-lock" aria-hidden="true">🔒</span>
+                            <span class="pro-stage-teaser-caption-text">Pro版専用（中身の確認だけできます）</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Pro Settings Modal -->
+        <div id="screen-pro-settings" class="modal hidden">
+            <div class="modal-content pro-settings-content">
+                <h2>👑 Pro設定</h2>
 
+                <div class="setting-item vertical" style="margin-bottom: 20px;">
+                    <label><span>問題の音数</span>: <span id="pro-count-value">4</span><span>音</span></label>
+                    <input type="range" id="pro-count-slider" min="1" max="16" step="1" value="4"
+                        class="sustain-slider">
+                </div>
+
+                <div class="setting-group">
+                    <h3>スケールプリセット</h3>
+                    <select id="scale-preset-select" class="preset-select">
+                        <option value="major">メジャー / イオニアン</option>
+                        <option value="chromatic">クロマチック</option>
+                        <option value="minor">マイナー / エオリアン</option>
+                        <option value="harmonic-minor">ハーモニックマイナー</option>
+                        <option value="melodic-minor">メロディックマイナー</option>
+                        <option value="dorian">ドリアン</option>
+                        <option value="phrygian">フリジアン</option>
+                        <option value="lydian">リディアン</option>
+                        <option value="mixolydian">ミクソリディアン</option>
+                        <option value="locrian">ロクリアン</option>
+                        <option value="penta-maj">メジャー・ペンタトニック</option>
+                        <option value="penta-min">マイナー・ペンタトニック</option>
+                        <option value="blues">ブルース</option>
+                        <option value="altered">オルタード</option>
+                        <option value="whole-tone">ホールトーン</option>
+                        <option value="diminished-wh">ディミニッシュ (全-半)</option>
+                        <option value="diminished-hw">コンディミ (半-全)</option>
+                        <option value="lydian-b7">リディアンb7 / アコースティック</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <h3>使用する音</h3>
+                    <div class="note-toggles-grid">
+                        <div class="keyboard-row black-keys">
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="C#"
+                                    class="note-toggle"><span class="note-name">C#</span><span
+                                    class="degree-label">♭2</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="D#"
+                                    class="note-toggle"><span class="note-name">D#</span><span
+                                    class="degree-label">♭3</span></label>
+                            <div class="spacer"></div>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="F#"
+                                    class="note-toggle"><span class="note-name">F#</span><span
+                                    class="degree-label">♭5</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="G#"
+                                    class="note-toggle"><span class="note-name">G#</span><span
+                                    class="degree-label">♭6</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="A#"
+                                    class="note-toggle"><span class="note-name">A#</span><span
+                                    class="degree-label">♭7</span></label>
+                        </div>
+                        <div class="keyboard-row white-keys">
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="C" class="note-toggle"
+                                    checked><span class="note-name">C</span><span class="degree-label">1</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="D" class="note-toggle"
+                                    checked><span class="note-name">D</span><span class="degree-label">2</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="E" class="note-toggle"
+                                    checked><span class="note-name">E</span><span class="degree-label">3</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="F" class="note-toggle"
+                                    checked><span class="note-name">F</span><span class="degree-label">4</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="G" class="note-toggle"
+                                    checked><span class="note-name">G</span><span class="degree-label">5</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="A" class="note-toggle"
+                                    checked><span class="note-name">A</span><span class="degree-label">6</span></label>
+                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="B" class="note-toggle"
+                                    checked><span class="note-name">B</span><span class="degree-label">7</span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label for="pro-2octave-toggle">2オクターブ展開</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pro-2octave-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="pro-keyboard-layout-toggle">鍵盤レイアウト</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pro-keyboard-layout-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item pro-accidental-row">
+                    <span class="pro-accidental-label">変化音の表記</span>
+                    <div class="pro-accidental-toggle-wrap">
+                        <span class="pro-accidental-mark" aria-hidden="true">♯</span>
+                        <label class="toggle-switch" title="オフ=シャープ、オン=フラット">
+                            <input type="checkbox" id="pro-accidental-toggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="pro-accidental-mark" aria-hidden="true">♭</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>回答表示</label>
+                    <select id="pro-answer-method" class="preset-select" style="width: 150px;">
+                        <option value="note">音名 (C, D...)</option>
+                        <option value="degree">度数 (1, 2...)</option>
+                        <option value="solfege" selected>階名 (ド, レ...)</option>
+                    </select>
+                </div>
+
+                <div class="pro-settings-modal-footer">
+                    <button type="button" id="btn-start-pro" class="btn-primary">決定</button>
+                    <div class="pro-settings-modal-subactions">
+                        <button type="button" id="btn-reset-pro-melody" class="btn-secondary">デフォルトに戻す</button>
+                        <button type="button" id="btn-cancel-pro" class="btn-secondary">キャンセル</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chord Pro Settings Modal -->
+        <div id="pro-settings-modal-chord" class="modal hidden">
+            <div class="modal-content pro-settings-content">
+                <h2>👑 Proコード設定</h2>
+
+                <div class="setting-item" style="justify-content: center; margin-bottom: 25px;">
+                    <div class="chord-mode-toggle" style="display: flex; gap: 15px;">
+                        <label class="radio-label"
+                            style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="pro-question-mode" value="chords" checked>
+                            <span>カスタムコードから</span>
+                        </label>
+                        <label class="radio-label"
+                            style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="pro-question-mode" value="progressions">
+                            <span>カスタム進行から</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-item vertical" id="custom-chords-area">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <label><span>カスタムコード</span> (<span id="pro-custom-chord-count">0</span> / 50)</label>
+                        <button id="btn-expand-chord-list" class="btn-icon" style="font-size: 0.9rem;">全件表示 ▼</button>
+                    </div>
+                    <div id="pro-custom-chord-list" class="custom-chord-list">
+                        <div class="custom-chord-placeholder">
+                            まだコードが登録されていません。<br>「+ 新規コード追加」から作成してください。
+                        </div>
+                    </div>
+                    <button id="btn-add-custom-chord" class="btn-secondary" style="margin-top: 10px;">+ 新規コード追加</button>
+                    <button id="btn-preset-custom-chord" class="btn-action"
+                        style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">デフォルトセットを復元</button>
+
+                    <div
+                        style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; width: 100%;">
+                        <label style="margin-bottom: 8px; display: block;"><span>出題数</span>: <span
+                                id="pro-chord-count-value">4</span><span>コード</span></label>
+                        <input type="range" id="pro-chord-count-slider" min="1" max="10" step="1" value="4"
+                            class="sustain-slider">
+                    </div>
+                </div>
+
+                <div class="setting-item vertical" id="custom-progressions-area"
+                    style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <label><span>カスタム進行</span> (<span id="pro-custom-progression-count">0</span> / 50)</label>
+                        <button id="btn-expand-progression-list" class="btn-icon" style="font-size: 0.9rem;">全件表示
+                            ▼</button>
+                    </div>
+                    <div id="pro-custom-progression-list" class="custom-chord-list">
+                        <div class="custom-chord-placeholder">
+                            まだ進行が登録されていません。<br>「+ 新規進行追加」から作成してください。
+                        </div>
+                    </div>
+                    <button id="btn-add-custom-progression" class="btn-secondary" style="margin-top: 10px;">+
+                        新規進行追加</button>
+                    <button id="btn-preset-custom-progression" class="btn-action"
+                        style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">デフォルトセットを復元</button>
+                </div>
+
+                <div class="pro-settings-modal-footer">
+                    <button type="button" id="btn-start-pro-chord" class="btn-primary">決定</button>
+                    <div class="pro-settings-modal-subactions">
+                        <button type="button" id="btn-reset-pro-chord" class="btn-secondary">デフォルトに戻す</button>
+                        <button type="button" id="btn-cancel-pro-chord" class="btn-secondary">キャンセル</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chord-editor-modal" class="modal hidden">
+            <div class="modal-content chord-editor-content">
+                <h2>コードを作る</h2>
+
+                <div class="chord-preview-display" id="chord-preview-name">C</div>
+
+                <div class="editor-grid">
+                    <div class="editor-section" style="grid-column: span 2;">
+                        <label>ルート音</label>
+                        <select id="editor-root" class="preset-select" style="font-size: 1.1rem; padding: 10px;">
+                            <option value="0" selected>C</option>
+                            <option value="1">C#</option>
+                            <option value="2">D</option>
+                            <option value="3">D#</option>
+                            <option value="4">E</option>
+                            <option value="5">F</option>
+                            <option value="6">F#</option>
+                            <option value="7">G</option>
+                            <option value="8">G#</option>
+                            <option value="9">A</option>
+                            <option value="10">A#</option>
+                            <option value="11">B</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-section">
+                        <label>3度 (3rd)</label>
+                        <select id="editor-third" class="preset-select">
+                            <option value="4" selected>Major (M3)</option>
+                            <option value="3">Minor (m3)</option>
+                            <option value="5">Sus4 (P4)</option>
+                            <option value="null">None</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-section">
+                        <label>5度 (5th)</label>
+                        <select id="editor-fifth" class="preset-select">
+                            <option value="7" selected>P5</option>
+                            <option value="6">b5</option>
+                            <option value="8">#5</option>
+                            <option value="null">None</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-section">
+                        <label>7度 (7th)</label>
+                        <select id="editor-seventh" class="preset-select">
+                            <option value="null" selected>None (Triad)</option>
+                            <option value="10">m7</option>
+                            <option value="11">M7</option>
+                            <option value="9">dim7</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-section">
+                        <label>転回形 (Inversion)</label>
+                        <select id="editor-inversion" class="preset-select">
+                            <option value="0" selected>Root</option>
+                            <option value="1">1st Inv</option>
+                            <option value="2">2nd Inv</option>
+                            <option value="3">3rd Inv</option>
+                        </select>
+                    </div>
+
+                    <div class="editor-section tension-section" style="grid-column: span 2;">
+                        <label>テンション</label>
+                        <div class="editor-tension-options">
+                            <label class="tension-label"><input type="checkbox" value="13"
+                                    class="tension-checkbox"><span>b9</span></label>
+                            <label class="tension-label"><input type="checkbox" value="14"
+                                    class="tension-checkbox"><span>9</span></label>
+                            <label class="tension-label"><input type="checkbox" value="15"
+                                    class="tension-checkbox"><span>#9</span></label>
+                            <label class="tension-label"><input type="checkbox" value="17"
+                                    class="tension-checkbox"><span>11</span></label>
+                            <label class="tension-label"><input type="checkbox" value="18"
+                                    class="tension-checkbox"><span>#11</span></label>
+                            <label class="tension-label"><input type="checkbox" value="20"
+                                    class="tension-checkbox"><span>b13</span></label>
+                            <label class="tension-label"><input type="checkbox" value="21"
+                                    class="tension-checkbox"><span>13</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons editor-actions" style="margin-top: 20px;">
+                    <button id="btn-preview-chord" class="btn-action">🎵 試聴する</button>
+                    <button id="btn-save-chord" class="btn-primary">追加する</button>
+                </div>
+                <div class="action-buttons" style="margin-top: 10px;">
+                    <button id="btn-cancel-editor" class="btn-secondary">キャンセル</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Settings Modal -->
         <div id="settings-modal" class="modal hidden">
@@ -291,6 +635,43 @@
                         <button type="button" id="reset-settings" class="btn-secondary">デフォルトに戻す</button>
                         <button type="button" id="cancel-settings" class="btn-secondary">キャンセル</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="progression-editor-modal" class="modal hidden" style="z-index: 1001;">
+            <div class="modal-content chord-editor-content">
+                <h2>進行を作る</h2>
+
+                <div class="setting-item vertical" style="align-items: flex-start;">
+                    <label>進行の名前</label>
+                    <input type="text" id="progression-name" placeholder="例: 王道進行" class="preset-select"
+                        style="width: 100%; padding: 10px; box-sizing: border-box; text-align: left;">
+                </div>
+
+                <div class="setting-item vertical" style="align-items: flex-start; margin-top: 20px;">
+                    <label style="margin-bottom: 5px;">構成和音</label>
+                    <div id="progression-chords-display"
+                        style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color); padding: 5px 0 15px 0; word-break: break-all;">
+                    </div>
+                    <label>コードの並び</label>
+                    <div id="progression-sequence-container"
+                        style="display: flex; flex-wrap: wrap; gap: 10px; width: 100%; justify-content: flex-start; margin-top: 10px;">
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%; justify-content: center;">
+                        <button id="btn-add-progression-chord" class="btn-action"
+                            style="font-size: 0.8rem; padding: 6px 12px;">+ 和音を追加</button>
+                        <button id="btn-remove-progression-chord" class="btn-secondary"
+                            style="font-size: 0.8rem; padding: 6px 12px; background: rgba(255,60,60,0.2);">- 削除</button>
+                    </div>
+                </div>
+
+                <div class="action-buttons editor-actions" style="margin-top: 20px;">
+                    <button id="btn-preview-progression" class="btn-action">🎵 試聴する</button>
+                    <button id="btn-save-progression" class="btn-primary">保存する</button>
+                </div>
+                <div class="action-buttons" style="margin-top: 10px;">
+                    <button id="btn-cancel-progression" class="btn-secondary">キャンセル</button>
                 </div>
             </div>
         </div>

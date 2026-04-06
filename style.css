@@ -135,6 +135,70 @@ h1 {
     font-weight: bold;
 }
 
+.feedback-pro-preview {
+    color: #d4c48a;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.45;
+    height: auto;
+    min-height: 40px;
+    padding: 8px 12px;
+    white-space: normal;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* 通常版: 黄枠ボタン＋枠外に鍵・説明（タップで設定モーダルへ） */
+.pro-stage-teaser-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 250px;
+}
+
+.btn-primary.pro-stage-teaser {
+    opacity: 0.62;
+    filter: grayscale(0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    text-align: center;
+    line-height: 1.25;
+    margin: 0;
+    white-space: normal;
+    text-transform: none;
+    letter-spacing: 0.02em;
+}
+
+.pro-stage-teaser-caption {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 0 4px;
+    box-sizing: border-box;
+}
+
+.pro-stage-teaser-caption-lock {
+    font-size: 1rem;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.pro-stage-teaser-caption-text {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.45;
+    text-align: left;
+}
+
 .icon-btn {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -719,6 +783,14 @@ header {
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
+/* Pro版設定モーダル: バッジだけ少し大きく（文言なし） */
+.settings-pro-only-block--unlocked .pro-only-settings-badge {
+    padding: 5px 12px;
+    border-radius: 7px;
+    font-size: 0.78rem;
+    letter-spacing: 0.09em;
+}
+
 .settings-pro-only-text {
     font-size: 0.78rem;
     line-height: 1.45;
@@ -785,6 +857,19 @@ header {
 
 .settings-pro-only-block #current-octave {
     color: rgba(255, 255, 255, 0.4);
+}
+
+/* Pro版: 黄枠・PROバナーはそのまま、枠内コントロールは通常の見た目で操作可能 */
+.settings-pro-only-block.settings-pro-only-block--unlocked .settings-pro-only-row label {
+    color: var(--text-color);
+}
+
+.settings-pro-only-block.settings-pro-only-block--unlocked .setting-item.vertical label {
+    color: var(--text-color);
+}
+
+.settings-pro-only-block.settings-pro-only-block--unlocked #current-octave {
+    color: var(--text-color);
 }
 
 .octave-control {
