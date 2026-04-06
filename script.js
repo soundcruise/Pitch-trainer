@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.1.5';
+const PITCH_TRAINER_APP_VERSION = '1.1.6';
 
 /** 検証ハブ（Staging）の Ver 表記で括弧内に出すビルド番号（Staging を更新したら必要に応じて増やす） */
-const PITCH_TRAINER_APP_BUILD = '1';
+const PITCH_TRAINER_APP_BUILD = '2';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -10,6 +10,11 @@ function isPitchTrainerPro() {
 
 function isPitchTrainerBeta() {
     return document.documentElement.dataset.appEdition === 'Beta';
+}
+
+/** キーランダムの出題・保存は Pro のみ（設定 UI は通常版・ベータとレイアウト共用） */
+function isKeyRandomGameplayActive(game) {
+    return isPitchTrainerPro() && !!game.keyRandomMode;
 }
 
 /** ルート直下の旧SW（scope が / 全体）が残ると standard/ と Pro 用フォルダが混ざるため解除する */
@@ -904,6 +909,10 @@ class Game {
         const keyRandomToggle = document.getElementById('key-random-toggle');
         if (keyRandomToggle) {
             keyRandomToggle.addEventListener('change', (e) => {
+                if (!isPitchTrainerPro()) {
+                    e.target.checked = false;
+                    return;
+                }
                 const on = e.target.checked;
                 const scaleToggle = document.getElementById('scale-toggle');
                 if (on) {
@@ -1505,12 +1514,17 @@ class Game {
                     const scaleToggle = document.getElementById('scale-toggle');
                     if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
                 }
-                if (s.keyRandomMode !== undefined) {
+                if (isPitchTrainerPro() && s.keyRandomMode !== undefined) {
                     this.keyRandomMode = !!s.keyRandomMode;
                     const krt = document.getElementById('key-random-toggle');
                     if (krt) krt.checked = this.keyRandomMode;
                 }
-                if (this.keyRandomMode) {
+                if (!isPitchTrainerPro()) {
+                    this.keyRandomMode = false;
+                    const krt = document.getElementById('key-random-toggle');
+                    if (krt) krt.checked = false;
+                }
+                if (isKeyRandomGameplayActive(this)) {
                     this.scaleEnabled = true;
                     const scaleToggle = document.getElementById('scale-toggle');
                     if (scaleToggle) scaleToggle.checked = true;
@@ -1574,20 +1588,20 @@ class Game {
                 scaleEnabled: this.scaleEnabled,
                 isAnswerMode: this.isAnswerMode
             };
-            data.keyRandomMode = this.keyRandomMode;
             if (isPitchTrainerPro()) {
+                data.keyRandomMode = this.keyRandomMode;
                 data.baseOctave = this.baseOctave;
                 data.keyOffset = this.keyOffset;
                 data.noteSpeed = this.noteSpeed;
                 data.sustainTime = this.audio.sustainTime;
                 data.baseHz = this.audio.baseHz;
             } else {
-                // 通常版は Pro 用の値を書き換えない（同じ端末で Pro を使うときのため）
+                // 通常版・ベータは Pro 用の値を書き換えない（同じ端末で Pro を使うときのため）
                 try {
                     const prevRaw = localStorage.getItem('pitchTrainerSettings');
                     if (prevRaw) {
                         const prev = JSON.parse(prevRaw);
-                        ['baseOctave', 'keyOffset', 'noteSpeed', 'sustainTime', 'baseHz'].forEach((k) => {
+                        ['baseOctave', 'keyOffset', 'noteSpeed', 'sustainTime', 'baseHz', 'keyRandomMode'].forEach((k) => {
                             if (prev[k] !== undefined) data[k] = prev[k];
                         });
                     }
@@ -1606,7 +1620,7 @@ class Game {
             scaleEnabled: this.scaleEnabled,
             isAnswerMode: this.isAnswerMode
         };
-        if (document.getElementById('key-random-toggle')) {
+        if (document.getElementById('key-random-toggle') && isPitchTrainerPro()) {
             this._settingsModalSnapshot.keyRandomMode = this.keyRandomMode;
         }
         if (isPitchTrainerPro()) {
@@ -1652,11 +1666,6 @@ class Game {
                     if (krt) krt.checked = this.keyRandomMode;
                 }
             } else {
-                if (s.keyRandomMode !== undefined) {
-                    this.keyRandomMode = !!s.keyRandomMode;
-                    const krt = document.getElementById('key-random-toggle');
-                    if (krt) krt.checked = this.keyRandomMode;
-                }
                 this.clampStandardEditionKeyOctave();
                 this.clampStandardEditionSoundSettings();
             }
@@ -2565,15 +2574,28 @@ class Game {
         this.saveSettings();
     }
 
-    /** キーランダムON時: キー欄は「ランダム」表示・音階はON固定でグレーアウト */
+    /** キーランダムON時: キー欄は「ランダム」表示・音階はON固定でグレーアウト（有効は Pro のみ） */
     updateKeyRandomDependentUi() {
         const display = document.getElementById('key-random-display');
         const sel = this.keySelector;
         const scaleToggle = document.getElementById('scale-toggle');
+        const keyRandomToggle = document.getElementById('key-random-toggle');
+        const keyRandomRow = keyRandomToggle?.closest('.setting-item');
         const scaleRow = scaleToggle?.closest('.setting-item');
         const keyRow = sel?.closest('.setting-item');
+        const pro = isPitchTrainerPro();
 
-        if (this.keyRandomMode) {
+        if (!pro) {
+            this.keyRandomMode = false;
+        }
+        if (keyRandomRow) {
+            keyRandomRow.classList.toggle('setting-item--key-random-pro-locked', !pro);
+        }
+        if (keyRandomToggle && !pro) {
+            keyRandomToggle.checked = false;
+        }
+
+        if (isKeyRandomGameplayActive(this)) {
             if (display) display.classList.remove('hidden');
             if (sel) {
                 sel.classList.add('hidden');
@@ -2592,7 +2614,6 @@ class Game {
             if (display) display.classList.add('hidden');
             if (sel) {
                 sel.classList.remove('hidden');
-                const pro = isPitchTrainerPro();
                 sel.disabled = !pro;
                 sel.setAttribute('aria-disabled', pro ? 'false' : 'true');
             }
@@ -2608,7 +2629,7 @@ class Game {
 
     /** 問題再生・音階・回答プレビュー用のキー（キーランダム時はラウンドごとの値） */
     getPlaybackKeyOffset() {
-        if (this.keyRandomMode && this.isPlaying) {
+        if (isKeyRandomGameplayActive(this) && this.isPlaying) {
             return this.roundKeyOffset;
         }
         return this.keyOffset;
@@ -3000,7 +3021,7 @@ class Game {
         this.isRoundOver = false;
         this.inputIndex = 0;
 
-        if (this.keyRandomMode) {
+        if (isKeyRandomGameplayActive(this)) {
             this.roundKeyOffset = Math.floor(Math.random() * 12);
         } else {
             this.roundKeyOffset = this.keyOffset;
@@ -3111,7 +3132,7 @@ class Game {
             // else: 3rd consecutive duplicate detected, retry
         }
 
-        const playScaleThisRound = this.scaleEnabled || this.keyRandomMode;
+        const playScaleThisRound = this.scaleEnabled || isKeyRandomGameplayActive(this);
         if (playScaleThisRound) {
             this.showFeedback('音階を聴いてください...');
             void this.playScale(async () => {

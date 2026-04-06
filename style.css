@@ -813,6 +813,15 @@ header {
     pointer-events: none;
 }
 
+/* 通常版・ベータ: キーランダム行は見せるが Pro 専用（操作不可・グレー） */
+#settings-modal .setting-item.setting-item--key-random-pro-locked {
+    opacity: 0.52;
+}
+
+#settings-modal .setting-item.setting-item--key-random-pro-locked .toggle-switch {
+    pointer-events: none;
+}
+
 /* 通常版設定: Pro専用スライダー（見た目で区別） */
 .settings-pro-only-block {
     margin: 8px 0 18px;
