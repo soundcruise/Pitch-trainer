@@ -1629,6 +1629,11 @@ class Game {
         this.captureSettingsModalSnapshot();
         if (this.settingsModal) {
             this.settingsModal.classList.remove('hidden');
+            // 前回のスクロール位置が残ると上に「余白スワイプ」が出るため、開くたびに先頭へ
+            this.settingsModal.scrollTop = 0;
+            requestAnimationFrame(() => {
+                this.settingsModal.scrollTop = 0;
+            });
         }
     }
 
