@@ -1,5 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.1.3';
+const PITCH_TRAINER_APP_VERSION = '1.1.5';
+
+/** 検証ハブ（Staging）の Ver 表記で括弧内に出すビルド番号（Staging を更新したら必要に応じて増やす） */
+const PITCH_TRAINER_APP_BUILD = '1';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -698,8 +701,10 @@ class Game {
         this.isBlockingInput = false;
         this.isRoundOver = false;
         this.scaleEnabled = true; // 問題前の音階再生フラグ
-        /** Pro: 各ラウンドでキーをランダム（0〜11）。オン時は音階を必ず鳴らす */
+        /** 各ラウンドでキーをランダム（0〜11）。オン時は音階を必ず鳴らす */
         this.keyRandomMode = false;
+        /** キーランダムONにする直前の「問題前の音階」設定（OFFに戻したときに復元） */
+        this._scaleEnabledBeforeKeyRandom = undefined;
         /** 現在のラウンドで再生・正解判定に使うキー（キーランダム時は毎ラウンド更新） */
         this.roundKeyOffset = 0;
         this.noteSpeed = 1.0;    // 問題の再生スピード（0.5～2.0）
@@ -899,7 +904,18 @@ class Game {
         const keyRandomToggle = document.getElementById('key-random-toggle');
         if (keyRandomToggle) {
             keyRandomToggle.addEventListener('change', (e) => {
-                this.keyRandomMode = e.target.checked;
+                const on = e.target.checked;
+                const scaleToggle = document.getElementById('scale-toggle');
+                if (on) {
+                    this._scaleEnabledBeforeKeyRandom = this.scaleEnabled;
+                    this.scaleEnabled = true;
+                    if (scaleToggle) scaleToggle.checked = true;
+                } else if (this._scaleEnabledBeforeKeyRandom !== undefined) {
+                    this.scaleEnabled = this._scaleEnabledBeforeKeyRandom;
+                    if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
+                }
+                this.keyRandomMode = on;
+                this.updateKeyRandomDependentUi();
                 this.saveSettings();
             });
         }
@@ -1318,6 +1334,8 @@ class Game {
                 if (proChordCountValue) proChordCountValue.textContent = e.target.value;
             });
         }
+
+        this.updateKeyRandomDependentUi();
     }
 
     loadDefaultCustomChords() {
@@ -1487,6 +1505,16 @@ class Game {
                     const scaleToggle = document.getElementById('scale-toggle');
                     if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
                 }
+                if (s.keyRandomMode !== undefined) {
+                    this.keyRandomMode = !!s.keyRandomMode;
+                    const krt = document.getElementById('key-random-toggle');
+                    if (krt) krt.checked = this.keyRandomMode;
+                }
+                if (this.keyRandomMode) {
+                    this.scaleEnabled = true;
+                    const scaleToggle = document.getElementById('scale-toggle');
+                    if (scaleToggle) scaleToggle.checked = true;
+                }
                 if (isPitchTrainerPro()) {
                     if (s.noteSpeed !== undefined) {
                         this.noteSpeed = s.noteSpeed;
@@ -1515,11 +1543,6 @@ class Game {
                             if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
                         }
                     }
-                    if (s.keyRandomMode !== undefined) {
-                        this.keyRandomMode = !!s.keyRandomMode;
-                        const krt = document.getElementById('key-random-toggle');
-                        if (krt) krt.checked = this.keyRandomMode;
-                    }
                 }
                 if (s.isAnswerMode !== undefined) {
                     this.isAnswerMode = s.isAnswerMode;
@@ -1539,6 +1562,7 @@ class Game {
         }
         this.clampStandardEditionSoundSettings();
         this.clampStandardEditionKeyOctave();
+        this.updateKeyRandomDependentUi();
     }
 
     saveSettings() {
@@ -1550,10 +1574,10 @@ class Game {
                 scaleEnabled: this.scaleEnabled,
                 isAnswerMode: this.isAnswerMode
             };
+            data.keyRandomMode = this.keyRandomMode;
             if (isPitchTrainerPro()) {
                 data.baseOctave = this.baseOctave;
                 data.keyOffset = this.keyOffset;
-                data.keyRandomMode = this.keyRandomMode;
                 data.noteSpeed = this.noteSpeed;
                 data.sustainTime = this.audio.sustainTime;
                 data.baseHz = this.audio.baseHz;
@@ -1563,7 +1587,7 @@ class Game {
                     const prevRaw = localStorage.getItem('pitchTrainerSettings');
                     if (prevRaw) {
                         const prev = JSON.parse(prevRaw);
-                        ['baseOctave', 'keyOffset', 'noteSpeed', 'sustainTime', 'baseHz', 'keyRandomMode'].forEach((k) => {
+                        ['baseOctave', 'keyOffset', 'noteSpeed', 'sustainTime', 'baseHz'].forEach((k) => {
                             if (prev[k] !== undefined) data[k] = prev[k];
                         });
                     }
@@ -1582,10 +1606,12 @@ class Game {
             scaleEnabled: this.scaleEnabled,
             isAnswerMode: this.isAnswerMode
         };
+        if (document.getElementById('key-random-toggle')) {
+            this._settingsModalSnapshot.keyRandomMode = this.keyRandomMode;
+        }
         if (isPitchTrainerPro()) {
             this._settingsModalSnapshot.baseOctave = this.baseOctave;
             this._settingsModalSnapshot.keyOffset = this.keyOffset;
-            this._settingsModalSnapshot.keyRandomMode = this.keyRandomMode;
             this._settingsModalSnapshot.noteSpeed = this.noteSpeed;
             this._settingsModalSnapshot.sustainTime = this.audio.sustainTime;
             this._settingsModalSnapshot.baseHz = this.audio.baseHz;
@@ -1626,6 +1652,11 @@ class Game {
                     if (krt) krt.checked = this.keyRandomMode;
                 }
             } else {
+                if (s.keyRandomMode !== undefined) {
+                    this.keyRandomMode = !!s.keyRandomMode;
+                    const krt = document.getElementById('key-random-toggle');
+                    if (krt) krt.checked = this.keyRandomMode;
+                }
                 this.clampStandardEditionKeyOctave();
                 this.clampStandardEditionSoundSettings();
             }
@@ -1645,6 +1676,7 @@ class Game {
         } finally {
             this.isInitializing = false;
         }
+        this.updateKeyRandomDependentUi();
         this.saveSettings();
     }
 
@@ -1660,6 +1692,7 @@ class Game {
                 this.settingsModal.scrollTop = 0;
             });
         }
+        this.updateKeyRandomDependentUi();
     }
 
     hideSettingsModal() {
@@ -2532,9 +2565,50 @@ class Game {
         this.saveSettings();
     }
 
+    /** キーランダムON時: キー欄は「ランダム」表示・音階はON固定でグレーアウト */
+    updateKeyRandomDependentUi() {
+        const display = document.getElementById('key-random-display');
+        const sel = this.keySelector;
+        const scaleToggle = document.getElementById('scale-toggle');
+        const scaleRow = scaleToggle?.closest('.setting-item');
+        const keyRow = sel?.closest('.setting-item');
+
+        if (this.keyRandomMode) {
+            if (display) display.classList.remove('hidden');
+            if (sel) {
+                sel.classList.add('hidden');
+                sel.disabled = true;
+                sel.setAttribute('aria-disabled', 'true');
+            }
+            this.scaleEnabled = true;
+            if (scaleToggle) {
+                scaleToggle.checked = true;
+                scaleToggle.disabled = true;
+                scaleToggle.setAttribute('aria-disabled', 'true');
+            }
+            scaleRow?.classList.add('setting-item--key-random-locked');
+            keyRow?.classList.add('setting-item--key-random-locked');
+        } else {
+            if (display) display.classList.add('hidden');
+            if (sel) {
+                sel.classList.remove('hidden');
+                const pro = isPitchTrainerPro();
+                sel.disabled = !pro;
+                sel.setAttribute('aria-disabled', pro ? 'false' : 'true');
+            }
+            if (scaleToggle) {
+                scaleToggle.checked = this.scaleEnabled;
+                scaleToggle.disabled = false;
+                scaleToggle.removeAttribute('aria-disabled');
+            }
+            scaleRow?.classList.remove('setting-item--key-random-locked');
+            keyRow?.classList.remove('setting-item--key-random-locked');
+        }
+    }
+
     /** 問題再生・音階・回答プレビュー用のキー（キーランダム時はラウンドごとの値） */
     getPlaybackKeyOffset() {
-        if (isPitchTrainerPro() && this.keyRandomMode && this.isPlaying) {
+        if (this.keyRandomMode && this.isPlaying) {
             return this.roundKeyOffset;
         }
         return this.keyOffset;
@@ -2647,6 +2721,8 @@ class Game {
         this.keyRandomMode = false;
         const keyRandomToggle = document.getElementById('key-random-toggle');
         if (keyRandomToggle) keyRandomToggle.checked = false;
+        this._scaleEnabledBeforeKeyRandom = undefined;
+        this.updateKeyRandomDependentUi();
         this.saveSettings();
     }
 
@@ -2924,7 +3000,7 @@ class Game {
         this.isRoundOver = false;
         this.inputIndex = 0;
 
-        if (isPitchTrainerPro() && this.keyRandomMode) {
+        if (this.keyRandomMode) {
             this.roundKeyOffset = Math.floor(Math.random() * 12);
         } else {
             this.roundKeyOffset = this.keyOffset;
@@ -3035,7 +3111,7 @@ class Game {
             // else: 3rd consecutive duplicate detected, retry
         }
 
-        const playScaleThisRound = this.scaleEnabled || (isPitchTrainerPro() && this.keyRandomMode);
+        const playScaleThisRound = this.scaleEnabled || this.keyRandomMode;
         if (playScaleThisRound) {
             this.showFeedback('音階を聴いてください...');
             void this.playScale(async () => {
@@ -3378,9 +3454,16 @@ function reloadAppWithCacheBust() {
 }
 
 function getPitchTrainerVersionLabel() {
-    const edition = document.documentElement.dataset.appEdition;
-    const ed = edition ? ` · ${edition}` : '';
-    return `Ver ${PITCH_TRAINER_APP_VERSION}${ed}`;
+    const edition = document.documentElement.dataset.appEdition || '';
+    const isStaging = edition === 'Staging';
+    const buildPart = isStaging ? ` (${PITCH_TRAINER_APP_BUILD})` : '';
+    let edPart = '';
+    if (isStaging) {
+        edPart = ' · Staging';
+    } else if (edition) {
+        edPart = ` · ${edition}`;
+    }
+    return `Ver ${PITCH_TRAINER_APP_VERSION}${buildPart}${edPart}`;
 }
 
 function applyAppVersionDisplay() {
@@ -3451,6 +3534,10 @@ function setupAppRefreshAndSwUpdates() {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     unregisterLegacyRootServiceWorker();
+    if (document.documentElement.dataset.appEdition === 'Staging') {
+        setupAppRefreshAndSwUpdates();
+        return;
+    }
     window.game = new Game();
     setupAppRefreshAndSwUpdates();
 });

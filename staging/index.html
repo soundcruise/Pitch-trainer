@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-app-edition="Staging">
 
 <head>
     <meta charset="UTF-8">
@@ -118,6 +118,7 @@
 
         .staging-footnote {
             margin-top: 28px;
+            margin-bottom: max(100px, calc(20px + var(--in-game-refresh-stack-height, 96px)));
             font-size: 0.74rem;
             line-height: 1.5;
             color: rgba(255, 255, 255, 0.45);
@@ -173,7 +174,13 @@
                 各版は別フォルダのため、ホーム画面に追加すると<strong>アイコンが分かれます</strong>。
             </p>
         </main>
+
+        <div id="in-game-refresh-bar" class="in-game-refresh-bar" aria-label="バージョンとページの再読み込み">
+            <span id="app-version-display" class="app-version-display"></span>
+            <button type="button" class="btn-secondary btn-in-game-refresh js-reload-app">ページを更新</button>
+        </div>
     </div>
+    <script src="../script.js?v=1.1.5"></script>
 </body>
 
 </html>

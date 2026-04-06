@@ -771,6 +771,48 @@ header {
     margin-left: auto;
 }
 
+/* 設定モーダル: キー（プルダウン or キーランダム時の「ランダム」表示） */
+#settings-modal .key-selector-control-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+#settings-modal .key-selector-control-wrap .preset-select {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    padding: 7px 26px 7px 9px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    background-position: right 7px center;
+    background-size: 13px;
+}
+
+#settings-modal .key-random-display {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 7px 9px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.42);
+    box-sizing: border-box;
+}
+
+#settings-modal .setting-item.setting-item--key-random-locked {
+    opacity: 0.52;
+}
+
+#settings-modal .setting-item.setting-item--key-random-locked .toggle-switch {
+    pointer-events: none;
+}
+
 /* 通常版設定: Pro専用スライダー（見た目で区別） */
 .settings-pro-only-block {
     margin: 8px 0 18px;
