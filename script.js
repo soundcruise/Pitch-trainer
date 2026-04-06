@@ -2,7 +2,7 @@
 const PITCH_TRAINER_APP_VERSION = '1.1.6';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '4';
+const PITCH_TRAINER_APP_BUILD = '5';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';

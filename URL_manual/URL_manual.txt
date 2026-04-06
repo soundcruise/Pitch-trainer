@@ -34,9 +34,10 @@ URL（会員向け・PWA用）: https://soundcruise.github.io/Pitch-trainer/pro_
   会員向けの4桁の数字です。ブラウザに「入室済み」が記録されるまで、次回以降は入力不要です（アプリの Ver が上がっても再入力は不要。端末のデータ削除や別端末では再度入力が必要です）。
   パスワード: 7392
 
-● gate-config.js（Git には載せない運用を推奨）
-  リポジトリには `pro_k3m9/gate-config.example.js` があります。`gate-config.js`（中身は例と同じ形式で `window.__PRO_GATE_PASSWORD__ = '7392';` のように4桁を設定）を同じフォルダに置き、デプロイ先にも含めてください。公開リポジトリで `gate-config.js` をコミットするとパスワードが漏れます。設定が無いと「設定エラー」画面になります。
-  パスワードを変えたいときは `gate-config.js` の4桁を書き換え、会員には「URL_manual」やメール等で新しい数字を共有してください。
+● gate-config.js（GitHub Pages 用にリポジトリに含める）
+  `pro_k3m9/gate-config.js` に入室用4桁を書いています。GitHub Pages はリポジトリに無いファイルは配信できないため、このファイルを **コミットして push する**必要があります（無いと「設定エラー」になります）。テンプレートは `gate-config.example.js`。
+  公開リポジトリではソースからパスワードが読めます。厳密に隠したい場合はリポジトリを非公開にするか、別ホストで配布する等の検討が必要です。
+  パスワードを変えたいときは `gate-config.js` の4桁を書き換え、会員にはメール等で共有してください。
 
 【 🔧 検証用 Staging（ハブ・開発・運用向け）】
 URL（PWA用・検証ハブ）: https://soundcruise.github.io/Pitch-trainer/staging/
