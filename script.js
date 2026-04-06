@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
 const PITCH_TRAINER_APP_VERSION = '1.1.6';
 
-/** 検証ハブ（Staging）の Ver 表記で括弧内に出すビルド番号（Staging を更新したら必要に応じて増やす） */
-const PITCH_TRAINER_APP_BUILD = '2';
+/** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
+const PITCH_TRAINER_APP_BUILD = '3';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';

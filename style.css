@@ -831,6 +831,14 @@ header {
     background: rgba(0, 0, 0, 0.25);
 }
 
+/* Pro版: 専用設定エリアは黄色の実線（通常版の点線・薄い枠と差別化） */
+.settings-pro-only-block.settings-pro-only-block--unlocked {
+    border-style: solid;
+    border-width: 2px;
+    border-color: #e6c200;
+    box-shadow: 0 0 0 1px rgba(255, 224, 100, 0.35);
+}
+
 .settings-pro-only-banner {
     display: flex;
     align-items: flex-start;
