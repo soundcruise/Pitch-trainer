@@ -22,6 +22,25 @@
         }
     </script>
     <style>
+        /* メインアプリ用の body overflow:hidden・flex 中央寄せを打ち消し、ハブを縦スクロール可能にする */
+        body.staging-body {
+            display: block;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        body.staging-body .app-container {
+            margin-left: auto;
+            margin-right: auto;
+            min-height: 0;
+            padding-top: max(12px, env(safe-area-inset-top));
+            padding-bottom: max(28px, env(safe-area-inset-bottom));
+        }
+
         .staging-hub {
             max-width: 420px;
             margin: 0 auto;
@@ -107,7 +126,7 @@
     </style>
 </head>
 
-<body>
+<body class="staging-body">
     <div class="app-container">
         <div class="staging-ribbon" role="status">STAGING · 検証用</div>
         <main class="staging-hub">
