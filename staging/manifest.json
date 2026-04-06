@@ -8,7 +8,7 @@
   "orientation": "portrait",
   "background_color": "#121212",
   "theme_color": "#c9a227",
-  "description": "通常版・Pro版・ベータ版を切り替えて検証するためのハブ。アイコンに(テスト)透かし入り。本番反映前の実機確認用です。",
+  "description": "通常版・Pro版・ベータ版を切り替えて検証するためのハブ。アイコンは icon_idea/staging.png を 192/512 にしたもの。本番反映前の実機確認用です。",
   "icons": [
     {
       "src": "icon_pwa_192.png",
