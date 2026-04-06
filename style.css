@@ -312,82 +312,91 @@ h1 {
     }
 }
 
-/* Piano Layout Toggle Styles */
+/* Piano Layout（問題画面）: 設定画面の鍵盤と同じ見た目 */
 .note-buttons.piano-layout {
-    position: relative;
     display: flex;
-    justify-content: center;
-    gap: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
     background: transparent;
     padding: 0;
     margin-top: 20px;
 }
 
-.piano-layout .note-btn {
-    border-radius: 0 0 4px 4px;
-    border: 1px solid #000;
+.piano-layout .piano-keys-grid {
     position: relative;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.5);
+    display: inline-block;
+}
+
+.piano-layout .keyboard-row.white-keys {
+    display: flex;
+    gap: 6px;
+}
+
+.piano-layout .note-btn {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    padding-bottom: 10px;
-    transition: background 0.1s, transform 0.1s;
-    font-size: 0.9rem;
-    font-weight: 600;
+    transition: background 0.15s, box-shadow 0.15s;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 
 .piano-layout .note-btn.white-key {
-    width: 45px;
-    height: 120px;
-    background: linear-gradient(to bottom, #fff 0%, #eee 100%);
-    color: #333;
-    z-index: 1;
+    width: 44px;
+    height: 70px;
+    background: #fff;
+    border-radius: 4px 4px 8px 8px;
+    border: 1px solid #888;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    color: #444;
+    padding-bottom: 6px;
+    font-size: 0.8rem;
+    font-weight: bold;
 }
 
 .piano-layout .note-btn.black-key {
-    width: 30px;
-    height: 75px;
-    background: linear-gradient(to bottom, #333 0%, #000 100%);
-    color: #fff;
-    margin-left: -15px;
-    margin-right: -15px;
-    z-index: 2;
-    font-size: 0.75rem;
-    padding-bottom: 8px;
-}
-
-.piano-layout .note-btn:active,
-.piano-layout .note-btn.active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    width: 32px;
+    height: 38px;
+    background: #222;
+    border-radius: 0 0 4px 4px;
+    border: 1px solid #000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+    color: #eee;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding-bottom: 5px;
+    z-index: 10;
 }
 
 .piano-layout .note-btn.white-key:active,
 .piano-layout .note-btn.white-key.active {
-    background: #e0e0e0;
+    background: #e0f7fa;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 10px var(--secondary-color) inset;
 }
 
 .piano-layout .note-btn.black-key:active,
 .piano-layout .note-btn.black-key.active {
-    background: #111;
+    background: #444;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--secondary-color);
 }
 
 .piano-layout .note-btn.correct {
     background: var(--primary-color) !important;
     color: #000 !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 16px rgba(0, 255, 136, 0.55) !important;
 }
 
 .piano-layout .note-btn.wrong {
     background: var(--error-color) !important;
     color: #fff !important;
-}
-
-.piano-layout .octave-group {
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    margin: 0 10px;
+    border-color: var(--error-color) !important;
+    box-shadow: 0 0 16px rgba(255, 51, 102, 0.5) !important;
 }
 
 /* Overlay */
@@ -1267,41 +1276,144 @@ header {
 
 /* Note Toggles Grid */
 .note-toggles-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
-    align-items: center;
     position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    margin-top: 10px;
     padding-bottom: 10px;
 }
 
-.keyboard-row {
+.pro-melody-octave-block {
+    text-align: center;
+}
+
+/* Pro設定: 2オクターブ時に上下2段の鍵盤 */
+#pro-note-toggles-container .pro-melody-octave-block + .pro-melody-octave-block {
+    margin-top: 18px;
+}
+
+.pro-octave-layer-caption {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.keyboard-row.white-keys {
     display: flex;
     gap: 6px;
-    justify-content: center;
 }
 
-/* Black keys row centered and positioned */
+/* 黒鍵を白鍵の間中央に絶対配置 */
 .keyboard-row.black-keys {
-    margin-bottom: -20px;
-    /* Overlap white keys */
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
     z-index: 10;
     pointer-events: none;
-    /* Let clicks pass through gaps */
 }
 
-.keyboard-row.black-keys>* {
+.keyboard-row.black-keys > .note-toggle-wrapper {
+    position: absolute;
+    top: 0;
     pointer-events: auto;
-    /* Re-enable clicks on keys */
 }
 
-/* Spacer logic: C# D# [space] F# G# A# */
-.spacer {
-    width: 44px;
-    /* Roughly width + gap */
-    height: 1px;
-    visibility: hidden;
+.keyboard-row.black-keys .note-toggle-wrapper:has([data-note="C#"]) { left: 31px; }
+.keyboard-row.black-keys .note-toggle-wrapper:has([data-note="D#"]) { left: 81px; }
+.keyboard-row.black-keys .note-toggle-wrapper:has([data-note="F#"]) { left: 181px; }
+.keyboard-row.black-keys .note-toggle-wrapper:has([data-note="G#"]) { left: 231px; }
+.keyboard-row.black-keys .note-toggle-wrapper:has([data-note="A#"]) { left: 281px; }
+
+.keyboard-row.black-keys > .spacer {
+    display: none;
+}
+
+/* Pro設定「使用する音」: 鍵盤レイアウトOFF = ゲームの非ピアノ表示に近い一覧（丸・音階順） */
+#pro-note-toggles-container.pro-note-toggles--list .note-toggles-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px 12px;
+    margin-top: 12px;
+    padding-bottom: 8px;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .keyboard-row {
+    display: contents;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .keyboard-row.black-keys {
+    position: static;
+    display: contents;
+    pointer-events: auto;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .keyboard-row.black-keys > .note-toggle-wrapper {
+    position: static;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .spacer {
+    display: none;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="C"]) { order: 0; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="C#"]) { order: 1; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="D"]) { order: 2; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="D#"]) { order: 3; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="E"]) { order: 4; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="F"]) { order: 5; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="F#"]) { order: 6; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="G"]) { order: 7; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="G#"]) { order: 8; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="A"]) { order: 9; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="A#"]) { order: 10; }
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has([data-note="B"]) { order: 11; }
+
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.22);
+    box-shadow: none;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has(.note-toggle[data-note*="#"]) .note-toggle:not(:checked) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle:checked {
+    background: #e0f7fa;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 10px var(--secondary-color) inset;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper {
+    min-width: 52px;
+    padding-bottom: 2px;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper .note-name {
+    top: 50%;
+    left: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    width: max-content;
+    max-width: 44px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.1;
+    text-align: center;
+}
+
+#pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has(:checked) .note-name {
+    color: #1a2a2a;
 }
 
 /* Toggle Styles */
@@ -1341,7 +1453,7 @@ header {
 /* Black Keys Style */
 .black-keys .note-toggle {
     width: 32px;
-    height: 45px;
+    height: 38px;
     background: #222;
     border-radius: 0 0 4px 4px;
     border: 1px solid #000;
@@ -1366,14 +1478,14 @@ header {
 }
 
 .white-keys .note-toggle-wrapper .note-name {
-    bottom: 10px;
+    bottom: 6px;
     color: #444;
     font-size: 0.8rem;
     font-weight: bold;
 }
 
 .black-keys .note-toggle-wrapper .note-name {
-    bottom: 8px;
+    bottom: 5px;
     color: #eee;
     font-size: 0.7rem;
 }

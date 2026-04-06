@@ -9,7 +9,7 @@
 
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '../staging/pro-custom-stage-align.css?v=3';
+    link.href = '../staging/pro-custom-stage-align.css?v=6';
     document.head.appendChild(link);
 
     function patch() {

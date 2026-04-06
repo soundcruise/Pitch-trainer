@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ</title>
-    <link rel="stylesheet" href="../style.css?v=74">
+    <link rel="stylesheet" href="../style.css?v=82">
     <link rel="stylesheet" href="../pro-theme.css?v=61">
     <link rel="stylesheet" href="../staging/staging-hub-nav.css?v=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -303,40 +303,98 @@
 
                 <div class="setting-group">
                     <h3>使用する音</h3>
-                    <div class="note-toggles-grid">
-                        <div class="keyboard-row black-keys">
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="C#"
-                                    class="note-toggle"><span class="note-name">C#</span><span
-                                    class="degree-label">♭2</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="D#"
-                                    class="note-toggle"><span class="note-name">D#</span><span
-                                    class="degree-label">♭3</span></label>
-                            <div class="spacer"></div>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="F#"
-                                    class="note-toggle"><span class="note-name">F#</span><span
-                                    class="degree-label">♭5</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="G#"
-                                    class="note-toggle"><span class="note-name">G#</span><span
-                                    class="degree-label">♭6</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="A#"
-                                    class="note-toggle"><span class="note-name">A#</span><span
-                                    class="degree-label">♭7</span></label>
+                    <div id="pro-note-toggles-container">
+                        <div class="pro-melody-octave-block" data-octave-index="0">
+                            <p class="pro-octave-layer-caption pro-octave-layer-caption--first" style="display: none;">下のオクターブ</p>
+                            <div class="note-toggles-grid">
+                                <div class="keyboard-row black-keys">
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="C#"
+                                            data-octave-offset="0" class="note-toggle"><span
+                                            class="note-name">C#</span><span class="degree-label">♭2</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="D#"
+                                            data-octave-offset="0" class="note-toggle"><span
+                                            class="note-name">D#</span><span class="degree-label">♭3</span></label>
+                                    <div class="spacer"></div>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="F#"
+                                            data-octave-offset="0" class="note-toggle"><span
+                                            class="note-name">F#</span><span class="degree-label">♭5</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="G#"
+                                            data-octave-offset="0" class="note-toggle"><span
+                                            class="note-name">G#</span><span class="degree-label">♭6</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="A#"
+                                            data-octave-offset="0" class="note-toggle"><span
+                                            class="note-name">A#</span><span class="degree-label">♭7</span></label>
+                                </div>
+                                <div class="keyboard-row white-keys">
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="C"
+                                            data-octave-offset="0" class="note-toggle" checked><span
+                                            class="note-name">C</span><span class="degree-label">1</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="D"
+                                            data-octave-offset="0" class="note-toggle" checked><span
+                                            class="note-name">D</span><span class="degree-label">2</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="E"
+                                            data-octave-offset="0" class="note-toggle" checked><span
+                                            class="note-name">E</span><span class="degree-label">3</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="F"
+                                            data-octave-offset="0" class="note-toggle" checked><span
+                                            class="note-name">F</span><span class="degree-label">4</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="G"
+                                            data-octave-offset="0" class="note-toggle" checked><span
+                                            class="note-name">G</span><span class="degree-label">5</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="A"
+                                            data-octave-offset="0" class="note-toggle" checked><span
+                                            class="note-name">A</span><span class="degree-label">6</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="B"
+                                            data-octave-offset="0" class="note-toggle" checked><span
+                                            class="note-name">B</span><span class="degree-label">7</span></label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="keyboard-row white-keys">
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="C" class="note-toggle"
-                                    checked><span class="note-name">C</span><span class="degree-label">1</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="D" class="note-toggle"
-                                    checked><span class="note-name">D</span><span class="degree-label">2</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="E" class="note-toggle"
-                                    checked><span class="note-name">E</span><span class="degree-label">3</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="F" class="note-toggle"
-                                    checked><span class="note-name">F</span><span class="degree-label">4</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="G" class="note-toggle"
-                                    checked><span class="note-name">G</span><span class="degree-label">5</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="A" class="note-toggle"
-                                    checked><span class="note-name">A</span><span class="degree-label">6</span></label>
-                            <label class="note-toggle-wrapper"><input type="checkbox" data-note="B" class="note-toggle"
-                                    checked><span class="note-name">B</span><span class="degree-label">7</span></label>
+                        <div class="pro-melody-octave-block pro-melody-octave-block--second" style="display: none;">
+                            <p class="pro-octave-layer-caption">上のオクターブ</p>
+                            <div class="note-toggles-grid">
+                                <div class="keyboard-row black-keys">
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="C#"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">C#</span><span class="degree-label">♭2</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="D#"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">D#</span><span class="degree-label">♭3</span></label>
+                                    <div class="spacer"></div>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="F#"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">F#</span><span class="degree-label">♭5</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="G#"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">G#</span><span class="degree-label">♭6</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="A#"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">A#</span><span class="degree-label">♭7</span></label>
+                                </div>
+                                <div class="keyboard-row white-keys">
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="C"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">C</span><span class="degree-label">1</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="D"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">D</span><span class="degree-label">2</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="E"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">E</span><span class="degree-label">3</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="F"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">F</span><span class="degree-label">4</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="G"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">G</span><span class="degree-label">5</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="A"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">A</span><span class="degree-label">6</span></label>
+                                    <label class="note-toggle-wrapper"><input type="checkbox" data-note="B"
+                                            data-octave-offset="1" class="note-toggle"><span
+                                            class="note-name">B</span><span class="degree-label">7</span></label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -694,7 +752,7 @@
         </div>
     </div>
     <script src="../staging/staging-hub-nav.js?v=1"></script>
-    <script src="../script.js?v=1.1.6"></script>
+    <script src="../script.js?v=1.2.0"></script>
 </body>
 
 </html>

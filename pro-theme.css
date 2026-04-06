@@ -21,13 +21,11 @@
     align-items: center;
 }
 
-.staging-add-pro-slot-btn .staging-add-pro-slot-label {
+.staging-add-pro-slot-btn .staging-add-pro-slot-emoji {
     display: block;
-    font-size: 0.5rem;
-    font-weight: 800;
-    line-height: 1.12;
+    font-size: 1.35rem;
+    line-height: 1;
     text-align: center;
-    letter-spacing: 0.02em;
 }
 
 /* Staging: メインSTAGEは他ボタンと同じ 250px で左右・中央を揃える。トグルは右にはみ出す外付け */

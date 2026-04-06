@@ -43,6 +43,41 @@ function isProChordStageId(stage) {
     return stage === 199 || (stage >= STAGING_PRO_CHORD_SLOT_MIN && stage <= STAGING_PRO_CHORD_SLOT_MAX);
 }
 
+/** Pro メロディ 2Oct: 旧データは pool が音名文字列のみ（オクターブは出題時にランダム） */
+function isProMelody2OctavePoolLegacy(pool) {
+    return Array.isArray(pool) && pool.length > 0 && typeof pool[0] === 'string';
+}
+
+/** 2Oct 時の出題プールを { note, octaveOffset } の配列にそろえる */
+function expandProMelody2OctavePoolEntries(pool) {
+    if (!pool || pool.length === 0) return [];
+    if (typeof pool[0] === 'string') {
+        return pool.flatMap((note) => [{ note, octaveOffset: 0 }, { note, octaveOffset: 1 }]);
+    }
+    return pool.map((p) => ({
+        note: p.note,
+        octaveOffset: p.octaveOffset != null ? p.octaveOffset : 0
+    }));
+}
+
+/** 鍵盤の1鍵がプールに含まれるか（2Oct・レガシー対応） */
+function proMelodyPoolAllowsNoteAtOctave(cfg, note, octaveOffset) {
+    const pool = cfg.pool;
+    if (!pool || !pool.length) return false;
+    if (!cfg.is2Octave) return pool.includes(note);
+    if (isProMelody2OctavePoolLegacy(pool)) return pool.includes(note);
+    return pool.some((p) => p.note === note && (p.octaveOffset || 0) === octaveOffset);
+}
+
+/** stageConfig.pool のコピー（2Oct オブジェクト配列は中身も複製） */
+function cloneProMelodyPool(pool) {
+    if (!pool || !pool.length) return [];
+    if (typeof pool[0] === 'string') return [...pool];
+    return pool.map((p) => (typeof p === 'object' && p !== null
+        ? { note: p.note, octaveOffset: p.octaveOffset != null ? p.octaveOffset : 0 }
+        : p));
+}
+
 /** Staging: ブラウザの prompt 代替（127.0.0.1 表示なし）。キャンセル時 null */
 function showStagingStageNameModal(options) {
     const opts = options || {};
@@ -1097,10 +1132,32 @@ class Game {
         // --- Pro Stage Logic ---
         this.proSettingsModal = document.getElementById('screen-pro-settings');
 
+        if (this.proSettingsModal) {
+            this.proSettingsModal.addEventListener('change', (ev) => {
+                const t = ev.target;
+                if (t && t.id === 'pro-keyboard-layout-toggle') {
+                    this.updateProNoteTogglesKeyboardLayoutClass();
+                    return;
+                }
+                if (!t || t.id !== 'pro-2octave-toggle') return;
+                if (t.checked) {
+                    this.proSettingsModal.querySelectorAll('.note-toggle[data-octave-offset="0"]').forEach((t0) => {
+                        const t1 = this.proSettingsModal.querySelector(
+                            '.note-toggle[data-note="' + t0.dataset.note + '"][data-octave-offset="1"]'
+                        );
+                        if (t1) t1.checked = t0.checked;
+                    });
+                }
+                this.updateProMelody2OctaveToggleLayers();
+            });
+        }
+
         if (document.getElementById('btn-level-pro')) document.getElementById('btn-level-pro').addEventListener('click', () => {
             if (this.proSettingsModal) {
                 this._proMelodyModalTargetStageId = null;
                 this.syncProAccidentalToggleUi();
+                this.updateProMelody2OctaveToggleLayers();
+                this.updateProNoteTogglesKeyboardLayoutClass();
                 this.refreshProNoteToggleLabels();
                 this.proSettingsModal.classList.remove('hidden');
             }
@@ -1160,6 +1217,9 @@ class Game {
         if (answerMethodSelect) {
             answerMethodSelect.dispatchEvent(new Event('change'));
         }
+
+        this.updateProMelody2OctaveToggleLayers();
+        this.updateProNoteTogglesKeyboardLayoutClass();
 
         // Chord Pattern Mode Toggle (Random vs Progression)
         document.querySelectorAll('input[name="chord-pattern-mode"]').forEach(radio => {
@@ -2334,18 +2394,26 @@ class Game {
     // Replace the end of `init()` bracket with standard form
 
     applyScalePreset(preset) {
-        const toggles = document.querySelectorAll('.note-toggle');
+        const modal = document.getElementById('screen-pro-settings');
+        if (!modal) return;
+        const allToggles = () => modal.querySelectorAll('.note-toggle');
+        const is2 = document.getElementById('pro-2octave-toggle') ? document.getElementById('pro-2octave-toggle').checked : false;
         const check = (note) => {
-            const el = document.querySelector('.note-toggle[data-note="' + note + '"]');
-            if (el) el.checked = true;
+            const offsets = is2 ? [0, 1] : [0];
+            offsets.forEach((o) => {
+                const el = modal.querySelector(
+                    '.note-toggle[data-note="' + note + '"][data-octave-offset="' + o + '"]'
+                );
+                if (el) el.checked = true;
+            });
         };
-        const uncheckAll = () => toggles.forEach(t => t.checked = false);
+        const uncheckAll = () => allToggles().forEach((t) => { t.checked = false; });
 
         uncheckAll();
 
         switch (preset) {
             case 'chromatic':
-                toggles.forEach(t => t.checked = true);
+                allToggles().forEach((t) => { t.checked = true; });
                 break;
             case 'major': // Ionian: C D E F G A B
                 ['C', 'D', 'E', 'F', 'G', 'A', 'B'].forEach(check);
@@ -2696,10 +2764,25 @@ class Game {
     /** Proメロディ設定を stageConfig に反映。失敗時 false。targetStageId 省略時は 99 */
     applyProMelodySettingsFromUI(targetStageId) {
         const tid = targetStageId !== undefined ? targetStageId : 99;
-        const selectedNotes = [];
-        document.querySelectorAll('.note-toggle:checked').forEach(t => {
-            selectedNotes.push(t.dataset.note);
-        });
+        const modal = document.getElementById('screen-pro-settings');
+        const is2Octave = document.getElementById('pro-2octave-toggle') ? document.getElementById('pro-2octave-toggle').checked : false;
+        let selectedNotes;
+        if (is2Octave) {
+            selectedNotes = [];
+            if (modal) {
+                modal.querySelectorAll('.note-toggle:checked').forEach((t) => {
+                    const o = parseInt(t.dataset.octaveOffset || '0', 10);
+                    selectedNotes.push({ note: t.dataset.note, octaveOffset: o });
+                });
+            }
+        } else {
+            selectedNotes = [];
+            if (modal) {
+                modal.querySelectorAll('.pro-melody-octave-block[data-octave-index="0"] .note-toggle:checked').forEach((t) => {
+                    selectedNotes.push(t.dataset.note);
+                });
+            }
+        }
 
         if (selectedNotes.length === 0) {
             alert('少なくとも1つの音を選択してください。');
@@ -2707,7 +2790,6 @@ class Game {
         }
 
         const count = parseInt(document.getElementById('pro-count-slider').value) || 4;
-        const is2Octave = document.getElementById('pro-2octave-toggle') ? document.getElementById('pro-2octave-toggle').checked : false;
         const isPianoLayout = document.getElementById('pro-keyboard-layout-toggle') ? document.getElementById('pro-keyboard-layout-toggle').checked : false;
         const answerMethod = document.getElementById('pro-answer-method').value || 'note';
         const accEl = document.getElementById('pro-accidental-toggle');
@@ -2716,7 +2798,8 @@ class Game {
         }
         this.saveProMelodyAccidentalPref();
 
-        const desc = selectedNotes.length + '音 / ' + count + '問' + (is2Octave ? ' (2Oct)' : '');
+        const unitLabel = is2Octave ? '鍵' : '音';
+        const desc = selectedNotes.length + unitLabel + ' / ' + count + '問' + (is2Octave ? ' (2Oct)' : '');
         const prev = this.stageConfig[tid] || {};
         this.stageConfig[tid] = {
             ...prev,
@@ -2820,7 +2903,7 @@ class Game {
             if (input === null) return;
             const name = String(input).trim() !== '' ? String(input).trim() : defaultName;
             this.stageConfig[nextId] = {
-                pool: [...src.pool],
+                pool: cloneProMelodyPool(src.pool),
                 count: src.count,
                 is2Octave: !!src.is2Octave,
                 isPianoLayout: src.isPianoLayout !== false,
@@ -2838,21 +2921,87 @@ class Game {
 
     fillProMelodyUIFromConfig(cfg) {
         if (!cfg || !cfg.pool) return;
-        document.querySelectorAll('.note-toggle').forEach(t => {
-            t.checked = cfg.pool.includes(t.dataset.note);
-        });
+        const modal = document.getElementById('screen-pro-settings');
+        if (modal) {
+            modal.querySelectorAll('.note-toggle').forEach((t) => { t.checked = false; });
+        }
+        const t2 = document.getElementById('pro-2octave-toggle');
+        if (t2) t2.checked = !!cfg.is2Octave;
+        this.updateProMelody2OctaveToggleLayers();
+        if (modal) {
+            if (cfg.is2Octave) {
+                if (isProMelody2OctavePoolLegacy(cfg.pool)) {
+                    cfg.pool.forEach((note) => {
+                        [0, 1].forEach((o) => {
+                            const el = modal.querySelector(
+                                '.note-toggle[data-note="' + note + '"][data-octave-offset="' + o + '"]'
+                            );
+                            if (el) el.checked = true;
+                        });
+                    });
+                } else {
+                    cfg.pool.forEach((p) => {
+                        const note = typeof p === 'string' ? p : p.note;
+                        const o = typeof p === 'object' && p !== null && p.octaveOffset != null ? p.octaveOffset : 0;
+                        const el = modal.querySelector(
+                            '.note-toggle[data-note="' + note + '"][data-octave-offset="' + o + '"]'
+                        );
+                        if (el) el.checked = true;
+                    });
+                }
+            } else {
+                cfg.pool.forEach((entry) => {
+                    const note = typeof entry === 'string' ? entry : entry.note;
+                    const el = modal.querySelector(
+                        '.note-toggle[data-note="' + note + '"][data-octave-offset="0"]'
+                    );
+                    if (el) el.checked = true;
+                });
+            }
+        }
         const slider = document.getElementById('pro-count-slider');
         const valSpan = document.getElementById('pro-count-value');
         if (slider) slider.value = String(cfg.count != null ? cfg.count : 4);
         if (valSpan) valSpan.textContent = String(cfg.count != null ? cfg.count : 4);
-        const t2 = document.getElementById('pro-2octave-toggle');
-        if (t2) t2.checked = !!cfg.is2Octave;
         const t3 = document.getElementById('pro-keyboard-layout-toggle');
         if (t3) t3.checked = cfg.isPianoLayout !== false;
+        this.updateProNoteTogglesKeyboardLayoutClass();
         const am = document.getElementById('pro-answer-method');
         if (am) {
             am.value = cfg.answerMethod || 'note';
             am.dispatchEvent(new Event('change'));
+        }
+    }
+
+    /** 鍵盤レイアウトOFF時は「使用する音」をゲーム画面と同様の一覧（丸ボタン・音階順）に切り替える */
+    updateProNoteTogglesKeyboardLayoutClass() {
+        const kb = document.getElementById('pro-keyboard-layout-toggle');
+        const pianoOn = !!(kb && kb.checked);
+        const modal = document.getElementById('screen-pro-settings');
+        const root = modal
+            ? modal.querySelector('#pro-note-toggles-container')
+            : document.getElementById('pro-note-toggles-container');
+        if (!root) return;
+        root.classList.toggle('pro-note-toggles--list', !pianoOn);
+    }
+
+    updateProMelody2OctaveToggleLayers() {
+        const cb = document.getElementById('pro-2octave-toggle');
+        const on = !!(cb && cb.checked);
+        const modal = document.getElementById('screen-pro-settings');
+        const root = modal
+            ? modal.querySelector('#pro-note-toggles-container')
+            : document.getElementById('pro-note-toggles-container');
+        if (!root) return;
+        const cap = root.querySelector('.pro-octave-layer-caption--first');
+        const block1 = root.querySelector('.pro-melody-octave-block--second');
+        if (cap) {
+            cap.removeAttribute('hidden');
+            cap.style.display = on ? 'block' : 'none';
+        }
+        if (block1) {
+            block1.removeAttribute('hidden');
+            block1.style.display = on ? 'block' : 'none';
         }
     }
 
@@ -2903,7 +3052,7 @@ class Game {
                 if (!slot || !slot.config || !slot.id) return;
                 const c = slot.config;
                 this.stageConfig[slot.id] = {
-                    pool: [...c.pool],
+                    pool: cloneProMelodyPool(c.pool),
                     count: c.count,
                     is2Octave: !!c.is2Octave,
                     isPianoLayout: c.isPianoLayout !== false,
@@ -2948,7 +3097,7 @@ class Game {
                 id,
                 name: c.customName || ('PROカスタム' + (slots.length + 1)),
                 config: {
-                    pool: [...c.pool],
+                    pool: cloneProMelodyPool(c.pool),
                     count: c.count,
                     is2Octave: !!c.is2Octave,
                     isPianoLayout: c.isPianoLayout !== false,
@@ -2991,7 +3140,7 @@ class Game {
             if (input === null) return;
             const name = String(input).trim() !== '' ? String(input).trim() : defaultName;
             this.stageConfig[nextId] = {
-                pool: [...base.pool],
+                pool: cloneProMelodyPool(base.pool),
                 count: base.count,
                 is2Octave: !!base.is2Octave,
                 isPianoLayout: base.isPianoLayout !== false,
@@ -3452,6 +3601,13 @@ class Game {
     }
 
     resetProMelodySettingsToDefaults() {
+        const modal = document.getElementById('screen-pro-settings');
+        const t2 = document.getElementById('pro-2octave-toggle');
+        if (t2) t2.checked = false;
+        this.updateProMelody2OctaveToggleLayers();
+        if (modal) {
+            modal.querySelectorAll('.note-toggle').forEach((t) => { t.checked = false; });
+        }
         const presetSelect = document.getElementById('scale-preset-select');
         if (presetSelect) {
             presetSelect.value = 'major';
@@ -3461,14 +3617,9 @@ class Game {
         const valSpan = document.getElementById('pro-count-value');
         if (slider) slider.value = '4';
         if (valSpan) valSpan.textContent = '4';
-        document.querySelectorAll('.note-toggle').forEach(t => {
-            const n = t.dataset.note;
-            t.checked = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].includes(n);
-        });
-        const t2 = document.getElementById('pro-2octave-toggle');
-        if (t2) t2.checked = false;
         const t3 = document.getElementById('pro-keyboard-layout-toggle');
         if (t3) t3.checked = true;
+        this.updateProNoteTogglesKeyboardLayoutClass();
         const am = document.getElementById('pro-answer-method');
         if (am) {
             am.value = 'solfege';
@@ -3487,6 +3638,9 @@ class Game {
             this.syncProAccidentalToggleUi();
             if (this.stage !== 99 && this.stageConfig[this.stage]) {
                 this.fillProMelodyUIFromConfig(this.stageConfig[this.stage]);
+            } else {
+                this.updateProMelody2OctaveToggleLayers();
+                this.updateProNoteTogglesKeyboardLayoutClass();
             }
             this.refreshProNoteToggleLabels();
             this.proSettingsModal.classList.remove('hidden');
@@ -3825,97 +3979,88 @@ class Game {
         } else {
             this.noteButtonsContainer.innerHTML = '';
 
+            const getNoteText = (note) => {
+                if (isProMelodyStageId(this.stage)) {
+                    if (cfg.answerMethod === 'degree') return this.getDegreeName(note);
+                    if (cfg.answerMethod === 'solfege') return this.getProSolfegeDisplay(note);
+                    if (cfg.answerMethod === 'note') return this.getProNoteLetterDisplay(note);
+                    return this.notationStyle === 'doremi' ? this.getProSolfegeDisplay(note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : this.getProNoteLetterDisplay(note));
+                }
+                return this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
+            };
+
+            const makeBtn = (note, isBlack, octaveOffset, shouldShow) => {
+                const btn = document.createElement('button');
+                btn.className = 'note-btn ' + (isBlack ? 'black-key accidental' : 'white-key');
+                if (!shouldShow) {
+                    btn.style.visibility = 'hidden';
+                    return btn;
+                }
+                btn.dataset.note = note;
+                btn.dataset.octaveOffset = octaveOffset;
+                btn.textContent = getNoteText(note);
+                btn.addEventListener('mousedown', () => this.handleInput(note, octaveOffset));
+                btn.addEventListener('touchstart', (e) => { e.preventDefault(); this.handleInput(note, octaveOffset); });
+                return btn;
+            };
+
             const renderOctaveKeys = (octaveOffset) => {
                 const allNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                const whiteNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+                const blackSlots = ['C#', 'D#', null, 'F#', 'G#', 'A#'];
 
-                const octaveDiv = document.createElement('div');
-                octaveDiv.className = 'octave-group';
-                if (!cfg.isPianoLayout) {
+                if (cfg.isPianoLayout) {
+                    const grid = document.createElement('div');
+                    grid.className = 'piano-keys-grid';
+                    if (octaveOffset > 0) grid.style.marginTop = '16px';
+
+                    const whiteRow = document.createElement('div');
+                    whiteRow.className = 'keyboard-row white-keys';
+                    whiteNotes.forEach(note => {
+                        whiteRow.appendChild(makeBtn(note, false, octaveOffset, proMelodyPoolAllowsNoteAtOctave(cfg, note, octaveOffset)));
+                    });
+                    grid.appendChild(whiteRow);
+
+                    var whiteW = 44, whiteGap = 6, blackW = 32;
+                    var blackKeyMap = [
+                        { note: 'C#', slot: 0 },
+                        { note: 'D#', slot: 1 },
+                        { note: 'F#', slot: 3 },
+                        { note: 'G#', slot: 4 },
+                        { note: 'A#', slot: 5 }
+                    ];
+                    blackKeyMap.forEach(function(k) {
+                        var btn = makeBtn(k.note, true, octaveOffset, proMelodyPoolAllowsNoteAtOctave(cfg, k.note, octaveOffset));
+                        btn.style.left = (k.slot * (whiteW + whiteGap) + whiteW + whiteGap / 2 - blackW / 2) + 'px';
+                        grid.appendChild(btn);
+                    });
+
+                    this.noteButtonsContainer.appendChild(grid);
+                } else {
+                    const octaveDiv = document.createElement('div');
+                    octaveDiv.className = 'octave-group';
                     octaveDiv.style.display = 'flex';
                     octaveDiv.style.justifyContent = 'center';
                     octaveDiv.style.gap = '15px';
                     octaveDiv.style.flexWrap = 'wrap';
                     octaveDiv.style.width = '100%';
                     if (octaveOffset > 0) octaveDiv.style.marginTop = '15px';
-                }
 
-                allNotes.forEach(note => {
-                    const isBlack = note.includes('#');
-                    const shouldShow = pool.includes(note);
-
-                    if (cfg.isPianoLayout) {
-                        // In Piano layout, we must render a placeholder even if unselected to maintain key spacing
-                        const btn = document.createElement('button');
-                        btn.className = `note-btn ${isBlack ? 'black-key accidental' : 'white-key'}`;
-                        if (!shouldShow) {
-                            btn.style.visibility = 'hidden';
-                            // Still add it to take up space in flow
-                            octaveDiv.appendChild(btn);
-                            return;
-                        }
-
-                        btn.dataset.note = note;
-                        btn.dataset.octaveOffset = octaveOffset;
-
-                        let text = note;
-                        if (isProMelodyStageId(this.stage)) {
-                            if (cfg.answerMethod === 'degree') {
-                                text = this.getDegreeName(note);
-                            } else if (cfg.answerMethod === 'solfege') {
-                                text = this.getProSolfegeDisplay(note);
-                            } else if (cfg.answerMethod === 'note') {
-                                text = this.getProNoteLetterDisplay(note);
-                            } else {
-                                text = this.notationStyle === 'doremi' ? (this.getProSolfegeDisplay(note)) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : this.getProNoteLetterDisplay(note));
-                            }
-                        } else {
-                            text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
-                        }
-                        btn.textContent = text;
-
-                        btn.addEventListener('mousedown', (e) => this.handleInput(note, octaveOffset));
-                        btn.addEventListener('touchstart', (e) => {
-                            e.preventDefault();
-                            this.handleInput(note, octaveOffset);
-                        });
-
-                        octaveDiv.appendChild(btn);
-                    } else {
-                        // Standard Layout - only render visible buttons
-                        if (!shouldShow) return;
-
+                    allNotes.forEach(note => {
+                        const isBlack = note.includes('#');
+                        if (!proMelodyPoolAllowsNoteAtOctave(cfg, note, octaveOffset)) return;
                         const btn = document.createElement('button');
                         btn.className = 'note-btn';
                         if (isBlack) btn.classList.add('accidental');
                         btn.dataset.note = note;
                         btn.dataset.octaveOffset = octaveOffset;
-
-                        let text = note;
-                        if (isProMelodyStageId(this.stage)) {
-                            if (cfg.answerMethod === 'degree') {
-                                text = this.getDegreeName(note);
-                            } else if (cfg.answerMethod === 'solfege') {
-                                text = this.getProSolfegeDisplay(note);
-                            } else if (cfg.answerMethod === 'note') {
-                                text = this.getProNoteLetterDisplay(note);
-                            } else {
-                                text = this.notationStyle === 'doremi' ? (this.getProSolfegeDisplay(note)) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : this.getProNoteLetterDisplay(note));
-                            }
-                        } else {
-                            text = this.notationStyle === 'doremi' ? (this.doremiMap[note] || note) : (this.notationStyle === 'degree' ? this.getDegreeName(note) : note);
-                        }
-                        btn.textContent = text;
-
-                        btn.addEventListener('mousedown', (e) => this.handleInput(note, octaveOffset));
-                        btn.addEventListener('touchstart', (e) => {
-                            e.preventDefault();
-                            this.handleInput(note, octaveOffset);
-                        });
-
+                        btn.textContent = getNoteText(note);
+                        btn.addEventListener('mousedown', () => this.handleInput(note, octaveOffset));
+                        btn.addEventListener('touchstart', (e) => { e.preventDefault(); this.handleInput(note, octaveOffset); });
                         octaveDiv.appendChild(btn);
-                    }
-                });
-                this.noteButtonsContainer.appendChild(octaveDiv);
+                    });
+                    this.noteButtonsContainer.appendChild(octaveDiv);
+                }
             };
 
             renderOctaveKeys(0);
@@ -4093,11 +4238,13 @@ class Game {
             // Fallback to random if progression mode failed to find a match, or if in random mode
             if (this.currentSequence.length === 0) {
                 for (let i = 0; i < cfg.count; i++) {
-                    const randomNote = cfg.pool[Math.floor(Math.random() * cfg.pool.length)];
                     if (isProMelodyStageId(this.stage) && cfg.is2Octave) {
-                        const randomOctaveOffset = Math.floor(Math.random() * 2); // 0 or 1
-                        this.currentSequence.push({ note: randomNote, octaveOffset: randomOctaveOffset });
+                        const entries = expandProMelody2OctavePoolEntries(cfg.pool);
+                        if (entries.length === 0) break;
+                        const pick = entries[Math.floor(Math.random() * entries.length)];
+                        this.currentSequence.push({ note: pick.note, octaveOffset: pick.octaveOffset });
                     } else {
+                        const randomNote = cfg.pool[Math.floor(Math.random() * cfg.pool.length)];
                         this.currentSequence.push(randomNote);
                     }
                 }
