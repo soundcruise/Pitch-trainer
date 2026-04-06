@@ -684,6 +684,24 @@ header {
     backdrop-filter: blur(5px);
 }
 
+/* 一般の設定モーダル: 縦に長いとき縦中央だと上が画面外に出るため、上寄せ＋外側スクロール */
+#settings-modal {
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    padding: max(12px, env(safe-area-inset-top)) 12px max(24px, env(safe-area-inset-bottom));
+    box-sizing: border-box;
+}
+
+#settings-modal .modal-content {
+    flex-shrink: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #chord-editor-modal {
     z-index: 1005;
     /* Display above other modals */
