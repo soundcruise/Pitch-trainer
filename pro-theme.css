@@ -15,6 +15,146 @@
     gap: 10px;
 }
 
+/* Staging: 問題画面ヘッダー右上、Pro設定（👑）の左に「STAGEに追加」（王冠・歯車と同じ 44px） */
+.staging-add-slot-wrap {
+    display: none;
+    align-items: center;
+}
+
+.staging-add-pro-slot-btn .staging-add-pro-slot-label {
+    display: block;
+    font-size: 0.5rem;
+    font-weight: 800;
+    line-height: 1.12;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+/* Staging: メインSTAGEは他ボタンと同じ 250px で左右・中央を揃える。トグルは右にはみ出す外付け */
+.staging-pro-slot-dynamic,
+.staging-pro-chord-slot-dynamic {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 250px;
+    overflow: visible;
+    position: relative;
+}
+
+.staging-pro-slot-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 250px;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.staging-slot-main-row {
+    position: relative;
+    width: 100%;
+    max-width: 250px;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.staging-pro-slot-row .staging-slot-main-btn {
+    width: 100%;
+    max-width: 250px;
+    box-sizing: border-box;
+}
+
+.staging-slot-dropdown-toggle {
+    position: absolute;
+    left: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%);
+    box-sizing: border-box;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.88);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.staging-slot-dropdown-toggle:active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.staging-slot-chevron {
+    display: inline-block;
+    font-size: 0.52rem;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.staging-pro-slot-row.is-open .staging-slot-chevron {
+    transform: rotate(180deg);
+}
+
+/* トグルが右へはみ出しても切れにくくする（STAGE列は 250px のまま） */
+#screen-melody.modal .level-buttons {
+    overflow-x: visible;
+}
+
+.staging-slot-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 250px;
+}
+
+.staging-slot-actions[hidden] {
+    display: none !important;
+}
+
+.staging-slot-actions .staging-slot-action-btn {
+    box-sizing: border-box;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    margin: 0;
+    gap: 0;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 複製: 二重紙アイコン（PNG）を暗い画面向けに反転 */
+.staging-slot-duplicate-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+    filter: invert(1);
+    opacity: 0.92;
+}
+
 .icon-btn.icon-btn-header-pair {
     box-sizing: border-box;
     width: 44px;
@@ -177,4 +317,88 @@
             0.8px 0.8px 0px rgba(255, 255, 255, 0.8),
             -0.8px -0.8px 0px rgba(0, 0, 0, 0.4);
     }
+}
+
+/* Staging: prompt/confirm 代替（127.0.0.1 行なし・タイトル・入力を大きく） */
+.staging-native-replace-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10060;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+        max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    box-sizing: border-box;
+}
+
+.staging-native-replace-modal.hidden {
+    display: none !important;
+}
+
+.staging-native-replace-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+}
+
+.staging-native-replace-modal__panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 360px;
+    padding: 22px 20px;
+    border-radius: 16px;
+    background: #1a1a1e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-align: left;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.staging-native-replace-modal__title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1.35;
+    margin: 0 0 12px;
+    color: rgba(255, 255, 255, 0.96);
+}
+
+.staging-native-replace-modal__hint {
+    font-size: 1.05rem;
+    line-height: 1.45;
+    margin: 0 0 14px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.staging-native-replace-modal__body {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    margin: 0 0 18px;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.staging-native-replace-modal__input {
+    width: 100%;
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-family: inherit;
+}
+
+.staging-native-replace-modal__input:focus {
+    outline: 2px solid rgba(255, 230, 140, 0.55);
+    outline-offset: 2px;
+}
+
+.staging-native-replace-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
 }

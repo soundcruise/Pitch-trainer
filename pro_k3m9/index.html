@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ</title>
     <link rel="stylesheet" href="../style.css?v=74">
-    <link rel="stylesheet" href="../pro-theme.css?v=61">
+    <link rel="stylesheet" href="../pro-theme.css?v=75">
     <link rel="stylesheet" href="pro-gate.css?v=1">
+    <link rel="stylesheet" href="../staging/staging-hub-nav.css?v=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
@@ -81,6 +82,11 @@
                 <div id="current-stage-desc" style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);"></div>
             </div>
             <div class="header-game-settings-wrap">
+                <div id="staging-add-slot-wrap" class="staging-add-slot-wrap" style="display: none;" hidden>
+                    <button type="button" id="btn-staging-add-pro-slot"
+                        class="icon-btn icon-btn-header-pair staging-add-pro-slot-btn" title="STAGEに追加"><span
+                            class="staging-add-pro-slot-label">STAGE<br>に追加</span></button>
+                </div>
                 <button type="button" id="in-game-pro-settings-btn" class="icon-btn icon-btn-header-pair"
                     style="display: none;" title="Pro設定">👑</button>
                 <button type="button" id="settings-btn" class="icon-btn icon-btn-header-pair" title="設定">⚙️</button>
@@ -696,10 +702,40 @@
             </div>
         </div>
     </div>
+
+    <!-- Staging: ブラウザ prompt/confirm 代替（127.0.0.1 行を出さない） -->
+    <div id="staging-stage-name-modal" class="staging-native-replace-modal hidden" aria-hidden="true">
+        <div class="staging-native-replace-modal__backdrop"></div>
+        <div class="staging-native-replace-modal__panel" role="dialog" aria-modal="true"
+            aria-labelledby="staging-stage-name-title">
+            <h3 id="staging-stage-name-title" class="staging-native-replace-modal__title">STAGEの名前</h3>
+            <p id="staging-stage-name-hint" class="staging-native-replace-modal__hint hidden"></p>
+            <input type="text" id="staging-stage-name-input" class="staging-native-replace-modal__input"
+                autocomplete="off" />
+            <div class="staging-native-replace-modal__actions">
+                <button type="button" id="staging-stage-name-cancel" class="btn-secondary">キャンセル</button>
+                <button type="button" id="staging-stage-name-ok" class="btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+    <div id="staging-stage-delete-modal" class="staging-native-replace-modal hidden" aria-hidden="true">
+        <div class="staging-native-replace-modal__backdrop"></div>
+        <div class="staging-native-replace-modal__panel" role="dialog" aria-modal="true"
+            aria-labelledby="staging-stage-delete-title">
+            <h3 id="staging-stage-delete-title" class="staging-native-replace-modal__title">STAGEの削除</h3>
+            <p id="staging-stage-delete-message" class="staging-native-replace-modal__body">このSTAGEを削除しますか？</p>
+            <div class="staging-native-replace-modal__actions">
+                <button type="button" id="staging-stage-delete-cancel" class="btn-secondary">キャンセル</button>
+                <button type="button" id="staging-stage-delete-ok" class="btn-primary">削除</button>
+            </div>
+        </div>
+    </div>
+
     <script src="gate-config.js"></script>
     <script src="pro-gate.js?v=3"></script>
     <script src="../staging/pro-custom-stage-align.js?v=1"></script>
-    <script src="../script.js?v=1.1.6"></script>
+    <script src="../staging/staging-hub-nav.js?v=1"></script>
+    <script src="../script.js?v=1.2.2"></script>
 </body>
 
 </html>

@@ -1,8 +1,18 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.1.6';
+const PITCH_TRAINER_APP_VERSION = '1.2.2';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '8';
+const PITCH_TRAINER_APP_BUILD = '12';
+
+/** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
+const STAGING_PRO_MELODY_SLOT_MIN = 5001;
+const STAGING_PRO_MELODY_SLOT_MAX = 5099;
+const STAGING_PRO_MELODY_SLOTS_KEY = 'pitchTrainerStagingProMelodySlots';
+
+/** Staging 検証: コード Pro に「STAGEに追加」で保存したスロット ID 範囲 */
+const STAGING_PRO_CHORD_SLOT_MIN = 5101;
+const STAGING_PRO_CHORD_SLOT_MAX = 5199;
+const STAGING_PRO_CHORD_SLOTS_KEY = 'pitchTrainerStagingProChordSlots';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -15,6 +25,122 @@ function isPitchTrainerBeta() {
 /** キーランダムの出題・保存は Pro のみ（設定 UI は通常版・ベータとレイアウト共用） */
 function isKeyRandomGameplayActive(game) {
     return isPitchTrainerPro() && !!game.keyRandomMode;
+}
+
+/** Staging 検証のみ: 追加 STAGE スロット機能 */
+function isStagingProSlotsFeature() {
+    return typeof location !== 'undefined' && isPitchTrainerPro() &&
+        new URLSearchParams(location.search).get('stagingPreview') === '1';
+}
+
+/** メロディ Pro（本体 99 または Staging 保存スロット 5001〜） */
+function isProMelodyStageId(stage) {
+    return stage === 99 || (stage >= STAGING_PRO_MELODY_SLOT_MIN && stage <= STAGING_PRO_MELODY_SLOT_MAX);
+}
+
+/** コード Pro（本体 199 または Staging 保存スロット 5101〜） */
+function isProChordStageId(stage) {
+    return stage === 199 || (stage >= STAGING_PRO_CHORD_SLOT_MIN && stage <= STAGING_PRO_CHORD_SLOT_MAX);
+}
+
+/** Staging: ブラウザの prompt 代替（127.0.0.1 表示なし）。キャンセル時 null */
+function showStagingStageNameModal(options) {
+    const opts = options || {};
+    return new Promise((resolve) => {
+        const modal = document.getElementById('staging-stage-name-modal');
+        const input = document.getElementById('staging-stage-name-input');
+        const titleEl = document.getElementById('staging-stage-name-title');
+        const hintEl = document.getElementById('staging-stage-name-hint');
+        if (!modal || !input || !titleEl) {
+            const fallback = window.prompt(opts.title || 'STAGEの名前', opts.defaultValue || '');
+            resolve(fallback === null ? null : String(fallback));
+            return;
+        }
+        const okBtn = document.getElementById('staging-stage-name-ok');
+        const cancelBtn = document.getElementById('staging-stage-name-cancel');
+        const backdrop = modal.querySelector('.staging-native-replace-modal__backdrop');
+        const finish = (value) => {
+            if (okBtn) okBtn.removeEventListener('click', onOk);
+            if (cancelBtn) cancelBtn.removeEventListener('click', onCancel);
+            if (backdrop) backdrop.removeEventListener('click', onCancel);
+            input.removeEventListener('keydown', onInputKey);
+            document.removeEventListener('keydown', onDocKey);
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+            input.value = '';
+            resolve(value);
+        };
+        const onOk = () => finish(input.value);
+        const onCancel = () => finish(null);
+        const onInputKey = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                onOk();
+            }
+        };
+        const onDocKey = (e) => {
+            if (e.key === 'Escape') onCancel();
+        };
+        titleEl.textContent = opts.title || 'STAGEの名前';
+        if (opts.hint) {
+            hintEl.textContent = opts.hint;
+            hintEl.classList.remove('hidden');
+        } else {
+            hintEl.textContent = '';
+            hintEl.classList.add('hidden');
+        }
+        input.value = opts.defaultValue || '';
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        if (okBtn) okBtn.addEventListener('click', onOk);
+        if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
+        if (backdrop) backdrop.addEventListener('click', onCancel);
+        input.addEventListener('keydown', onInputKey);
+        document.addEventListener('keydown', onDocKey);
+        setTimeout(() => {
+            input.focus();
+            try {
+                input.select();
+            } catch (e) { /* ignore */ }
+        }, 50);
+    });
+}
+
+/** Staging: ブラウザの confirm 代替（127.0.0.1 表示なし） */
+function showStagingDeleteConfirmModal() {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('staging-stage-delete-modal');
+        if (!modal) {
+            resolve(window.confirm('このSTAGEを削除しますか？'));
+            return;
+        }
+        const okBtn = document.getElementById('staging-stage-delete-ok');
+        const cancelBtn = document.getElementById('staging-stage-delete-cancel');
+        const backdrop = modal.querySelector('.staging-native-replace-modal__backdrop');
+        const finish = (value) => {
+            if (okBtn) okBtn.removeEventListener('click', onOk);
+            if (cancelBtn) cancelBtn.removeEventListener('click', onCancel);
+            if (backdrop) backdrop.removeEventListener('click', onCancel);
+            document.removeEventListener('keydown', onDocKey);
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+            resolve(value);
+        };
+        const onOk = () => finish(true);
+        const onCancel = () => finish(false);
+        const onDocKey = (e) => {
+            if (e.key === 'Escape') onCancel();
+        };
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+        if (okBtn) okBtn.addEventListener('click', onOk);
+        if (cancelBtn) cancelBtn.addEventListener('click', onCancel);
+        if (backdrop) backdrop.addEventListener('click', onCancel);
+        document.addEventListener('keydown', onDocKey);
+        setTimeout(() => {
+            if (cancelBtn) cancelBtn.focus();
+        }, 50);
+    });
 }
 
 /** ルート直下の旧SW（scope が / 全体）が残ると standard/ と Pro 用フォルダが混ざるため解除する */
@@ -714,6 +840,16 @@ class Game {
         this.roundKeyOffset = 0;
         this.noteSpeed = 1.0;    // 問題の再生スピード（0.5～2.0）
         this.lastCategory = 'screen-melody'; // 最後に選んだカテゴリ画面
+        /** Staging: STAGE選択から保存スロットの Pro 設定を開いたときの「決定」先（null = 従来どおり） */
+        this._proMelodyModalTargetStageId = null;
+        /** Staging: コード Pro モーダルの「決定」先（null = 199） */
+        this._proChordModalTargetStageId = null;
+        /** Staging: コード Pro モーダルを開く前の customChords の isActive スナップショット（キャンセルで復元） */
+        this._proChordUiSnapshot = null;
+        /** Staging: カスタムSTAGEの表示順（スロット ID の配列・上から下） */
+        this._stagingMelodySlotOrder = [];
+        /** Staging: コードカスタムSTAGEの表示順 */
+        this._stagingChordSlotOrder = [];
         this.isAnswerMode = true; // 回答モード (true: 回答する, false: 音確認のみ)
         /** 通常版で Pro STAGE の「決定」後、出題せず案内だけ出すモード */
         this.standardProPreviewMode = false;
@@ -788,6 +924,8 @@ class Game {
 
         this.loadCustomData(); // Initialize with localStorage or defaults
         this.loadSettings();   // Initialize general settings from localStorage
+        this.loadStagingProMelodySlots();
+        this.loadStagingProChordSlots();
 
         // Event Listeners
         document.querySelectorAll('[data-stage]:not(.custom-stage-btn)').forEach(btn => {
@@ -823,6 +961,7 @@ class Game {
         if (document.getElementById('btn-category-melody')) document.getElementById('btn-category-melody').addEventListener('click', () => {
             this.lastCategory = 'screen-melody';
             showScreen('screen-melody');
+            if (isStagingProSlotsFeature()) this.renderStagingMelodySlotButtons();
         });
         if (document.getElementById('btn-category-chord')) document.getElementById('btn-category-chord').addEventListener('click', () => {
             this.lastCategory = 'screen-chord';
@@ -960,6 +1099,7 @@ class Game {
 
         if (document.getElementById('btn-level-pro')) document.getElementById('btn-level-pro').addEventListener('click', () => {
             if (this.proSettingsModal) {
+                this._proMelodyModalTargetStageId = null;
                 this.syncProAccidentalToggleUi();
                 this.refreshProNoteToggleLabels();
                 this.proSettingsModal.classList.remove('hidden');
@@ -968,6 +1108,7 @@ class Game {
 
         // Cancel Pro Settings
         if (document.getElementById('btn-cancel-pro')) document.getElementById('btn-cancel-pro').addEventListener('click', () => {
+            this._proMelodyModalTargetStageId = null;
             if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
         });
 
@@ -1031,13 +1172,15 @@ class Game {
         this.chordEditorModal = document.getElementById('chord-editor-modal');
 
         if (document.getElementById('btn-level-pro-chord')) document.getElementById('btn-level-pro-chord').addEventListener('click', () => {
+            this._proChordModalTargetStageId = null;
+            this._proChordUiSnapshot = null;
             this.renderCustomChordList();
             if (this.renderCustomProgressionList) this.renderCustomProgressionList();
             if (this.proChordSettingsModal) this.proChordSettingsModal.classList.remove('hidden');
         });
 
         if (document.getElementById('btn-cancel-pro-chord')) document.getElementById('btn-cancel-pro-chord').addEventListener('click', () => {
-            if (this.proChordSettingsModal) this.proChordSettingsModal.classList.add('hidden');
+            this.cancelProChordSettingsModal();
         });
 
         const btnStartProChord = document.getElementById('btn-start-pro-chord');
@@ -1202,38 +1345,19 @@ class Game {
             });
         }
 
-        // Helper to update the UI gray-out for chord pro settings
-        const updateChordModeUI = (mode) => {
-            const chordsArea = document.getElementById('custom-chords-area');
-            const progsArea = document.getElementById('custom-progressions-area');
-            if (!chordsArea || !progsArea) return;
-
-            if (mode === 'chords') {
-                chordsArea.style.opacity = '1';
-                chordsArea.style.pointerEvents = 'auto';
-                progsArea.style.opacity = '0.4';
-                progsArea.style.pointerEvents = 'none';
-            } else {
-                progsArea.style.opacity = '1';
-                progsArea.style.pointerEvents = 'auto';
-                chordsArea.style.opacity = '0.4';
-                chordsArea.style.pointerEvents = 'none';
-            }
-        };
-
         // Pro Question Mode Toggle
         document.querySelectorAll('input[name="pro-question-mode"]').forEach(radio => {
             // Wait for DOM to be fully ready before setting initial state
             setTimeout(() => {
                 if (radio.checked) {
                     this.proQuestionMode = radio.value;
-                    updateChordModeUI(radio.value);
+                    this.updateProChordModeDependentUi(radio.value);
                 }
             }, 0);
 
             radio.addEventListener('change', (e) => {
                 this.proQuestionMode = e.target.value;
-                updateChordModeUI(e.target.value);
+                this.updateProChordModeDependentUi(e.target.value);
             });
         });
 
@@ -1345,6 +1469,21 @@ class Game {
         }
 
         this.updateKeyRandomDependentUi();
+
+        const stagingAddBtn = document.getElementById('btn-staging-add-pro-slot');
+        if (stagingAddBtn) {
+            stagingAddBtn.addEventListener('click', () => {
+                if (isProChordStageId(this.stage)) {
+                    this.addStagingChordSlotFromCurrentConfig();
+                } else {
+                    this.addStagingMelodySlotFromCurrentConfig();
+                }
+            });
+        }
+        if (isStagingProSlotsFeature()) {
+            this.renderStagingMelodySlotButtons();
+            this.renderStagingChordSlotButtons();
+        }
     }
 
     loadDefaultCustomChords() {
@@ -2288,8 +2427,28 @@ class Game {
         }
     }
 
-    /** Proコード設定を stageConfig に反映。失敗時 false */
-    applyProChordSettingsFromUI() {
+    /** コード Pro: 出題モードに応じたエリアのグレーアウト */
+    updateProChordModeDependentUi(mode) {
+        const chordsArea = document.getElementById('custom-chords-area');
+        const progsArea = document.getElementById('custom-progressions-area');
+        if (!chordsArea || !progsArea) return;
+
+        if (mode === 'chords') {
+            chordsArea.style.opacity = '1';
+            chordsArea.style.pointerEvents = 'auto';
+            progsArea.style.opacity = '0.4';
+            progsArea.style.pointerEvents = 'none';
+        } else {
+            progsArea.style.opacity = '1';
+            progsArea.style.pointerEvents = 'auto';
+            chordsArea.style.opacity = '0.4';
+            chordsArea.style.pointerEvents = 'none';
+        }
+    }
+
+    /** Proコード設定を stageConfig に反映。失敗時 false。targetStageId 省略時は 199 */
+    applyProChordSettingsFromUI(targetStageId) {
+        const tid = targetStageId !== undefined ? targetStageId : 199;
         const activeChords = this.customChords.filter(c => c.isActive !== false);
 
         if (activeChords.length === 0) {
@@ -2298,16 +2457,75 @@ class Game {
         }
 
         const countVal = parseInt(document.getElementById('pro-chord-count-slider').value) || 4;
+        const qm = document.querySelector('input[name="pro-question-mode"]:checked')?.value || 'chords';
+        this.proQuestionMode = qm;
 
-        this.stageConfig[199] = {
+        const activeNames = activeChords.map(c => c.name).join(', ');
+        const desc = (activeNames ? activeNames + ' / ' : '') + countVal + 'コード';
+
+        const prev = this.stageConfig[tid] || {};
+        this.stageConfig[tid] = {
+            ...prev,
             pool: activeChords,
             count: countVal,
             isChord: true,
             isCustomChord: true,
+            chordVoicing: prev.chordVoicing || [0, 1, 2],
+            proQuestionMode: qm,
             label: 'Pro Stage',
-            description: 'カスタム設定'
+            description: desc
         };
+        if (prev.customName) {
+            this.stageConfig[tid].customName = prev.customName;
+        }
         return true;
+    }
+
+    /**
+     * stageConfig のコード Pro 用 pool（カスタムは {id} オブジェクト、既定199はコード名文字列）を
+     * 現在の customChords から辿れるオブジェクト配列にそろえる。
+     */
+    resolveChordProPoolToObjects(cfg) {
+        if (!cfg || !cfg.pool || !cfg.pool.length) return [];
+        const first = cfg.pool[0];
+        if (typeof first === 'object' && first !== null && first.id != null) {
+            return cfg.pool.map((c) => this.customChords.find((cc) => cc.id === c.id)).filter(Boolean);
+        }
+        return cfg.pool.map((name) => this.customChords.find((cc) => cc.name === name)).filter(Boolean);
+    }
+
+    /** 保存済み設定をコード Pro モーダルに反映（pool はコードオブジェクトの配列） */
+    fillProChordUIFromConfig(cfg) {
+        if (!cfg || !cfg.pool) return;
+        const resolved = this.resolveChordProPoolToObjects(cfg);
+        const poolIds = new Set(resolved.map((c) => c.id));
+        this.customChords.forEach((ch) => {
+            ch.isActive = poolIds.has(ch.id);
+        });
+        const cs = document.getElementById('pro-chord-count-slider');
+        const cv = document.getElementById('pro-chord-count-value');
+        const cnt = cfg.count != null ? cfg.count : 4;
+        if (cs) cs.value = String(cnt);
+        if (cv) cv.textContent = String(cnt);
+        const qm = cfg.proQuestionMode || 'chords';
+        this.proQuestionMode = qm;
+        document.querySelectorAll('input[name="pro-question-mode"]').forEach((r) => {
+            r.checked = r.value === qm;
+        });
+        this.updateProChordModeDependentUi(qm);
+    }
+
+    cancelProChordSettingsModal() {
+        if (this._proChordUiSnapshot) {
+            this._proChordUiSnapshot.forEach(({ id, isActive }) => {
+                const ch = this.customChords.find(c => c.id === id);
+                if (ch) ch.isActive = isActive;
+            });
+            this._proChordUiSnapshot = null;
+            this.renderCustomChordList();
+        }
+        this._proChordModalTargetStageId = null;
+        if (this.proChordSettingsModal) this.proChordSettingsModal.classList.add('hidden');
     }
 
     startProChordGame() {
@@ -2323,7 +2541,18 @@ class Game {
     }
 
     confirmProChordSettings() {
-        if (!this.applyProChordSettingsFromUI()) return;
+        let targetStage = 199;
+        if (this._proChordModalTargetStageId != null && isProChordStageId(this._proChordModalTargetStageId)) {
+            targetStage = this._proChordModalTargetStageId;
+        } else if (this.isPlaying && isProChordStageId(this.stage) && this.stage !== 199) {
+            targetStage = this.stage;
+        }
+        this._proChordModalTargetStageId = null;
+        if (!this.applyProChordSettingsFromUI(targetStage)) return;
+        this._proChordUiSnapshot = null;
+        if (isStagingProSlotsFeature() && targetStage !== 199) {
+            this.saveStagingChordSlotsToStorage();
+        }
         if (this.proChordSettingsModal) {
             this.proChordSettingsModal.classList.add('hidden');
         }
@@ -2331,8 +2560,17 @@ class Game {
             this.startGame(199, { standardProPreview: true });
             return;
         }
-        const inGame = this.isPlaying && this.stage === 199;
-        this.startGame(199, { preserveProgress: inGame });
+        const inGame = this.isPlaying && isProChordStageId(this.stage);
+        const fromSlotEditorOnly =
+            !inGame &&
+            targetStage >= STAGING_PRO_CHORD_SLOT_MIN &&
+            targetStage <= STAGING_PRO_CHORD_SLOT_MAX;
+        if (fromSlotEditorOnly) {
+            this.renderStagingChordSlotButtons();
+            return;
+        }
+        const level = isProChordStageId(this.stage) ? this.stage : 199;
+        this.startGame(level, { preserveProgress: inGame });
     }
 
     resetProChordSettingsToDefaults() {
@@ -2340,6 +2578,7 @@ class Game {
             r.checked = r.value === 'chords';
         });
         this.proQuestionMode = 'chords';
+        this.updateProChordModeDependentUi('chords');
         const cs = document.getElementById('pro-chord-count-slider');
         const cv = document.getElementById('pro-chord-count-value');
         if (cs) cs.value = '4';
@@ -2410,11 +2649,11 @@ class Game {
             return String(item);
         }
         let label;
-        if (this.stage === 99 && cfg.answerMethod === 'degree') {
+        if (isProMelodyStageId(this.stage) && cfg.answerMethod === 'degree') {
             label = this.getDegreeName(noteName);
-        } else if (this.stage === 99 && cfg.answerMethod === 'solfege') {
+        } else if (isProMelodyStageId(this.stage) && cfg.answerMethod === 'solfege') {
             label = this.getProSolfegeDisplay(noteName);
-        } else if (this.stage === 99 && cfg.answerMethod === 'note') {
+        } else if (isProMelodyStageId(this.stage) && cfg.answerMethod === 'note') {
             label = this.getProNoteLetterDisplay(noteName);
         } else if (this.notationStyle === 'degree') {
             label = this.getDegreeName(noteName);
@@ -2454,8 +2693,9 @@ class Game {
         });
     }
 
-    /** Proメロディ設定を stageConfig に反映。失敗時 false */
-    applyProMelodySettingsFromUI() {
+    /** Proメロディ設定を stageConfig に反映。失敗時 false。targetStageId 省略時は 99 */
+    applyProMelodySettingsFromUI(targetStageId) {
+        const tid = targetStageId !== undefined ? targetStageId : 99;
         const selectedNotes = [];
         document.querySelectorAll('.note-toggle:checked').forEach(t => {
             selectedNotes.push(t.dataset.note);
@@ -2476,12 +2716,21 @@ class Game {
         }
         this.saveProMelodyAccidentalPref();
 
-        this.stageConfig[99].pool = selectedNotes;
-        this.stageConfig[99].count = count;
-        this.stageConfig[99].is2Octave = is2Octave;
-        this.stageConfig[99].isPianoLayout = isPianoLayout;
-        this.stageConfig[99].answerMethod = answerMethod;
-        this.stageConfig[99].description = selectedNotes.length + '音 / ' + count + '問' + (is2Octave ? ' (2Oct)' : '');
+        const desc = selectedNotes.length + '音 / ' + count + '問' + (is2Octave ? ' (2Oct)' : '');
+        const prev = this.stageConfig[tid] || {};
+        this.stageConfig[tid] = {
+            ...prev,
+            pool: selectedNotes,
+            count,
+            is2Octave,
+            isPianoLayout,
+            answerMethod,
+            description: desc,
+            label: 'Pro Stage'
+        };
+        if (prev.customName) {
+            this.stageConfig[tid].customName = prev.customName;
+        }
         return true;
     }
 
@@ -2496,14 +2745,710 @@ class Game {
     }
 
     confirmProMelodySettings() {
-        if (!this.applyProMelodySettingsFromUI()) return;
+        let targetStage = 99;
+        if (this._proMelodyModalTargetStageId != null && isProMelodyStageId(this._proMelodyModalTargetStageId)) {
+            targetStage = this._proMelodyModalTargetStageId;
+        } else if (this.isPlaying && isProMelodyStageId(this.stage) && this.stage !== 99) {
+            targetStage = this.stage;
+        }
+        this._proMelodyModalTargetStageId = null;
+        if (!this.applyProMelodySettingsFromUI(targetStage)) return;
+        if (isStagingProSlotsFeature() && targetStage !== 99) {
+            this.saveStagingMelodySlotsToStorage();
+        }
         if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
         if (!isPitchTrainerPro()) {
             this.startGame(99, { standardProPreview: true });
             return;
         }
-        const inGame = this.isPlaying && this.stage === 99;
-        this.startGame(99, { preserveProgress: inGame });
+        const inGame = this.isPlaying && isProMelodyStageId(this.stage);
+        const fromSlotEditorOnly =
+            !inGame &&
+            targetStage >= STAGING_PRO_MELODY_SLOT_MIN &&
+            targetStage <= STAGING_PRO_MELODY_SLOT_MAX;
+        if (fromSlotEditorOnly) {
+            this.renderStagingMelodySlotButtons();
+            return;
+        }
+        const level = isProMelodyStageId(this.stage) ? this.stage : 99;
+        this.startGame(level, { preserveProgress: inGame });
+    }
+
+    /** Staging: 保存済みメロディスロットの Pro 設定を開く（STAGE選択から） */
+    openStagingSlotProMelodyEditor(slotId) {
+        if (!isStagingProSlotsFeature()) return;
+        if (!this.proSettingsModal || !this.stageConfig[slotId]) return;
+        this._proMelodyModalTargetStageId = slotId;
+        this.syncProAccidentalToggleUi();
+        this.fillProMelodyUIFromConfig(this.stageConfig[slotId]);
+        this.refreshProNoteToggleLabels();
+        this.proSettingsModal.classList.remove('hidden');
+    }
+
+    /** Staging: 保存済みメロディスロットを削除 */
+    deleteStagingMelodySlot(slotId) {
+        if (!isStagingProSlotsFeature()) return;
+        if (slotId < STAGING_PRO_MELODY_SLOT_MIN || slotId > STAGING_PRO_MELODY_SLOT_MAX) return;
+        if (!this.stageConfig[slotId]) return;
+        showStagingDeleteConfirmModal().then((ok) => {
+            if (!ok) return;
+            delete this.stageConfig[slotId];
+            this._stagingMelodySlotOrder = (this._stagingMelodySlotOrder || []).filter((x) => x !== slotId);
+            this.saveStagingMelodySlotsToStorage();
+            this.renderStagingMelodySlotButtons();
+        });
+    }
+
+    /** Staging: 保存済みメロディスロットを別IDに複製 */
+    duplicateStagingMelodySlot(slotId) {
+        if (!isStagingProSlotsFeature()) return;
+        if (slotId < STAGING_PRO_MELODY_SLOT_MIN || slotId > STAGING_PRO_MELODY_SLOT_MAX) return;
+        const src = this.stageConfig[slotId];
+        if (!src || !src.pool) return;
+        const nextId = this.findNextFreeStagingMelodySlotId();
+        if (nextId === null) {
+            alert('これ以上追加できません（上限' + (STAGING_PRO_MELODY_SLOT_MAX - STAGING_PRO_MELODY_SLOT_MIN + 1) + '件）。');
+            return;
+        }
+        const baseLabel = src.customName || ('PROカスタム' + (slotId - STAGING_PRO_MELODY_SLOT_MIN + 1));
+        const defaultName = baseLabel + ' のコピー';
+        showStagingStageNameModal({
+            title: '複製したSTAGEの名前',
+            defaultValue: defaultName,
+            hint: '空欄なら「' + defaultName + '」になります'
+        }).then((input) => {
+            if (input === null) return;
+            const name = String(input).trim() !== '' ? String(input).trim() : defaultName;
+            this.stageConfig[nextId] = {
+                pool: [...src.pool],
+                count: src.count,
+                is2Octave: !!src.is2Octave,
+                isPianoLayout: src.isPianoLayout !== false,
+                answerMethod: src.answerMethod || 'note',
+                description: src.description || '',
+                label: 'Pro Stage',
+                customName: name
+            };
+            this._stagingMelodySlotOrder = (this._stagingMelodySlotOrder || []).filter((x) => x !== nextId);
+            this._stagingMelodySlotOrder.push(nextId);
+            this.saveStagingMelodySlotsToStorage();
+            this.renderStagingMelodySlotButtons();
+        });
+    }
+
+    fillProMelodyUIFromConfig(cfg) {
+        if (!cfg || !cfg.pool) return;
+        document.querySelectorAll('.note-toggle').forEach(t => {
+            t.checked = cfg.pool.includes(t.dataset.note);
+        });
+        const slider = document.getElementById('pro-count-slider');
+        const valSpan = document.getElementById('pro-count-value');
+        if (slider) slider.value = String(cfg.count != null ? cfg.count : 4);
+        if (valSpan) valSpan.textContent = String(cfg.count != null ? cfg.count : 4);
+        const t2 = document.getElementById('pro-2octave-toggle');
+        if (t2) t2.checked = !!cfg.is2Octave;
+        const t3 = document.getElementById('pro-keyboard-layout-toggle');
+        if (t3) t3.checked = cfg.isPianoLayout !== false;
+        const am = document.getElementById('pro-answer-method');
+        if (am) {
+            am.value = cfg.answerMethod || 'note';
+            am.dispatchEvent(new Event('change'));
+        }
+    }
+
+    /** Staging: 存在するスロット ID を表示順で返す（無いIDは末尾に補完） */
+    getStagingMelodySlotIdsOrdered() {
+        const present = [];
+        for (let id = STAGING_PRO_MELODY_SLOT_MIN; id <= STAGING_PRO_MELODY_SLOT_MAX; id++) {
+            if (this.stageConfig[id] && this.stageConfig[id].pool) present.push(id);
+        }
+        let order = Array.isArray(this._stagingMelodySlotOrder) ? [...this._stagingMelodySlotOrder] : [];
+        order = order.filter((id) => present.includes(id));
+        const seen = new Set(order);
+        present.forEach((id) => {
+            if (!seen.has(id)) {
+                seen.add(id);
+                order.push(id);
+            }
+        });
+        return order;
+    }
+
+    /** Staging: 空いているスロット ID（5001〜）を1つ返す */
+    findNextFreeStagingMelodySlotId() {
+        for (let id = STAGING_PRO_MELODY_SLOT_MIN; id <= STAGING_PRO_MELODY_SLOT_MAX; id++) {
+            if (!this.stageConfig[id] || !this.stageConfig[id].pool) return id;
+        }
+        return null;
+    }
+
+    loadStagingProMelodySlots() {
+        if (!isStagingProSlotsFeature()) return;
+        this._stagingMelodySlotOrder = [];
+        try {
+            const raw = localStorage.getItem(STAGING_PRO_MELODY_SLOTS_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            let slotsArr;
+            let orderIn = null;
+            if (Array.isArray(parsed)) {
+                slotsArr = parsed;
+            } else if (parsed && Array.isArray(parsed.slots)) {
+                slotsArr = parsed.slots;
+                orderIn = Array.isArray(parsed.order) ? parsed.order : null;
+            } else {
+                return;
+            }
+            slotsArr.forEach((slot) => {
+                if (!slot || !slot.config || !slot.id) return;
+                const c = slot.config;
+                this.stageConfig[slot.id] = {
+                    pool: [...c.pool],
+                    count: c.count,
+                    is2Octave: !!c.is2Octave,
+                    isPianoLayout: c.isPianoLayout !== false,
+                    answerMethod: c.answerMethod || 'note',
+                    description: c.description || '',
+                    label: 'Pro Stage',
+                    customName: slot.name
+                };
+            });
+            const present = [];
+            for (let id = STAGING_PRO_MELODY_SLOT_MIN; id <= STAGING_PRO_MELODY_SLOT_MAX; id++) {
+                if (this.stageConfig[id] && this.stageConfig[id].pool) present.push(id);
+            }
+            if (orderIn && orderIn.length) {
+                const seen = new Set();
+                const next = [];
+                orderIn.forEach((id) => {
+                    if (present.includes(id) && !seen.has(id)) {
+                        seen.add(id);
+                        next.push(id);
+                    }
+                });
+                present.forEach((id) => {
+                    if (!seen.has(id)) next.push(id);
+                });
+                this._stagingMelodySlotOrder = next;
+            } else {
+                this._stagingMelodySlotOrder = present.sort((a, b) => a - b);
+            }
+        } catch (e) {
+            this._stagingMelodySlotOrder = [];
+        }
+    }
+
+    saveStagingMelodySlotsToStorage() {
+        if (!isStagingProSlotsFeature()) return;
+        const slots = [];
+        for (let id = STAGING_PRO_MELODY_SLOT_MIN; id <= STAGING_PRO_MELODY_SLOT_MAX; id++) {
+            const c = this.stageConfig[id];
+            if (!c || !c.pool) continue;
+            slots.push({
+                id,
+                name: c.customName || ('PROカスタム' + (slots.length + 1)),
+                config: {
+                    pool: [...c.pool],
+                    count: c.count,
+                    is2Octave: !!c.is2Octave,
+                    isPianoLayout: c.isPianoLayout !== false,
+                    answerMethod: c.answerMethod || 'note',
+                    description: c.description || ''
+                }
+            });
+        }
+        const order = this.getStagingMelodySlotIdsOrdered();
+        this._stagingMelodySlotOrder = order;
+        try {
+            localStorage.setItem(STAGING_PRO_MELODY_SLOTS_KEY, JSON.stringify({ slots, order }));
+        } catch (e) { /* ignore */ }
+    }
+
+    addStagingMelodySlotFromCurrentConfig() {
+        if (!isStagingProSlotsFeature()) return;
+        const sourceId =
+            this.isPlaying && isProMelodyStageId(this.stage) ? this.stage : 99;
+        const base = this.stageConfig[sourceId];
+        if (!base || !base.pool || base.pool.length === 0) {
+            alert('Pro設定が読み取れません。');
+            return;
+        }
+        const nextId = this.findNextFreeStagingMelodySlotId();
+        if (nextId === null) {
+            alert('これ以上追加できません（上限' + (STAGING_PRO_MELODY_SLOT_MAX - STAGING_PRO_MELODY_SLOT_MIN + 1) + '件）。');
+            return;
+        }
+        let existing = 0;
+        for (let id = STAGING_PRO_MELODY_SLOT_MIN; id <= STAGING_PRO_MELODY_SLOT_MAX; id++) {
+            if (this.stageConfig[id] && this.stageConfig[id].pool) existing += 1;
+        }
+        const defaultName = 'PROカスタム' + (existing + 1);
+        showStagingStageNameModal({
+            title: 'STAGEの名前',
+            defaultValue: defaultName,
+            hint: '空欄なら「' + defaultName + '」になります'
+        }).then((input) => {
+            if (input === null) return;
+            const name = String(input).trim() !== '' ? String(input).trim() : defaultName;
+            this.stageConfig[nextId] = {
+                pool: [...base.pool],
+                count: base.count,
+                is2Octave: !!base.is2Octave,
+                isPianoLayout: base.isPianoLayout !== false,
+                answerMethod: base.answerMethod || 'note',
+                description: base.description || '',
+                label: 'Pro Stage',
+                customName: name
+            };
+            this._stagingMelodySlotOrder = (this._stagingMelodySlotOrder || []).filter((x) => x !== nextId);
+            this._stagingMelodySlotOrder.push(nextId);
+            this.saveStagingMelodySlotsToStorage();
+            this.renderStagingMelodySlotButtons();
+        });
+    }
+
+    renderStagingMelodySlotButtons() {
+        if (!isStagingProSlotsFeature()) return;
+        const levelButtons = document.querySelector('#screen-melody .level-buttons');
+        const anchor = document.getElementById('btn-level-pro');
+        if (!levelButtons || !anchor) return;
+        levelButtons.querySelectorAll('.staging-pro-slot-dynamic').forEach((el) => el.remove());
+        const wrap = document.createElement('div');
+        wrap.className = 'staging-pro-slot-dynamic';
+        const orderedIds = this.getStagingMelodySlotIdsOrdered();
+        orderedIds.forEach((id) => {
+            const c = this.stageConfig[id];
+            if (!c || !c.pool) return;
+            const row = document.createElement('div');
+            row.className = 'staging-pro-slot-row';
+            const mainRow = document.createElement('div');
+            mainRow.className = 'staging-slot-main-row';
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-primary custom-stage-btn pro-stage-teaser staging-slot-main-btn';
+            btn.dataset.stage = String(id);
+            const label = c.customName || ('PROカスタム' + (id - STAGING_PRO_MELODY_SLOT_MIN + 1));
+            btn.innerHTML = '<span class="staging-slot-main-label"></span>';
+            btn.querySelector('.staging-slot-main-label').textContent = label;
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.startGame(id);
+            });
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'staging-slot-dropdown-toggle';
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-haspopup', 'true');
+            toggle.setAttribute('aria-label', 'その他の操作を表示');
+            toggle.title = 'その他の操作';
+            toggle.innerHTML = '<span class="staging-slot-chevron" aria-hidden="true">▼</span>';
+            const actions = document.createElement('div');
+            actions.className = 'staging-slot-actions';
+            actions.hidden = true;
+            actions.setAttribute('role', 'group');
+            actions.setAttribute('aria-label', 'カスタムSTAGEの操作');
+            const mkAction = (emoji, title, handler) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'icon-btn staging-slot-action-btn';
+                b.textContent = emoji;
+                b.title = title;
+                b.setAttribute('aria-label', title);
+                b.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handler();
+                });
+                return b;
+            };
+            actions.appendChild(mkAction('✏️', '名前を変更', () => {
+                const cur = this.stageConfig[id].customName || label;
+                showStagingStageNameModal({
+                    title: 'STAGEの名前',
+                    defaultValue: cur
+                }).then((nv) => {
+                    if (nv === null) return;
+                    const nn = String(nv).trim() || cur;
+                    this.stageConfig[id].customName = nn;
+                    this.saveStagingMelodySlotsToStorage();
+                    this.renderStagingMelodySlotButtons();
+                });
+            }));
+            actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
+                this.openStagingSlotProMelodyEditor(id);
+            }));
+            const dupBtn = document.createElement('button');
+            dupBtn.type = 'button';
+            dupBtn.className = 'icon-btn staging-slot-action-btn staging-slot-action-btn--duplicate';
+            dupBtn.title = '複製';
+            dupBtn.setAttribute('aria-label', '複製');
+            const dupImg = document.createElement('img');
+            dupImg.src = 'assets/icon-duplicate.png?v=1';
+            dupImg.alt = '';
+            dupImg.className = 'staging-slot-duplicate-icon';
+            dupImg.decoding = 'async';
+            dupImg.width = 20;
+            dupImg.height = 20;
+            dupBtn.appendChild(dupImg);
+            dupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.duplicateStagingMelodySlot(id);
+            });
+            actions.appendChild(dupBtn);
+            actions.appendChild(mkAction('🗑️', 'このSTAGEを削除', () => {
+                this.deleteStagingMelodySlot(id);
+            }));
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const open = !row.classList.contains('is-open');
+                row.classList.toggle('is-open', open);
+                actions.hidden = !open;
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.setAttribute('aria-label', open ? 'その他の操作を閉じる' : 'その他の操作を表示');
+            });
+            mainRow.appendChild(btn);
+            mainRow.appendChild(toggle);
+            row.appendChild(mainRow);
+            row.appendChild(actions);
+            wrap.appendChild(row);
+        });
+        anchor.insertAdjacentElement('afterend', wrap);
+    }
+
+    /** Staging: 保存済みコードスロットの Pro 設定を開く（STAGE選択から） */
+    openStagingSlotProChordEditor(slotId) {
+        if (!isStagingProSlotsFeature()) return;
+        if (!this.proChordSettingsModal || !this.stageConfig[slotId]) return;
+        this._proChordModalTargetStageId = slotId;
+        this._proChordUiSnapshot = this.customChords.map(c => ({ id: c.id, isActive: c.isActive }));
+        this.fillProChordUIFromConfig(this.stageConfig[slotId]);
+        this.renderCustomChordList();
+        if (this.renderCustomProgressionList) this.renderCustomProgressionList();
+        this.proChordSettingsModal.classList.remove('hidden');
+    }
+
+    deleteStagingChordSlot(slotId) {
+        if (!isStagingProSlotsFeature()) return;
+        if (slotId < STAGING_PRO_CHORD_SLOT_MIN || slotId > STAGING_PRO_CHORD_SLOT_MAX) return;
+        if (!this.stageConfig[slotId]) return;
+        showStagingDeleteConfirmModal().then((ok) => {
+            if (!ok) return;
+            delete this.stageConfig[slotId];
+            this._stagingChordSlotOrder = (this._stagingChordSlotOrder || []).filter((x) => x !== slotId);
+            this.saveStagingChordSlotsToStorage();
+            this.renderStagingChordSlotButtons();
+        });
+    }
+
+    duplicateStagingChordSlot(slotId) {
+        if (!isStagingProSlotsFeature()) return;
+        if (slotId < STAGING_PRO_CHORD_SLOT_MIN || slotId > STAGING_PRO_CHORD_SLOT_MAX) return;
+        const src = this.stageConfig[slotId];
+        if (!src || !src.pool) return;
+        const nextId = this.findNextFreeStagingChordSlotId();
+        if (nextId === null) {
+            alert('これ以上追加できません（上限' + (STAGING_PRO_CHORD_SLOT_MAX - STAGING_PRO_CHORD_SLOT_MIN + 1) + '件）。');
+            return;
+        }
+        const baseLabel = src.customName || ('PROカスタム' + (slotId - STAGING_PRO_CHORD_SLOT_MIN + 1));
+        const defaultName = baseLabel + ' のコピー';
+        showStagingStageNameModal({
+            title: '複製したSTAGEの名前',
+            defaultValue: defaultName,
+            hint: '空欄なら「' + defaultName + '」になります'
+        }).then((input) => {
+            if (input === null) return;
+            const name = String(input).trim() !== '' ? String(input).trim() : defaultName;
+            const pool = src.pool.map((c) => this.customChords.find((cc) => cc.id === c.id)).filter(Boolean);
+            if (pool.length === 0) {
+                alert('コード一覧から復元できません。');
+                return;
+            }
+            this.stageConfig[nextId] = {
+                pool,
+                count: src.count,
+                isChord: true,
+                isCustomChord: true,
+                chordVoicing: src.chordVoicing || [0, 1, 2],
+                proQuestionMode: src.proQuestionMode || 'chords',
+                description: src.description || '',
+                label: 'Pro Stage',
+                customName: name
+            };
+            this._stagingChordSlotOrder = (this._stagingChordSlotOrder || []).filter((x) => x !== nextId);
+            this._stagingChordSlotOrder.push(nextId);
+            this.saveStagingChordSlotsToStorage();
+            this.renderStagingChordSlotButtons();
+        });
+    }
+
+    getStagingChordSlotIdsOrdered() {
+        const present = [];
+        for (let id = STAGING_PRO_CHORD_SLOT_MIN; id <= STAGING_PRO_CHORD_SLOT_MAX; id++) {
+            if (this.stageConfig[id] && this.stageConfig[id].pool && this.stageConfig[id].pool.length) present.push(id);
+        }
+        let order = Array.isArray(this._stagingChordSlotOrder) ? [...this._stagingChordSlotOrder] : [];
+        order = order.filter((id) => present.includes(id));
+        const seen = new Set(order);
+        present.forEach((id) => {
+            if (!seen.has(id)) {
+                seen.add(id);
+                order.push(id);
+            }
+        });
+        return order;
+    }
+
+    findNextFreeStagingChordSlotId() {
+        for (let id = STAGING_PRO_CHORD_SLOT_MIN; id <= STAGING_PRO_CHORD_SLOT_MAX; id++) {
+            if (!this.stageConfig[id] || !this.stageConfig[id].pool || !this.stageConfig[id].pool.length) return id;
+        }
+        return null;
+    }
+
+    loadStagingProChordSlots() {
+        if (!isStagingProSlotsFeature()) return;
+        this._stagingChordSlotOrder = [];
+        try {
+            const raw = localStorage.getItem(STAGING_PRO_CHORD_SLOTS_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            let slotsArr;
+            let orderIn = null;
+            if (Array.isArray(parsed)) {
+                slotsArr = parsed;
+            } else if (parsed && Array.isArray(parsed.slots)) {
+                slotsArr = parsed.slots;
+                orderIn = Array.isArray(parsed.order) ? parsed.order : null;
+            } else {
+                return;
+            }
+            slotsArr.forEach((slot) => {
+                if (!slot || !slot.config || !slot.id) return;
+                const c = slot.config;
+                const ids = c.poolChordIds || [];
+                const pool = ids.map((id) => this.customChords.find((ch) => ch.id === id)).filter(Boolean);
+                if (pool.length === 0) return;
+                this.stageConfig[slot.id] = {
+                    pool,
+                    count: c.count != null ? c.count : 4,
+                    isChord: true,
+                    isCustomChord: true,
+                    chordVoicing: [0, 1, 2],
+                    proQuestionMode: c.proQuestionMode || 'chords',
+                    description: c.description || '',
+                    label: 'Pro Stage',
+                    customName: slot.name
+                };
+            });
+            const present = [];
+            for (let id = STAGING_PRO_CHORD_SLOT_MIN; id <= STAGING_PRO_CHORD_SLOT_MAX; id++) {
+                if (this.stageConfig[id] && this.stageConfig[id].pool && this.stageConfig[id].pool.length) present.push(id);
+            }
+            if (orderIn && orderIn.length) {
+                const seen = new Set();
+                const next = [];
+                orderIn.forEach((id) => {
+                    if (present.includes(id) && !seen.has(id)) {
+                        seen.add(id);
+                        next.push(id);
+                    }
+                });
+                present.forEach((id) => {
+                    if (!seen.has(id)) next.push(id);
+                });
+                this._stagingChordSlotOrder = next;
+            } else {
+                this._stagingChordSlotOrder = present.sort((a, b) => a - b);
+            }
+        } catch (e) {
+            this._stagingChordSlotOrder = [];
+        }
+    }
+
+    saveStagingChordSlotsToStorage() {
+        if (!isStagingProSlotsFeature()) return;
+        const slots = [];
+        for (let id = STAGING_PRO_CHORD_SLOT_MIN; id <= STAGING_PRO_CHORD_SLOT_MAX; id++) {
+            const c = this.stageConfig[id];
+            if (!c || !c.pool || !c.pool.length) continue;
+            slots.push({
+                id,
+                name: c.customName || ('PROカスタム' + (slots.length + 1)),
+                config: {
+                    poolChordIds: c.pool.map((ch) => ch.id),
+                    count: c.count,
+                    proQuestionMode: c.proQuestionMode || 'chords',
+                    description: c.description || ''
+                }
+            });
+        }
+        const order = this.getStagingChordSlotIdsOrdered();
+        this._stagingChordSlotOrder = order;
+        try {
+            localStorage.setItem(STAGING_PRO_CHORD_SLOTS_KEY, JSON.stringify({ slots, order }));
+        } catch (e) { /* ignore */ }
+    }
+
+    addStagingChordSlotFromCurrentConfig() {
+        if (!isStagingProSlotsFeature()) return;
+        const sourceId =
+            this.isPlaying && isProChordStageId(this.stage) ? this.stage : 199;
+        const base = this.stageConfig[sourceId];
+        if (!base || !base.pool || base.pool.length === 0) {
+            alert('Pro設定が読み取れません。');
+            return;
+        }
+        const nextId = this.findNextFreeStagingChordSlotId();
+        if (nextId === null) {
+            alert('これ以上追加できません（上限' + (STAGING_PRO_CHORD_SLOT_MAX - STAGING_PRO_CHORD_SLOT_MIN + 1) + '件）。');
+            return;
+        }
+        let existing = 0;
+        for (let id = STAGING_PRO_CHORD_SLOT_MIN; id <= STAGING_PRO_CHORD_SLOT_MAX; id++) {
+            if (this.stageConfig[id] && this.stageConfig[id].pool && this.stageConfig[id].pool.length) existing += 1;
+        }
+        const defaultName = 'PROカスタム' + (existing + 1);
+        showStagingStageNameModal({
+            title: 'STAGEの名前',
+            defaultValue: defaultName,
+            hint: '空欄なら「' + defaultName + '」になります'
+        }).then((input) => {
+            if (input === null) return;
+            const name = String(input).trim() !== '' ? String(input).trim() : defaultName;
+            const pool = this.resolveChordProPoolToObjects(base);
+            if (pool.length === 0) {
+                alert('コード一覧から復元できません。');
+                return;
+            }
+            this.stageConfig[nextId] = {
+                pool,
+                count: base.count,
+                isChord: true,
+                isCustomChord: true,
+                chordVoicing: base.chordVoicing || [0, 1, 2],
+                proQuestionMode: base.proQuestionMode || this.proQuestionMode || 'chords',
+                description: base.description || '',
+                label: 'Pro Stage',
+                customName: name
+            };
+            this._stagingChordSlotOrder = (this._stagingChordSlotOrder || []).filter((x) => x !== nextId);
+            this._stagingChordSlotOrder.push(nextId);
+            this.saveStagingChordSlotsToStorage();
+            this.renderStagingChordSlotButtons();
+        });
+    }
+
+    renderStagingChordSlotButtons() {
+        if (!isStagingProSlotsFeature()) return;
+        const levelButtons = document.querySelector('#screen-chord .level-buttons');
+        const anchor = document.getElementById('btn-level-pro-chord');
+        if (!levelButtons || !anchor) return;
+        levelButtons.querySelectorAll('.staging-pro-chord-slot-dynamic').forEach((el) => el.remove());
+        const wrap = document.createElement('div');
+        wrap.className = 'staging-pro-chord-slot-dynamic';
+        const orderedIds = this.getStagingChordSlotIdsOrdered();
+        orderedIds.forEach((id) => {
+            const c = this.stageConfig[id];
+            if (!c || !c.pool) return;
+            const row = document.createElement('div');
+            row.className = 'staging-pro-slot-row';
+            const mainRow = document.createElement('div');
+            mainRow.className = 'staging-slot-main-row';
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-primary custom-stage-btn pro-stage-teaser staging-slot-main-btn';
+            btn.dataset.stage = String(id);
+            const label = c.customName || ('PROカスタム' + (id - STAGING_PRO_CHORD_SLOT_MIN + 1));
+            btn.innerHTML = '<span class="staging-slot-main-label"></span>';
+            btn.querySelector('.staging-slot-main-label').textContent = label;
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.startGame(id);
+            });
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'staging-slot-dropdown-toggle';
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-haspopup', 'true');
+            toggle.setAttribute('aria-label', 'その他の操作を表示');
+            toggle.title = 'その他の操作';
+            toggle.innerHTML = '<span class="staging-slot-chevron" aria-hidden="true">▼</span>';
+            const actions = document.createElement('div');
+            actions.className = 'staging-slot-actions';
+            actions.hidden = true;
+            actions.setAttribute('role', 'group');
+            actions.setAttribute('aria-label', 'カスタムSTAGEの操作');
+            const mkAction = (emoji, title, handler) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'icon-btn staging-slot-action-btn';
+                b.textContent = emoji;
+                b.title = title;
+                b.setAttribute('aria-label', title);
+                b.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handler();
+                });
+                return b;
+            };
+            actions.appendChild(mkAction('✏️', '名前を変更', () => {
+                const cur = this.stageConfig[id].customName || label;
+                showStagingStageNameModal({
+                    title: 'STAGEの名前',
+                    defaultValue: cur
+                }).then((nv) => {
+                    if (nv === null) return;
+                    const nn = String(nv).trim() || cur;
+                    this.stageConfig[id].customName = nn;
+                    this.saveStagingChordSlotsToStorage();
+                    this.renderStagingChordSlotButtons();
+                });
+            }));
+            actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
+                this.openStagingSlotProChordEditor(id);
+            }));
+            const dupBtn = document.createElement('button');
+            dupBtn.type = 'button';
+            dupBtn.className = 'icon-btn staging-slot-action-btn staging-slot-action-btn--duplicate';
+            dupBtn.title = '複製';
+            dupBtn.setAttribute('aria-label', '複製');
+            const dupImg = document.createElement('img');
+            dupImg.src = 'assets/icon-duplicate.png?v=1';
+            dupImg.alt = '';
+            dupImg.className = 'staging-slot-duplicate-icon';
+            dupImg.decoding = 'async';
+            dupImg.width = 20;
+            dupImg.height = 20;
+            dupBtn.appendChild(dupImg);
+            dupBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.duplicateStagingChordSlot(id);
+            });
+            actions.appendChild(dupBtn);
+            actions.appendChild(mkAction('🗑️', 'このSTAGEを削除', () => {
+                this.deleteStagingChordSlot(id);
+            }));
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const open = !row.classList.contains('is-open');
+                row.classList.toggle('is-open', open);
+                actions.hidden = !open;
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.setAttribute('aria-label', open ? 'その他の操作を閉じる' : 'その他の操作を表示');
+            });
+            mainRow.appendChild(btn);
+            mainRow.appendChild(toggle);
+            row.appendChild(mainRow);
+            row.appendChild(actions);
+            wrap.appendChild(row);
+        });
+        anchor.insertAdjacentElement('afterend', wrap);
     }
 
     resetProMelodySettingsToDefaults() {
@@ -2537,11 +3482,20 @@ class Game {
     }
 
     openInGameProSettings() {
-        if (this.stage === 99 && this.proSettingsModal) {
+        if (isProMelodyStageId(this.stage) && this.proSettingsModal) {
+            this._proMelodyModalTargetStageId = null;
             this.syncProAccidentalToggleUi();
+            if (this.stage !== 99 && this.stageConfig[this.stage]) {
+                this.fillProMelodyUIFromConfig(this.stageConfig[this.stage]);
+            }
             this.refreshProNoteToggleLabels();
             this.proSettingsModal.classList.remove('hidden');
-        } else if (this.stage === 199 && this.proChordSettingsModal) {
+        } else if (isProChordStageId(this.stage) && this.proChordSettingsModal) {
+            this._proChordModalTargetStageId = null;
+            this._proChordUiSnapshot = this.customChords.map(c => ({ id: c.id, isActive: c.isActive }));
+            if (this.stageConfig[this.stage]) {
+                this.fillProChordUIFromConfig(this.stageConfig[this.stage]);
+            }
             this.renderCustomChordList();
             if (this.renderCustomProgressionList) this.renderCustomProgressionList();
             this.proChordSettingsModal.classList.remove('hidden');
@@ -2551,8 +3505,18 @@ class Game {
     updateInGameProSettingsButton() {
         const btn = document.getElementById('in-game-pro-settings-btn');
         if (!btn) return;
-        const show = this.isPlaying && (this.stage === 99 || this.stage === 199);
+        const show = this.isPlaying && (isProMelodyStageId(this.stage) || isProChordStageId(this.stage));
         btn.style.display = show ? 'flex' : 'none';
+        this.updateStagingAddSlotUi();
+    }
+
+    updateStagingAddSlotUi() {
+        const wrap = document.getElementById('staging-add-slot-wrap');
+        if (!wrap) return;
+        const show = isStagingProSlotsFeature() && this.isPlaying &&
+            (isProMelodyStageId(this.stage) || isProChordStageId(this.stage));
+        wrap.style.display = show ? 'flex' : 'none';
+        wrap.hidden = !show;
     }
 
     updateOctave(delta) {
@@ -2650,8 +3614,9 @@ class Game {
             this.noteBtns.forEach(btn => {
                 const noteData = btn.dataset.note;
                 if (!noteData) return;
-                // Never touch buttons when playing Pro Stage 99 with custom answer methods (Solfege, Degree)
-                if (this.stage === 99 && this.stageConfig[99] && ['solfege', 'degree'].includes(this.stageConfig[99].answerMethod)) {
+                // Never touch buttons when playing Pro メロディ with custom answer methods (Solfege, Degree)
+                const proMelCfg = isProMelodyStageId(this.stage) ? this.stageConfig[this.stage] : null;
+                if (proMelCfg && ['solfege', 'degree'].includes(proMelCfg.answerMethod)) {
                     return;
                 }
                 if (style === 'doremi') {
@@ -2756,7 +3721,10 @@ class Game {
         if (isPitchTrainerBeta()) {
             const okMelody = level >= 1 && level <= 4;
             const okChord = level >= 101 && level <= 104;
-            if (!okMelody && !okChord) return;
+            const okStaging =
+                isStagingProSlotsFeature() &&
+                (isProMelodyStageId(level) || isProChordStageId(level));
+            if (!okMelody && !okChord && !okStaging) return;
         }
         this.audio.stopAllScheduledSounds();
         const preserveProgress = options.preserveProgress === true;
@@ -2776,6 +3744,10 @@ class Game {
         const cfg = this.stageConfig[this.stage] || this.stageConfig[3];
         const pool = cfg.pool;
 
+        if (isProChordStageId(this.stage) && cfg.proQuestionMode) {
+            this.proQuestionMode = cfg.proQuestionMode;
+        }
+
         // Update Stage Info Display
         const stageInfo = this.stageConfig[this.stage];
         const stageNameEl = document.getElementById('current-stage-name');
@@ -2784,7 +3756,19 @@ class Game {
         const appTitle = document.querySelector('h1');
 
         if (stageInfo && stageDisplay && stageNameEl && stageDescEl) {
-            stageNameEl.textContent = (this.stage === 99 || this.stage === 199) ? 'Pro Stage' : 'STAGE ' + (this.stage > 100 ? this.stage - 100 : this.stage);
+            let stageTitle;
+            if (this.stage === 199) {
+                stageTitle = 'Pro Stage';
+            } else if (this.stage === 99) {
+                stageTitle = 'Pro Stage';
+            } else if (isProMelodyStageId(this.stage)) {
+                stageTitle = stageInfo.customName || 'Pro Stage';
+            } else if (isProChordStageId(this.stage)) {
+                stageTitle = stageInfo.customName || 'Pro Stage';
+            } else {
+                stageTitle = 'STAGE ' + (this.stage > 100 ? this.stage - 100 : this.stage);
+            }
+            stageNameEl.textContent = stageTitle;
             stageDescEl.textContent = stageInfo.description;
             stageDisplay.style.display = 'block';
             if (appTitle) appTitle.style.display = 'none';
@@ -2874,7 +3858,7 @@ class Game {
                         btn.dataset.octaveOffset = octaveOffset;
 
                         let text = note;
-                        if (this.stage === 99) {
+                        if (isProMelodyStageId(this.stage)) {
                             if (cfg.answerMethod === 'degree') {
                                 text = this.getDegreeName(note);
                             } else if (cfg.answerMethod === 'solfege') {
@@ -2907,7 +3891,7 @@ class Game {
                         btn.dataset.octaveOffset = octaveOffset;
 
                         let text = note;
-                        if (this.stage === 99) {
+                        if (isProMelodyStageId(this.stage)) {
                             if (cfg.answerMethod === 'degree') {
                                 text = this.getDegreeName(note);
                             } else if (cfg.answerMethod === 'solfege') {
@@ -2935,7 +3919,7 @@ class Game {
             };
 
             renderOctaveKeys(0);
-            if (this.stage === 99 && cfg.is2Octave) {
+            if (isProMelodyStageId(this.stage) && cfg.is2Octave) {
                 renderOctaveKeys(1);
             }
 
@@ -3034,7 +4018,10 @@ class Game {
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             this.currentSequence = [];
 
-            if (this.stage === 199 && this.proQuestionMode === 'progressions') {
+            const proChordQm = isProChordStageId(this.stage)
+                ? (cfg.proQuestionMode != null ? cfg.proQuestionMode : this.proQuestionMode)
+                : null;
+            if (isProChordStageId(this.stage) && proChordQm === 'progressions') {
                 const activeProgs = this.customProgressions.filter(p => p.isActive !== false);
                 const poolIds = cfg.pool.map(c => c.id);
 
@@ -3054,7 +4041,7 @@ class Game {
                         }
                     }
                 }
-            } else if (cfg.isChord && this.chordPatternMode === 'progression' && this.stage !== 199) {
+            } else if (cfg.isChord && this.chordPatternMode === 'progression' && !isProChordStageId(this.stage)) {
                 const baseProgressions = [
                     ['C', 'F', 'G', 'C'],        // 基本進行
                     ['C', 'F', 'C', 'G'],        // Pop Standard
@@ -3107,7 +4094,7 @@ class Game {
             if (this.currentSequence.length === 0) {
                 for (let i = 0; i < cfg.count; i++) {
                     const randomNote = cfg.pool[Math.floor(Math.random() * cfg.pool.length)];
-                    if (this.stage === 99 && cfg.is2Octave) {
+                    if (isProMelodyStageId(this.stage) && cfg.is2Octave) {
                         const randomOctaveOffset = Math.floor(Math.random() * 2); // 0 or 1
                         this.currentSequence.push({ note: randomNote, octaveOffset: randomOctaveOffset });
                     } else {
@@ -3158,6 +4145,7 @@ class Game {
             if (document.getElementById(id)) document.getElementById(id).classList.add('hidden');
         });
         if (document.getElementById(this.lastCategory)) document.getElementById(this.lastCategory).classList.remove('hidden');
+        if (isStagingProSlotsFeature()) this.renderStagingMelodySlotButtons();
     }
 
     showHomeScreen() {
@@ -3170,6 +4158,7 @@ class Game {
             if (document.getElementById(id)) document.getElementById(id).classList.add('hidden');
         });
         if (document.getElementById('screen-home')) document.getElementById('screen-home').classList.remove('hidden');
+        if (isStagingProSlotsFeature()) this.renderStagingMelodySlotButtons();
 
         // Restore title and hide stage info
         const stageDisplay = document.getElementById('stage-info-display');
