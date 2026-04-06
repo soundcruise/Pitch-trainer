@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.1.2';
+const PITCH_TRAINER_APP_VERSION = '1.1.3';
 
 function isPitchTrainerPro() {
     return document.documentElement.dataset.appEdition === 'Pro';
@@ -698,6 +698,10 @@ class Game {
         this.isBlockingInput = false;
         this.isRoundOver = false;
         this.scaleEnabled = true; // 問題前の音階再生フラグ
+        /** Pro: 各ラウンドでキーをランダム（0〜11）。オン時は音階を必ず鳴らす */
+        this.keyRandomMode = false;
+        /** 現在のラウンドで再生・正解判定に使うキー（キーランダム時は毎ラウンド更新） */
+        this.roundKeyOffset = 0;
         this.noteSpeed = 1.0;    // 問題の再生スピード（0.5～2.0）
         this.lastCategory = 'screen-melody'; // 最後に選んだカテゴリ画面
         this.isAnswerMode = true; // 回答モード (true: 回答する, false: 音確認のみ)
@@ -891,6 +895,14 @@ class Game {
             this.scaleEnabled = e.target.checked;
             this.saveSettings();
         });
+
+        const keyRandomToggle = document.getElementById('key-random-toggle');
+        if (keyRandomToggle) {
+            keyRandomToggle.addEventListener('change', (e) => {
+                this.keyRandomMode = e.target.checked;
+                this.saveSettings();
+            });
+        }
 
         const speedSlider = document.getElementById('speed-slider');
         const speedValue = document.getElementById('speed-value');
@@ -1503,6 +1515,11 @@ class Game {
                             if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
                         }
                     }
+                    if (s.keyRandomMode !== undefined) {
+                        this.keyRandomMode = !!s.keyRandomMode;
+                        const krt = document.getElementById('key-random-toggle');
+                        if (krt) krt.checked = this.keyRandomMode;
+                    }
                 }
                 if (s.isAnswerMode !== undefined) {
                     this.isAnswerMode = s.isAnswerMode;
@@ -1536,6 +1553,7 @@ class Game {
             if (isPitchTrainerPro()) {
                 data.baseOctave = this.baseOctave;
                 data.keyOffset = this.keyOffset;
+                data.keyRandomMode = this.keyRandomMode;
                 data.noteSpeed = this.noteSpeed;
                 data.sustainTime = this.audio.sustainTime;
                 data.baseHz = this.audio.baseHz;
@@ -1545,7 +1563,7 @@ class Game {
                     const prevRaw = localStorage.getItem('pitchTrainerSettings');
                     if (prevRaw) {
                         const prev = JSON.parse(prevRaw);
-                        ['baseOctave', 'keyOffset', 'noteSpeed', 'sustainTime', 'baseHz'].forEach((k) => {
+                        ['baseOctave', 'keyOffset', 'noteSpeed', 'sustainTime', 'baseHz', 'keyRandomMode'].forEach((k) => {
                             if (prev[k] !== undefined) data[k] = prev[k];
                         });
                     }
@@ -1567,6 +1585,7 @@ class Game {
         if (isPitchTrainerPro()) {
             this._settingsModalSnapshot.baseOctave = this.baseOctave;
             this._settingsModalSnapshot.keyOffset = this.keyOffset;
+            this._settingsModalSnapshot.keyRandomMode = this.keyRandomMode;
             this._settingsModalSnapshot.noteSpeed = this.noteSpeed;
             this._settingsModalSnapshot.sustainTime = this.audio.sustainTime;
             this._settingsModalSnapshot.baseHz = this.audio.baseHz;
@@ -1600,6 +1619,11 @@ class Game {
                     const sustainValue = document.getElementById('sustain-value');
                     if (sustainSlider) sustainSlider.value = this.audio.sustainTime;
                     if (sustainValue) sustainValue.textContent = this.audio.sustainTime.toFixed(1);
+                }
+                if (s.keyRandomMode !== undefined) {
+                    this.keyRandomMode = !!s.keyRandomMode;
+                    const krt = document.getElementById('key-random-toggle');
+                    if (krt) krt.checked = this.keyRandomMode;
                 }
             } else {
                 this.clampStandardEditionKeyOctave();
@@ -2508,6 +2532,14 @@ class Game {
         this.saveSettings();
     }
 
+    /** 問題再生・音階・回答プレビュー用のキー（キーランダム時はラウンドごとの値） */
+    getPlaybackKeyOffset() {
+        if (isPitchTrainerPro() && this.keyRandomMode && this.isPlaying) {
+            return this.roundKeyOffset;
+        }
+        return this.keyOffset;
+    }
+
     updateInstrument(instrument) {
         this.instrument = instrument;
         this.audio.currentInstrument = instrument;
@@ -2612,6 +2644,10 @@ class Game {
         const speedValue = document.getElementById('speed-value');
         if (speedSlider) speedSlider.value = '1.0';
         if (speedValue) speedValue.textContent = '1.0';
+        this.keyRandomMode = false;
+        const keyRandomToggle = document.getElementById('key-random-toggle');
+        if (keyRandomToggle) keyRandomToggle.checked = false;
+        this.saveSettings();
     }
 
 
@@ -2851,7 +2887,7 @@ class Game {
 
         scale.forEach((note, index) => {
             const octave = (index === 7) ? this.baseOctave + 1 : this.baseOctave;
-            this.audio.playNote(note + octave, noteDuration, now + (index * noteDuration), this.keyOffset);
+            this.audio.playNote(note + octave, noteDuration, now + (index * noteDuration), this.getPlaybackKeyOffset());
         });
 
         // Callback after scale finishes (speed-adjusted)
@@ -2887,6 +2923,12 @@ class Game {
         this.isBlockingInput = true;
         this.isRoundOver = false;
         this.inputIndex = 0;
+
+        if (isPitchTrainerPro() && this.keyRandomMode) {
+            this.roundKeyOffset = Math.floor(Math.random() * 12);
+        } else {
+            this.roundKeyOffset = this.keyOffset;
+        }
 
         const cfg = this.stageConfig[this.stage] || this.stageConfig[3];
 
@@ -2993,7 +3035,8 @@ class Game {
             // else: 3rd consecutive duplicate detected, retry
         }
 
-        if (this.scaleEnabled) {
+        const playScaleThisRound = this.scaleEnabled || (isPitchTrainerPro() && this.keyRandomMode);
+        if (playScaleThisRound) {
             this.showFeedback('音階を聴いてください...');
             void this.playScale(async () => {
                 this.showFeedback('問題を聴いてください...');
@@ -3059,18 +3102,18 @@ class Game {
             if (cfg.isChord) {
                 if (cfg.isCustomChord) {
                     // item is a chord object
-                    this.audio.playCustomChord(item, this.baseOctave, noteDuration, now + (index * (noteDuration + gap)), this.keyOffset);
+                    this.audio.playCustomChord(item, this.baseOctave, noteDuration, now + (index * (noteDuration + gap)), this.getPlaybackKeyOffset());
                 } else {
                     // Pass voicing if defined
-                    this.audio.playChord(item, this.baseOctave, noteDuration, now + (index * (noteDuration + gap)), this.keyOffset, cfg.chordVoicing);
+                    this.audio.playChord(item, this.baseOctave, noteDuration, now + (index * (noteDuration + gap)), this.getPlaybackKeyOffset(), cfg.chordVoicing);
                 }
             } else {
                 if (typeof item === 'object' && item !== null && item.note) {
                     // 2-Octave mode logic
                     const targetOctave = this.baseOctave + (item.octaveOffset || 0);
-                    this.audio.playNote(item.note + targetOctave, noteDuration, now + (index * (noteDuration + gap)), this.keyOffset);
+                    this.audio.playNote(item.note + targetOctave, noteDuration, now + (index * (noteDuration + gap)), this.getPlaybackKeyOffset());
                 } else {
-                    this.audio.playNote(item + this.baseOctave, noteDuration, now + (index * (noteDuration + gap)), this.keyOffset);
+                    this.audio.playNote(item + this.baseOctave, noteDuration, now + (index * (noteDuration + gap)), this.getPlaybackKeyOffset());
                 }
             }
         });
@@ -3091,7 +3134,7 @@ class Game {
     async playTonic() {
         if (this.isPlaying) {
             await this.audio.resumeContext();
-            this.audio.playNote('C' + this.baseOctave, 1.0, 0, this.keyOffset);
+            this.audio.playNote('C' + this.baseOctave, 1.0, 0, this.getPlaybackKeyOffset());
         }
     }
 
@@ -3113,12 +3156,12 @@ class Game {
 
         if (cfg.isChord) {
             if (cfg.isCustomChord) {
-                this.audio.playCustomChord(note, this.baseOctave, answerPreviewDuration, 0, this.keyOffset);
+                this.audio.playCustomChord(note, this.baseOctave, answerPreviewDuration, 0, this.getPlaybackKeyOffset());
             } else {
-                this.audio.playChord(note, this.baseOctave, answerPreviewDuration, 0, this.keyOffset, cfg.chordVoicing);
+                this.audio.playChord(note, this.baseOctave, answerPreviewDuration, 0, this.getPlaybackKeyOffset(), cfg.chordVoicing);
             }
         } else {
-            this.audio.playNote(note + (this.baseOctave + inputOctaveOffset), answerPreviewDuration, 0, this.keyOffset);
+            this.audio.playNote(note + (this.baseOctave + inputOctaveOffset), answerPreviewDuration, 0, this.getPlaybackKeyOffset());
         }
 
         // Check if answer mode is disabled (preview only)
