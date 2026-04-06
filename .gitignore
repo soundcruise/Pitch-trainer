@@ -3,3 +3,6 @@
 
 # Python 仮想環境（ローカル専用）
 .venv/
+
+# Pro版 入室パスワード（gate-config.example.js をコピーして作成）
+pro_k3m9/gate-config.js
