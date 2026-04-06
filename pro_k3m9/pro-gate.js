@@ -78,7 +78,7 @@
         overlay.innerHTML =
             '<div class="pro-gate-panel">' +
             '<h2 id="pro-gate-title">音感クルーズ <span style="color:#ffe566;">PRO</span></h2>' +
-            '<p class="pro-gate-hint">会員向けのページです。<br>4桁のパスワードを入力してください。</p>' +
+            '<p class="pro-gate-hint">会員向けのページです。<br>初回のみ、4桁のパスワードを入力してください。</p>' +
             '<input type="password" id="pro-gate-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" aria-describedby="pro-gate-error" />' +
             '<p id="pro-gate-error" aria-live="polite"></p>' +
             '<button type="button" id="pro-gate-submit" class="btn-primary">入る</button>' +
