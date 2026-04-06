@@ -22,7 +22,8 @@ function unregisterLegacyRootServiceWorker() {
                 if (
                     p.endsWith('/standard/service-worker.js') ||
                     p.endsWith('/beta/service-worker.js') ||
-                    p.endsWith('/pro_k3m9/service-worker.js')
+                    p.endsWith('/pro_k3m9/service-worker.js') ||
+                    p.endsWith('/staging/service-worker.js')
                 ) {
                     return;
                 }

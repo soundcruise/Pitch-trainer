@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>音感クルーズ 検証(staging)</title>
+    <link rel="stylesheet" href="../style.css?v=74">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json?v=1">
+    <meta name="theme-color" content="#c9a227">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="../icon_pwa_192.png">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+                .then(() => console.log('Service Worker Registered (staging)'))
+                .catch((err) => console.error('Service Worker (staging)', err));
+        }
+    </script>
+    <style>
+        .staging-hub {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 0 16px 32px;
+            box-sizing: border-box;
+        }
+
+        .staging-ribbon {
+            margin: 0 auto 16px;
+            max-width: 420px;
+            padding: 10px 16px;
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #ffe566, #d4a017);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        .staging-workflow {
+            text-align: left;
+            font-size: 0.82rem;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.72);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 210, 90, 0.22);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+        }
+
+        .staging-workflow strong {
+            color: rgba(255, 230, 160, 0.95);
+            font-weight: 700;
+        }
+
+        .staging-workflow ol {
+            margin: 10px 0 0;
+            padding-left: 1.2em;
+        }
+
+        .staging-workflow li {
+            margin: 6px 0;
+        }
+
+        a.staging-edition-card {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            box-sizing: border-box;
+        }
+
+        a.staging-edition-card:focus-visible {
+            outline: 2px solid rgba(255, 210, 90, 0.7);
+            outline-offset: 2px;
+        }
+
+        .staging-edition-card .category-card-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .staging-badge-inline {
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #ffe566, #e6c200);
+        }
+
+        .staging-footnote {
+            margin-top: 28px;
+            font-size: 0.74rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.45);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="staging-ribbon" role="status">STAGING · 検証用</div>
+        <main class="staging-hub">
+            <h1 class="home-title" style="margin-top: 8px; margin-bottom: 16px;">音感クルーズ</h1>
+            <p style="margin: 0 0 18px; font-size: 0.9rem; color: rgba(255,255,255,0.65);">検証ハブ（各版を切り替え）</p>
+
+            <div class="staging-workflow">
+                <strong>おすすめの流れ</strong>
+                <ol>
+                    <li>下のボタンで<strong>通常版 / Pro版 / ベータ版</strong>を開き、実機で動作を確認する。</li>
+                    <li>問題なければ、同じ内容を<strong>本番用のURL</strong>（各版のメイン配布先）へデプロイする。</li>
+                </ol>
+            </div>
+
+            <div class="category-cards" style="margin-top: 20px;">
+                <a class="category-card staging-edition-card" href="../standard/">
+                    <span class="category-card-icon" aria-hidden="true">🎵</span>
+                    <span class="category-card-label">
+                        <span class="staging-badge-inline">通常版</span>
+                        <span>standard</span>
+                    </span>
+                    <span class="category-card-sub">いちばん多くの人向けの版</span>
+                </a>
+                <a class="category-card staging-edition-card" href="../pro_k3m9/">
+                    <span class="category-card-icon" aria-hidden="true">👑</span>
+                    <span class="category-card-label">
+                        <span class="staging-badge-inline">PRO</span>
+                        <span>pro_k3m9</span>
+                    </span>
+                    <span class="category-card-sub">メンバー向け・機能が多い版</span>
+                </a>
+                <a class="category-card staging-edition-card" href="../beta/">
+                    <span class="category-card-icon" aria-hidden="true">🧪</span>
+                    <span class="category-card-label">
+                        <span class="staging-badge-inline">BETA</span>
+                        <span>beta</span>
+                    </span>
+                    <span class="category-card-sub">試作・範囲が狭い版</span>
+                </a>
+            </div>
+
+            <p class="staging-footnote">
+                この画面に戻るときは、ブラウザの「戻る」か、ホーム画面の<strong>検証用アプリ</strong>から開き直してください。<br>
+                各版は別フォルダのため、ホーム画面に追加すると<strong>アイコンが分かれます</strong>。
+            </p>
+        </main>
+    </div>
+</body>
+
+</html>
