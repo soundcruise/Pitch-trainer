@@ -447,10 +447,12 @@ h1 {
     align-items: center;
 }
 
-/* #overlay 直下のカード：内容の高さのまま伸びる。短ければ margin:auto で縦中央に寄る */
+/* #overlay 直下のカード：内容の高さのまま伸びる。常に上から配置し、
+   下の padding-bottom（リフレッシュバー領域）まで確実にスクロールできるようにする。
+   margin:auto で縦中央にすると、内容がギリギリ収まるとき下端が固定バーと被る。 */
 .overlay > .modal {
     flex-shrink: 0;
-    margin: auto;
+    margin: 0 auto;
 }
 
 .modal h2,
