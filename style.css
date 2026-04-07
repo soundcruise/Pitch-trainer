@@ -424,8 +424,7 @@ h1 {
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-    padding: max(24px, env(safe-area-inset-top)) 0
-             calc(var(--in-game-refresh-stack-height) + max(12px, env(safe-area-inset-bottom)));
+    padding: 0 0 calc(var(--in-game-refresh-stack-height) + max(12px, env(safe-area-inset-bottom)));
     box-sizing: border-box;
 }
 
@@ -437,7 +436,7 @@ h1 {
 .modal {
     text-align: center;
     background: rgba(255, 255, 255, 0.05);
-    padding: 40px max(20px, env(safe-area-inset-right)) 40px max(20px, env(safe-area-inset-left));
+    padding: max(40px, calc(env(safe-area-inset-top) + 20px)) max(20px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     max-width: 480px;
@@ -484,8 +483,10 @@ header {
     filter: drop-shadow(0 0 12px rgba(255, 180, 50, 0.4));
 }
 
-/* 通常版トップ: 設定歯車とタイトルのすき間 */
-#screen-home.modal {
+/* STAGE 選択画面: 右上の設定歯車（position:absolute）とタイトルが被らないよう十分な上余白 */
+#screen-home.modal,
+#screen-melody.modal,
+#screen-chord.modal {
     padding-top: max(56px, calc(env(safe-area-inset-top) + 40px));
 }
 
