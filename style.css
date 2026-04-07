@@ -148,7 +148,8 @@ h1 {
     box-sizing: border-box;
 }
 
-/* 通常版: 黄枠ボタン＋枠外に鍵・説明（タップで設定モーダルへ） */
+/* 通常版: 黄枠ボタン＋枠外に鍵・説明（タップで設定モーダルへ）
+   字まわり・色の濃さは Pro 検証（stagingPreview）の PROカスタムSTAGE と同じ基準に揃える */
 .pro-stage-teaser-wrap {
     display: flex;
     flex-direction: column;
@@ -159,8 +160,6 @@ h1 {
 }
 
 .btn-primary.pro-stage-teaser {
-    opacity: 0.62;
-    filter: grayscale(0.35);
     display: flex;
     flex-direction: column;
     align-items: center;
