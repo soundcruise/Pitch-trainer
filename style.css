@@ -1131,14 +1131,6 @@ header {
     line-height: 1;
 }
 
-/* Pro版「👑 Pro」行（メロディ／コードのカスタムSTAGEボタン） */
-.pro-stage-btn-row {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35em;
-}
-
 .category-card-label {
     font-size: 1.1rem;
     font-weight: 700;
@@ -1209,17 +1201,17 @@ header {
     text-transform: none;
 }
 
-/* Pro Stage Custom Styles */
+/* Pro Stage Custom Styles（Staging と同じ: 左オレンジ→右ゴールドの横グラデ・外側の光彩） */
 .custom-stage-btn {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background: linear-gradient(90deg, #ff8c00 0%, #ffc233 48%, #ffd700 100%);
     color: #000;
     font-weight: 800;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 4px 18px rgba(255, 140, 0, 0.42), 0 0 22px rgba(255, 200, 80, 0.32);
 }
 
 .custom-stage-btn:hover {
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
-    background: linear-gradient(135deg, #FFD700, #FF8C00);
+    box-shadow: 0 6px 22px rgba(255, 150, 0, 0.5), 0 0 28px rgba(255, 210, 100, 0.38);
+    background: linear-gradient(90deg, #ff9500 0%, #ffc94d 50%, #ffe066 100%);
 }
 
 .pro-settings-content {
