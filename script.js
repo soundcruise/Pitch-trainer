@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.5.2';
+const PITCH_TRAINER_APP_VERSION = '1.5.3';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '21';
+const PITCH_TRAINER_APP_BUILD = '22';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -31,6 +31,16 @@ function isKeyRandomGameplayActive(game) {
  *  以前は ?stagingPreview=1 時のみ有効だったが、正式に Pro 全体で有効化。 */
 function isStagingProSlotsFeature() {
     return typeof location !== 'undefined' && isPitchTrainerPro();
+}
+
+/** 検証ハブから開いた Pro（?stagingPreview=1）でのみ、カスタムSTAGEの▲▼並び替えを表示 */
+function isStagingCustomSlotReorderUi() {
+    if (typeof location === 'undefined') return false;
+    try {
+        return new URLSearchParams(location.search).get('stagingPreview') === '1';
+    } catch (_) {
+        return false;
+    }
 }
 
 /** メロディ Pro（本体 99 または Staging 保存スロット 5001〜） */
@@ -3012,7 +3022,7 @@ class Game {
     }
 
     moveStagingMelodySlotByDelta(slotId, delta) {
-        if (!isStagingProSlotsFeature() || delta === 0) return;
+        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || delta === 0) return;
         const order = this.getStagingMelodySlotIdsOrdered();
         const i = order.indexOf(slotId);
         if (i < 0) return;
@@ -3027,7 +3037,7 @@ class Game {
     }
 
     moveStagingChordSlotByDelta(slotId, delta) {
-        if (!isStagingProSlotsFeature() || delta === 0) return;
+        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || delta === 0) return;
         const order = this.getStagingChordSlotIdsOrdered();
         const i = order.indexOf(slotId);
         if (i < 0) return;
@@ -3263,12 +3273,14 @@ class Game {
                     this.renderStagingMelodySlotButtons();
                 });
             }));
-            actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingMelodySlotByDelta(id, -1), {
-                disabled: orderIndex <= 0 || orderLen < 2
-            }));
-            actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingMelodySlotByDelta(id, 1), {
-                disabled: orderIndex >= orderLen - 1 || orderLen < 2
-            }));
+            if (isStagingCustomSlotReorderUi()) {
+                actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingMelodySlotByDelta(id, -1), {
+                    disabled: orderIndex <= 0 || orderLen < 2
+                }));
+                actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingMelodySlotByDelta(id, 1), {
+                    disabled: orderIndex >= orderLen - 1 || orderLen < 2
+                }));
+            }
             actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
                 this.openStagingSlotProMelodyEditor(id);
             }));
@@ -3607,12 +3619,14 @@ class Game {
                     this.renderStagingChordSlotButtons();
                 });
             }));
-            actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingChordSlotByDelta(id, -1), {
-                disabled: orderIndex <= 0 || orderLen < 2
-            }));
-            actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingChordSlotByDelta(id, 1), {
-                disabled: orderIndex >= orderLen - 1 || orderLen < 2
-            }));
+            if (isStagingCustomSlotReorderUi()) {
+                actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingChordSlotByDelta(id, -1), {
+                    disabled: orderIndex <= 0 || orderLen < 2
+                }));
+                actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingChordSlotByDelta(id, 1), {
+                    disabled: orderIndex >= orderLen - 1 || orderLen < 2
+                }));
+            }
             actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
                 this.openStagingSlotProChordEditor(id);
             }));
