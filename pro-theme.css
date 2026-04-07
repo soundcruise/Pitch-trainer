@@ -110,7 +110,7 @@
     cursor: default;
 }
 
-/* Staging preview: カスタムSTAGE一覧の下「順番並び替え」＋各行の▲▼（▼トグルと同寸） */
+/* Pro版: カスタムSTAGE一覧の下「順番並び替え」＋各行の▲▼（▼トグルと同寸） */
 .staging-slot-reorder-footer {
     width: 100%;
     max-width: 200px;

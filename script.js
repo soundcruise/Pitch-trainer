@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.5.5';
+const PITCH_TRAINER_APP_VERSION = '1.6.0';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '24';
+const PITCH_TRAINER_APP_BUILD = '25';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -31,16 +31,6 @@ function isKeyRandomGameplayActive(game) {
  *  以前は ?stagingPreview=1 時のみ有効だったが、正式に Pro 全体で有効化。 */
 function isStagingProSlotsFeature() {
     return typeof location !== 'undefined' && isPitchTrainerPro();
-}
-
-/** 検証ハブから開いた Pro（?stagingPreview=1）でのみ、カスタムSTAGEの▲▼並び替えを表示 */
-function isStagingCustomSlotReorderUi() {
-    if (typeof location === 'undefined') return false;
-    try {
-        return new URLSearchParams(location.search).get('stagingPreview') === '1';
-    } catch (_) {
-        return false;
-    }
 }
 
 /** メロディ Pro（本体 99 または Staging 保存スロット 5001〜） */
@@ -895,9 +885,9 @@ class Game {
         this._stagingMelodySlotOrder = [];
         /** Staging: コードカスタムSTAGEの表示順 */
         this._stagingChordSlotOrder = [];
-        /** Staging preview: メロディ STAGE 選択で「順番並び替え」モード中 */
+        /** Pro: メロディ STAGE 選択で「順番並び替え」モード中 */
         this._stagingMelodyReorderMode = false;
-        /** Staging preview: コード STAGE 選択で「順番並び替え」モード中 */
+        /** Pro: コード STAGE 選択で「順番並び替え」モード中 */
         this._stagingChordReorderMode = false;
         if (typeof document !== 'undefined') {
             document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
@@ -3026,7 +3016,7 @@ class Game {
     }
 
     moveStagingMelodySlotByDelta(slotId, delta) {
-        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || !this._stagingMelodyReorderMode || delta === 0) return;
+        if (!isStagingProSlotsFeature() || !this._stagingMelodyReorderMode || delta === 0) return;
         const order = this.getStagingMelodySlotIdsOrdered();
         const i = order.indexOf(slotId);
         if (i < 0) return;
@@ -3041,7 +3031,7 @@ class Game {
     }
 
     moveStagingChordSlotByDelta(slotId, delta) {
-        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || !this._stagingChordReorderMode || delta === 0) return;
+        if (!isStagingProSlotsFeature() || !this._stagingChordReorderMode || delta === 0) return;
         const order = this.getStagingChordSlotIdsOrdered();
         const i = order.indexOf(slotId);
         if (i < 0) return;
@@ -3316,7 +3306,7 @@ class Game {
             mainRow.appendChild(btn);
             mainRow.appendChild(toggle);
             row.appendChild(mainRow);
-            if (isStagingCustomSlotReorderUi() && this._stagingMelodyReorderMode) {
+            if (isStagingProSlotsFeature() && this._stagingMelodyReorderMode) {
                 const bar = document.createElement('div');
                 bar.className = 'staging-slot-reorder-bar';
                 const mkStep = (emoji, title, delta, disabled) => {
@@ -3343,7 +3333,7 @@ class Game {
             wrap.appendChild(row);
         });
         anchor.insertAdjacentElement('afterend', wrap);
-        if (isStagingCustomSlotReorderUi() && orderLen >= 1) {
+        if (isStagingProSlotsFeature() && orderLen >= 1) {
             const footer = document.createElement('div');
             footer.id = 'staging-melody-reorder-footer';
             footer.className = 'staging-slot-reorder-footer';
@@ -3696,7 +3686,7 @@ class Game {
             mainRow.appendChild(btn);
             mainRow.appendChild(toggle);
             row.appendChild(mainRow);
-            if (isStagingCustomSlotReorderUi() && this._stagingChordReorderMode) {
+            if (isStagingProSlotsFeature() && this._stagingChordReorderMode) {
                 const bar = document.createElement('div');
                 bar.className = 'staging-slot-reorder-bar';
                 const mkStep = (emoji, title, delta, disabled) => {
@@ -3723,7 +3713,7 @@ class Game {
             wrap.appendChild(row);
         });
         anchor.insertAdjacentElement('afterend', wrap);
-        if (isStagingCustomSlotReorderUi() && orderLen >= 1) {
+        if (isStagingProSlotsFeature() && orderLen >= 1) {
             const footer = document.createElement('div');
             footer.id = 'staging-chord-reorder-footer';
             footer.className = 'staging-slot-reorder-footer';
