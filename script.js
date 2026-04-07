@@ -27,10 +27,10 @@ function isKeyRandomGameplayActive(game) {
     return isPitchTrainerPro() && !!game.keyRandomMode;
 }
 
-/** Staging 検証のみ: 追加 STAGE スロット機能 */
+/** Pro 版: 追加 STAGE スロット機能（保存・複製・名前変更・削除）。
+ *  以前は ?stagingPreview=1 時のみ有効だったが、正式に Pro 全体で有効化。 */
 function isStagingProSlotsFeature() {
-    return typeof location !== 'undefined' && isPitchTrainerPro() &&
-        new URLSearchParams(location.search).get('stagingPreview') === '1';
+    return typeof location !== 'undefined' && isPitchTrainerPro();
 }
 
 /** メロディ Pro（本体 99 または Staging 保存スロット 5001〜） */

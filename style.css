@@ -398,31 +398,35 @@ h1 {
     box-shadow: 0 0 16px rgba(255, 51, 102, 0.5) !important;
 }
 
-/* Overlay */
-/* 縦スクロールは「内側の .modal」ではなくこのレイヤーで受ける（#settings-modal と同じ考え方）。
- * flex 中央寄せの子にだけ overflow を置くと、min-height:auto のせいで内側スクロールが効かない端末がある。 */
+/* Overlay
+ * #settings-modal と同じ考え方：外側レイヤーが overflow-y:auto でスクロールを受け持ち、
+ * 内側 .modal は高さ制限を外して伸びる。
+ *
+ * 重要: align-items を center にすると、中身が溢れたとき上方向にもはみ出し、
+ * モバイル Safari/Chrome で上端までスクロールできなくなる。
+ * → flex-start にし、短い内容のときは .modal の margin:auto で縦中央に寄せる。 */
 .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    /* iOS でアドレスバー分の vh ずれを抑える */
     min-height: 100vh;
     min-height: 100dvh;
     background: rgba(0, 0, 0, 0.97);
     backdrop-filter: blur(20px);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     z-index: 100;
     transition: opacity 0.5s;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-    /* 右下固定バー分の領域を空け、中央のモーダルが枠と干渉しないようにする */
-    padding-bottom: calc(var(--in-game-refresh-stack-height) + max(12px, env(safe-area-inset-bottom)));
+    padding: max(24px, env(safe-area-inset-top)) 0
+             calc(var(--in-game-refresh-stack-height) + max(12px, env(safe-area-inset-bottom)));
+    box-sizing: border-box;
 }
 
 .overlay.hidden {
@@ -433,28 +437,21 @@ h1 {
 .modal {
     text-align: center;
     background: rgba(255, 255, 255, 0.05);
-    padding: max(40px, calc(env(safe-area-inset-top) + 20px)) max(20px, env(safe-area-inset-right)) max(40px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    padding: 40px max(20px, env(safe-area-inset-right)) 40px max(20px, env(safe-area-inset-left));
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     max-width: 480px;
     width: 90%;
-    max-height: 85vh;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* ステージ選択など #overlay 直下のカードだけ：高さは内容任せにし、スクロールは .overlay 側で受ける */
+/* #overlay 直下のカード：内容の高さのまま伸びる。短ければ margin:auto で縦中央に寄る */
 .overlay > .modal {
     flex-shrink: 0;
-    max-height: none;
-    overflow: visible;
-    min-height: 0;
+    margin: auto;
 }
 
 .modal h2,
