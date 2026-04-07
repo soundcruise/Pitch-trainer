@@ -399,6 +399,8 @@ h1 {
 }
 
 /* Overlay */
+/* 縦スクロールは「内側の .modal」ではなくこのレイヤーで受ける（#settings-modal と同じ考え方）。
+ * flex 中央寄せの子にだけ overflow を置くと、min-height:auto のせいで内側スクロールが効かない端末がある。 */
 .overlay {
     position: fixed;
     top: 0;
@@ -415,6 +417,10 @@ h1 {
     align-items: center;
     z-index: 100;
     transition: opacity 0.5s;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     /* 右下固定バー分の領域を空け、中央のモーダルが枠と干渉しないようにする */
     padding-bottom: calc(var(--in-game-refresh-stack-height) + max(12px, env(safe-area-inset-bottom)));
 }
@@ -443,17 +449,12 @@ h1 {
     align-items: center;
 }
 
-/* オーバーレイ上のカードは、右下バー＋セーフエリアを除いた高さに収める（iPhone で下端がバーに被らない） */
-.overlay>.modal {
+/* ステージ選択など #overlay 直下のカードだけ：高さは内容任せにし、スクロールは .overlay 側で受ける */
+.overlay > .modal {
+    flex-shrink: 0;
+    max-height: none;
+    overflow: visible;
     min-height: 0;
-    max-height: min(85vh, calc(100vh - var(--in-game-refresh-stack-height) - max(28px, env(safe-area-inset-bottom)) - max(20px, env(safe-area-inset-top))));
-}
-
-@supports (height: 100dvh) {
-    .overlay>.modal {
-        min-height: 0;
-        max-height: min(85vh, calc(100dvh - var(--in-game-refresh-stack-height) - max(28px, env(safe-area-inset-bottom)) - max(20px, env(safe-area-inset-top))));
-    }
 }
 
 .modal h2,
