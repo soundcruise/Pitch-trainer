@@ -11,13 +11,13 @@
   "description": "音感クルーズのお試しベータ版（メロディ・コードとも STAGE 1〜4）。",
   "icons": [
     {
-      "src": "../icon_idea/beta_pwa_192.png",
+      "src": "../icon_pwa_192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "../icon_idea/beta_pwa_512.png",
+      "src": "../icon_pwa_512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

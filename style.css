@@ -1132,14 +1132,7 @@ header {
     line-height: 1;
 }
 
-.category-card-icon img.pro-ui-icon--card {
-    width: 2.5rem;
-    height: 2.5rem;
-    object-fit: contain;
-    display: block;
-}
-
-/* Pro版ブランドアイコン（pro_icon_96.png 等・表示サイズで縮小） */
+/* Pro版（pro_k3m9）専用ブランドアイコン（pro_icon_96.png 等・表示サイズで縮小） */
 .pro-ui-icon {
     object-fit: contain;
     flex-shrink: 0;
@@ -1168,18 +1161,11 @@ header {
     display: block;
 }
 
-.pro-teaser-inline,
 .pro-stage-btn-row {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.35em;
-}
-
-.pro-ui-icon--teaser {
-    width: 22px;
-    height: 22px;
-    display: block;
 }
 
 .pro-ui-icon--stage {
