@@ -23,7 +23,6 @@
 
 .staging-add-pro-slot-btn .staging-add-pro-slot-emoji {
     display: block;
-    font-size: 1.35rem;
     line-height: 1;
     text-align: center;
 }
@@ -163,6 +162,10 @@
     justify-content: center;
     border-radius: 12px;
     line-height: 1;
+}
+
+.header-game-settings-wrap.pro-custom-active .icon-btn-header-pair {
+    font-size: 0.75rem;
 }
 
 /* トップ: タイトル＋PROを画面中央に */
