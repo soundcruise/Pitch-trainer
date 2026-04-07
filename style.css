@@ -1132,46 +1132,12 @@ header {
     line-height: 1;
 }
 
-/* Pro版（pro_k3m9）専用ブランドアイコン（pro_icon_96.png 等・表示サイズで縮小） */
-.pro-ui-icon {
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.pro-ui-icon--header {
-    width: 26px;
-    height: 26px;
-    display: block;
-}
-
-.icon-btn.icon-btn-header-pair .pro-ui-icon--header {
-    margin: 0;
-}
-
-.pro-modal-heading {
-    display: flex;
-    align-items: center;
-    gap: 0.4em;
-    flex-wrap: wrap;
-}
-
-.pro-ui-icon--title {
-    width: 26px;
-    height: 26px;
-    display: block;
-}
-
+/* Pro版「👑 Pro」行（メロディ／コードのカスタムSTAGEボタン） */
 .pro-stage-btn-row {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.35em;
-}
-
-.pro-ui-icon--stage {
-    width: 24px;
-    height: 24px;
-    display: block;
 }
 
 .category-card-label {
