@@ -1352,8 +1352,12 @@ header {
     pointer-events: auto;
 }
 
+/* 黒鍵ラベルは .note-name が absolute のため、基準は必ずこのラベル自身（static だとグリッド基準にずれる） */
 #pro-note-toggles-container.pro-note-toggles--list .keyboard-row.black-keys > .note-toggle-wrapper {
-    position: static;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
 }
 
 #pro-note-toggles-container.pro-note-toggles--list .spacer {
@@ -1394,6 +1398,9 @@ header {
 }
 
 #pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
     min-width: 52px;
     padding-bottom: 2px;
 }
@@ -1404,12 +1411,15 @@ header {
     bottom: auto;
     transform: translate(-50%, -50%);
     width: max-content;
-    max-width: 44px;
+    max-width: none;
+    white-space: nowrap;
+    padding: 0 2px;
     font-size: 0.7rem;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.92);
     line-height: 1.1;
     text-align: center;
+    overflow: visible;
 }
 
 #pro-note-toggles-container.pro-note-toggles--list .note-toggle-wrapper:has(:checked) .note-name {

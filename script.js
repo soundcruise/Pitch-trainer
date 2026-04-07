@@ -2743,12 +2743,15 @@ class Game {
         const methodEl = document.getElementById('pro-answer-method');
         if (!methodEl) return;
         const method = methodEl.value || 'solfege';
-        document.querySelectorAll('.note-toggle-wrapper').forEach(wrapper => {
+        const modal = document.getElementById('screen-pro-settings');
+        const scope = modal || document;
+        scope.querySelectorAll('.note-toggle-wrapper').forEach((wrapper) => {
             const checkbox = wrapper.querySelector('.note-toggle');
             const noteNameLabel = wrapper.querySelector('.note-name');
             const degreeLabel = wrapper.querySelector('.degree-label');
             if (checkbox && noteNameLabel) {
-                const note = checkbox.dataset.note;
+                const note = checkbox.getAttribute('data-note');
+                if (!note) return;
                 if (method === 'degree') {
                     noteNameLabel.textContent = this.getDegreeName(note);
                 } else if (method === 'solfege') {
