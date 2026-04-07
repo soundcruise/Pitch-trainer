@@ -433,7 +433,10 @@ h1 {
     max-width: 480px;
     width: 90%;
     max-height: 85vh;
+    min-height: 0;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -442,11 +445,13 @@ h1 {
 
 /* オーバーレイ上のカードは、右下バー＋セーフエリアを除いた高さに収める（iPhone で下端がバーに被らない） */
 .overlay>.modal {
+    min-height: 0;
     max-height: min(85vh, calc(100vh - var(--in-game-refresh-stack-height) - max(28px, env(safe-area-inset-bottom)) - max(20px, env(safe-area-inset-top))));
 }
 
 @supports (height: 100dvh) {
     .overlay>.modal {
+        min-height: 0;
         max-height: min(85vh, calc(100dvh - var(--in-game-refresh-stack-height) - max(28px, env(safe-area-inset-bottom)) - max(20px, env(safe-area-inset-top))));
     }
 }

@@ -106,9 +106,11 @@
     transform: rotate(180deg);
 }
 
-/* トグルが右へはみ出しても切れにくくする（STAGE列は 250px のまま） */
+/* トグルが右へはみ出しても切れにくくする（STAGE列は 250px のまま）
+   overflow-x のみ指定すると一部ブラウザで overflow-y が auto 扱いになり、親 .modal の縦スクロールが奪われるため両軸 visible を明示 */
 #screen-melody.modal .level-buttons {
-    overflow-x: visible;
+    overflow: visible;
+    min-height: 0;
 }
 
 .staging-slot-actions {
