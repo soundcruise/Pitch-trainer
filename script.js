@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.5.1';
+const PITCH_TRAINER_APP_VERSION = '1.5.2';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '20';
+const PITCH_TRAINER_APP_BUILD = '21';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -885,6 +885,9 @@ class Game {
         this._stagingMelodySlotOrder = [];
         /** Staging: コードカスタムSTAGEの表示順 */
         this._stagingChordSlotOrder = [];
+        if (typeof document !== 'undefined') {
+            document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
+        }
         this.isAnswerMode = true; // 回答モード (true: 回答する, false: 音確認のみ)
         /** 通常版で Pro STAGE の「決定」後、出題せず案内だけ出すモード */
         this.standardProPreviewMode = false;
@@ -3008,153 +3011,34 @@ class Game {
         }
     }
 
-    /** ポインタ Y からカスタム STAGE 行の挿入インデックス（0 〜 n-1）を推定 */
-    stagingSlotIndexFromPointerY(wrap, clientY) {
-        const rows = [...wrap.querySelectorAll('.staging-pro-slot-row')];
-        if (rows.length === 0) return 0;
-        let best = 0;
-        let bestDist = Infinity;
-        rows.forEach((r, i) => {
-            const rect = r.getBoundingClientRect();
-            const mid = (rect.top + rect.bottom) / 2;
-            const d = Math.abs(clientY - mid);
-            if (d < bestDist) {
-                bestDist = d;
-                best = i;
-            }
-        });
-        return best;
+    moveStagingMelodySlotByDelta(slotId, delta) {
+        if (!isStagingProSlotsFeature() || delta === 0) return;
+        const order = this.getStagingMelodySlotIdsOrdered();
+        const i = order.indexOf(slotId);
+        if (i < 0) return;
+        const j = i + delta;
+        if (j < 0 || j >= order.length) return;
+        const next = [...order];
+        const [item] = next.splice(i, 1);
+        next.splice(j, 0, item);
+        this._stagingMelodySlotOrder = next;
+        this.saveStagingMelodySlotsToStorage();
+        this.renderStagingMelodySlotButtons();
     }
 
-    /** 表示順配列に合わせて DOM の子を並べ替え（data-staging-slot-id 必須） */
-    stagingSlotReorderDomChildren(wrap, orderedSlotIds) {
-        const byId = new Map();
-        wrap.querySelectorAll('.staging-pro-slot-row').forEach((r) => {
-            const id = Number(r.dataset.stagingSlotId);
-            if (!Number.isNaN(id)) byId.set(id, r);
-        });
-        orderedSlotIds.forEach((id) => {
-            const el = byId.get(id);
-            if (el) wrap.appendChild(el);
-        });
-    }
-
-    /**
-     * 長押し → ドラッグでカスタム STAGE の並びを変更（メロディ／コード共通）
-     * @param {'melody'|'chord'} kind
-     */
-    attachStagingSlotRowReorder(row, wrap, slotId, kind) {
-        const mainBtn = row.querySelector('.staging-slot-main-btn');
-        if (!mainBtn || !isStagingProSlotsFeature()) return;
-        const LONG_MS = 450;
-        const MOVE_CANCEL = 14;
-        mainBtn.setAttribute('title', '長押しで並び替え');
-        let timer = null;
-        let armed = false;
-        let dragging = false;
-        let startX = 0;
-        let startY = 0;
-        let activePointerId = null;
-
-        const getOrder = () =>
-            kind === 'melody' ? this.getStagingMelodySlotIdsOrdered() : this.getStagingChordSlotIdsOrdered();
-        const setOrder = (arr) => {
-            if (kind === 'melody') this._stagingMelodySlotOrder = arr;
-            else this._stagingChordSlotOrder = arr;
-        };
-        const save = () =>
-            kind === 'melody' ? this.saveStagingMelodySlotsToStorage() : this.saveStagingChordSlotsToStorage();
-
-        const blockPageScroll = (ev) => {
-            ev.preventDefault();
-        };
-
-        const lockStagingSlotScroll = () => {
-            document.documentElement.classList.add('staging-slot-drag-scroll-lock');
-            document.addEventListener('touchmove', blockPageScroll, { passive: false, capture: true });
-            document.addEventListener('wheel', blockPageScroll, { passive: false, capture: true });
-        };
-
-        const unlockStagingSlotScroll = () => {
-            document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
-            document.removeEventListener('touchmove', blockPageScroll, { capture: true });
-            document.removeEventListener('wheel', blockPageScroll, { capture: true });
-        };
-
-        const endDrag = (e) => {
-            clearTimeout(timer);
-            timer = null;
-            armed = false;
-            if (!dragging) return;
-            dragging = false;
-            row.classList.remove('staging-pro-slot-row--dragging');
-            document.body.style.userSelect = '';
-            unlockStagingSlotScroll();
-            try {
-                if (e && activePointerId != null) mainBtn.releasePointerCapture(activePointerId);
-            } catch (_) { /* ignore */ }
-            activePointerId = null;
-            save();
-            this._suppressStagingSlotClick = true;
-            setTimeout(() => {
-                this._suppressStagingSlotClick = false;
-            }, 120);
-        };
-
-        mainBtn.addEventListener('pointerdown', (e) => {
-            if (e.pointerType === 'mouse' && e.button !== 0) return;
-            armed = true;
-            dragging = false;
-            startX = e.clientX;
-            startY = e.clientY;
-            activePointerId = e.pointerId;
-            timer = setTimeout(() => {
-                if (!armed) return;
-                dragging = true;
-                row.classList.add('staging-pro-slot-row--dragging');
-                document.body.style.userSelect = 'none';
-                lockStagingSlotScroll();
-                try {
-                    mainBtn.setPointerCapture(e.pointerId);
-                } catch (_) { /* ignore */ }
-                timer = null;
-            }, LONG_MS);
-        });
-
-        mainBtn.addEventListener('pointermove', (e) => {
-            if (armed && timer && !dragging) {
-                if (Math.hypot(e.clientX - startX, e.clientY - startY) > MOVE_CANCEL) {
-                    clearTimeout(timer);
-                    timer = null;
-                    armed = false;
-                }
-            }
-            if (!dragging) return;
-            e.preventDefault();
-            const newIdx = this.stagingSlotIndexFromPointerY(wrap, e.clientY);
-            const order = [...getOrder()];
-            const curIdx = order.indexOf(slotId);
-            if (curIdx < 0 || newIdx < 0 || newIdx >= order.length || curIdx === newIdx) return;
-            order.splice(curIdx, 1);
-            order.splice(newIdx, 0, slotId);
-            setOrder(order);
-            this.stagingSlotReorderDomChildren(wrap, order);
-        });
-
-        mainBtn.addEventListener('pointerup', (e) => {
-            clearTimeout(timer);
-            timer = null;
-            if (!armed && !dragging) return;
-            armed = false;
-            if (dragging) endDrag(e);
-        });
-
-        mainBtn.addEventListener('pointercancel', (e) => {
-            clearTimeout(timer);
-            timer = null;
-            armed = false;
-            if (dragging) endDrag(e);
-        });
+    moveStagingChordSlotByDelta(slotId, delta) {
+        if (!isStagingProSlotsFeature() || delta === 0) return;
+        const order = this.getStagingChordSlotIdsOrdered();
+        const i = order.indexOf(slotId);
+        if (i < 0) return;
+        const j = i + delta;
+        if (j < 0 || j >= order.length) return;
+        const next = [...order];
+        const [item] = next.splice(i, 1);
+        next.splice(j, 0, item);
+        this._stagingChordSlotOrder = next;
+        this.saveStagingChordSlotsToStorage();
+        this.renderStagingChordSlotButtons();
     }
 
     /** Staging: 存在するスロット ID を表示順で返す（無いIDは末尾に補完） */
@@ -3317,7 +3201,8 @@ class Game {
         const wrap = document.createElement('div');
         wrap.className = 'staging-pro-slot-dynamic';
         const orderedIds = this.getStagingMelodySlotIdsOrdered();
-        orderedIds.forEach((id) => {
+        const orderLen = orderedIds.length;
+        orderedIds.forEach((id, orderIndex) => {
             const c = this.stageConfig[id];
             if (!c || !c.pool) return;
             const row = document.createElement('div');
@@ -3333,11 +3218,6 @@ class Game {
             btn.innerHTML = '<span class="staging-slot-main-label"></span>';
             btn.querySelector('.staging-slot-main-label').textContent = label;
             btn.addEventListener('click', (e) => {
-                if (this._suppressStagingSlotClick) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                }
                 e.preventDefault();
                 this.startGame(id);
             });
@@ -3354,16 +3234,18 @@ class Game {
             actions.hidden = true;
             actions.setAttribute('role', 'group');
             actions.setAttribute('aria-label', 'カスタムSTAGEの操作');
-            const mkAction = (emoji, title, handler) => {
+            const mkAction = (emoji, title, handler, opts) => {
                 const b = document.createElement('button');
                 b.type = 'button';
                 b.className = 'icon-btn staging-slot-action-btn';
                 b.textContent = emoji;
                 b.title = title;
                 b.setAttribute('aria-label', title);
+                if (opts && opts.disabled) b.disabled = true;
                 b.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    if (b.disabled) return;
                     handler();
                 });
                 return b;
@@ -3380,6 +3262,12 @@ class Game {
                     this.saveStagingMelodySlotsToStorage();
                     this.renderStagingMelodySlotButtons();
                 });
+            }));
+            actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingMelodySlotByDelta(id, -1), {
+                disabled: orderIndex <= 0 || orderLen < 2
+            }));
+            actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingMelodySlotByDelta(id, 1), {
+                disabled: orderIndex >= orderLen - 1 || orderLen < 2
             }));
             actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
                 this.openStagingSlotProMelodyEditor(id);
@@ -3420,7 +3308,6 @@ class Game {
             row.appendChild(mainRow);
             row.appendChild(actions);
             wrap.appendChild(row);
-            this.attachStagingSlotRowReorder(row, wrap, id, 'melody');
         });
         anchor.insertAdjacentElement('afterend', wrap);
     }
@@ -3658,7 +3545,8 @@ class Game {
         const wrap = document.createElement('div');
         wrap.className = 'staging-pro-chord-slot-dynamic';
         const orderedIds = this.getStagingChordSlotIdsOrdered();
-        orderedIds.forEach((id) => {
+        const orderLen = orderedIds.length;
+        orderedIds.forEach((id, orderIndex) => {
             const c = this.stageConfig[id];
             if (!c || !c.pool) return;
             const row = document.createElement('div');
@@ -3674,11 +3562,6 @@ class Game {
             btn.innerHTML = '<span class="staging-slot-main-label"></span>';
             btn.querySelector('.staging-slot-main-label').textContent = label;
             btn.addEventListener('click', (e) => {
-                if (this._suppressStagingSlotClick) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                }
                 e.preventDefault();
                 this.startGame(id);
             });
@@ -3695,16 +3578,18 @@ class Game {
             actions.hidden = true;
             actions.setAttribute('role', 'group');
             actions.setAttribute('aria-label', 'カスタムSTAGEの操作');
-            const mkAction = (emoji, title, handler) => {
+            const mkAction = (emoji, title, handler, opts) => {
                 const b = document.createElement('button');
                 b.type = 'button';
                 b.className = 'icon-btn staging-slot-action-btn';
                 b.textContent = emoji;
                 b.title = title;
                 b.setAttribute('aria-label', title);
+                if (opts && opts.disabled) b.disabled = true;
                 b.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    if (b.disabled) return;
                     handler();
                 });
                 return b;
@@ -3721,6 +3606,12 @@ class Game {
                     this.saveStagingChordSlotsToStorage();
                     this.renderStagingChordSlotButtons();
                 });
+            }));
+            actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingChordSlotByDelta(id, -1), {
+                disabled: orderIndex <= 0 || orderLen < 2
+            }));
+            actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingChordSlotByDelta(id, 1), {
+                disabled: orderIndex >= orderLen - 1 || orderLen < 2
             }));
             actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
                 this.openStagingSlotProChordEditor(id);
@@ -3761,7 +3652,6 @@ class Game {
             row.appendChild(mainRow);
             row.appendChild(actions);
             wrap.appendChild(row);
-            this.attachStagingSlotRowReorder(row, wrap, id, 'chord');
         });
         anchor.insertAdjacentElement('afterend', wrap);
     }
