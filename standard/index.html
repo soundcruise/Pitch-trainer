@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ</title>
-    <link rel="stylesheet" href="../style.css?v=83">
-    <link rel="stylesheet" href="../pro-theme.css?v=61">
+    <link rel="stylesheet" href="../style.css?v=84">
+    <link rel="stylesheet" href="../pro-theme.css?v=76">
     <link rel="stylesheet" href="../staging/staging-hub-nav.css?v=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -80,7 +80,8 @@
             </div>
             <div class="header-game-settings-wrap">
                 <button type="button" id="in-game-pro-settings-btn" class="icon-btn icon-btn-header-pair"
-                    style="display: none;" title="Pro設定">👑</button>
+                    style="display: none;" title="Pro設定"><img src="../pro_icon_96.png" alt=""
+                        class="pro-ui-icon pro-ui-icon--header" width="26" height="26" decoding="async"></button>
                 <button type="button" id="settings-btn" class="icon-btn icon-btn-header-pair" title="設定">⚙️</button>
             </div>
             <div class="stats">
@@ -201,7 +202,9 @@
 
                     <div class="pro-stage-teaser-wrap">
                         <button id="btn-level-pro" type="button"
-                            class="btn-primary custom-stage-btn pro-stage-teaser">👑 PROカスタムSTAGE</button>
+                            class="btn-primary custom-stage-btn pro-stage-teaser"><span class="pro-teaser-inline"><img
+                                src="../pro_icon_96.png" alt="" class="pro-ui-icon pro-ui-icon--teaser" width="22"
+                                height="22" decoding="async"> PROカスタムSTAGE</span></button>
                         <div class="pro-stage-teaser-caption">
                             <span class="pro-stage-teaser-caption-lock" aria-hidden="true">🔒</span>
                             <span class="pro-stage-teaser-caption-text">Pro版専用（中身の確認だけできます）</span>
@@ -256,7 +259,9 @@
 
                     <div class="pro-stage-teaser-wrap">
                         <button id="btn-level-pro-chord" type="button"
-                            class="btn-primary custom-stage-btn pro-stage-teaser">👑 PROカスタムSTAGE</button>
+                            class="btn-primary custom-stage-btn pro-stage-teaser"><span class="pro-teaser-inline"><img
+                                src="../pro_icon_96.png" alt="" class="pro-ui-icon pro-ui-icon--teaser" width="22"
+                                height="22" decoding="async"> PROカスタムSTAGE</span></button>
                         <div class="pro-stage-teaser-caption">
                             <span class="pro-stage-teaser-caption-lock" aria-hidden="true">🔒</span>
                             <span class="pro-stage-teaser-caption-text">Pro版専用（中身の確認だけできます）</span>
@@ -269,7 +274,8 @@
         <!-- Pro Settings Modal -->
         <div id="screen-pro-settings" class="modal hidden">
             <div class="modal-content pro-settings-content">
-                <h2>👑 Pro設定</h2>
+                <h2 class="pro-modal-heading"><img src="../pro_icon_96.png" alt="" class="pro-ui-icon pro-ui-icon--title"
+                        width="26" height="26" decoding="async"> Pro設定</h2>
 
                 <div class="setting-item vertical" style="margin-bottom: 20px;">
                     <label><span>問題の音数</span>: <span id="pro-count-value">4</span><span>音</span></label>
@@ -445,7 +451,8 @@
         <!-- Chord Pro Settings Modal -->
         <div id="pro-settings-modal-chord" class="modal hidden">
             <div class="modal-content pro-settings-content">
-                <h2>👑 Proコード設定</h2>
+                <h2 class="pro-modal-heading"><img src="../pro_icon_96.png" alt="" class="pro-ui-icon pro-ui-icon--title"
+                        width="26" height="26" decoding="async"> Proコード設定</h2>
 
                 <div class="setting-item" style="justify-content: center; margin-bottom: 25px;">
                     <div class="chord-mode-toggle" style="display: flex; gap: 15px;">
@@ -752,7 +759,7 @@
         </div>
     </div>
     <script src="../staging/staging-hub-nav.js?v=1"></script>
-    <script src="../script.js?v=1.2.1"></script>
+    <script src="../script.js?v=1.2.2"></script>
 </body>
 
 </html>

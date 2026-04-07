@@ -9,3 +9,10 @@ html.staging-pro-custom-stage .staging-pro-slot-dynamic .staging-slot-main-btn.c
     opacity: 1;
     filter: none;
 }
+
+html.staging-pro-custom-stage .pro-teaser-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+}

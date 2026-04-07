@@ -15,7 +15,7 @@
     gap: 10px;
 }
 
-/* Staging: 問題画面ヘッダー右上、Pro設定（👑）の左に「STAGEに追加」（王冠・歯車と同じ 44px） */
+/* Staging: 問題画面ヘッダー右上、Pro設定アイコンの左に「STAGEに追加」（アイコン・歯車と同じ 44px 枠） */
 .staging-add-slot-wrap {
     display: none;
     align-items: center;
