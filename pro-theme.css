@@ -168,6 +168,16 @@
     font-size: 0.75rem;
 }
 
+/* 通常版と共通のステージ: 右上の設定は従来の icon-btn（丸みのあるピル型）に戻す */
+.header-game-settings-wrap:not(.pro-custom-active) #settings-btn.icon-btn.icon-btn-header-pair {
+    width: auto;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 10px 20px;
+    border-radius: 30px;
+}
+
 /* トップ: タイトル＋PROを画面中央に */
 .pro-home-title {
     display: flex;
