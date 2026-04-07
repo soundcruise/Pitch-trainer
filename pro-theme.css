@@ -110,6 +110,46 @@
     cursor: default;
 }
 
+/* Staging preview: カスタムSTAGE一覧の下「順番並び替え」＋各行の▲▼ */
+.staging-slot-reorder-footer {
+    width: 100%;
+    max-width: 250px;
+    margin: 18px auto 0;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.staging-slot-reorder-mode-toggle {
+    width: 100%;
+    max-width: 250px;
+    box-sizing: border-box;
+    font-weight: 700;
+    touch-action: manipulation;
+}
+
+.staging-slot-reorder-mode-toggle[aria-pressed="true"] {
+    border-color: rgba(255, 210, 90, 0.55);
+    background: rgba(255, 210, 90, 0.1);
+    color: rgba(255, 245, 200, 0.95);
+}
+
+.staging-slot-reorder-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto 8px;
+    box-sizing: border-box;
+}
+
+.staging-slot-reorder-bar .staging-slot-action-btn {
+    min-width: 40px;
+}
+
 #screen-melody.modal .level-buttons {
     overflow-x: visible;
 }

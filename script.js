@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.5.3';
+const PITCH_TRAINER_APP_VERSION = '1.5.4';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '22';
+const PITCH_TRAINER_APP_BUILD = '23';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -895,6 +895,10 @@ class Game {
         this._stagingMelodySlotOrder = [];
         /** Staging: コードカスタムSTAGEの表示順 */
         this._stagingChordSlotOrder = [];
+        /** Staging preview: メロディ STAGE 選択で「順番並び替え」モード中 */
+        this._stagingMelodyReorderMode = false;
+        /** Staging preview: コード STAGE 選択で「順番並び替え」モード中 */
+        this._stagingChordReorderMode = false;
         if (typeof document !== 'undefined') {
             document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
         }
@@ -3022,7 +3026,7 @@ class Game {
     }
 
     moveStagingMelodySlotByDelta(slotId, delta) {
-        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || delta === 0) return;
+        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || !this._stagingMelodyReorderMode || delta === 0) return;
         const order = this.getStagingMelodySlotIdsOrdered();
         const i = order.indexOf(slotId);
         if (i < 0) return;
@@ -3037,7 +3041,7 @@ class Game {
     }
 
     moveStagingChordSlotByDelta(slotId, delta) {
-        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || delta === 0) return;
+        if (!isStagingProSlotsFeature() || !isStagingCustomSlotReorderUi() || !this._stagingChordReorderMode || delta === 0) return;
         const order = this.getStagingChordSlotIdsOrdered();
         const i = order.indexOf(slotId);
         if (i < 0) return;
@@ -3208,10 +3212,12 @@ class Game {
         const anchor = document.getElementById('btn-level-pro');
         if (!levelButtons || !anchor) return;
         levelButtons.querySelectorAll('.staging-pro-slot-dynamic').forEach((el) => el.remove());
+        document.getElementById('staging-melody-reorder-footer')?.remove();
         const wrap = document.createElement('div');
         wrap.className = 'staging-pro-slot-dynamic';
         const orderedIds = this.getStagingMelodySlotIdsOrdered();
         const orderLen = orderedIds.length;
+        if (orderLen === 0) this._stagingMelodyReorderMode = false;
         orderedIds.forEach((id, orderIndex) => {
             const c = this.stageConfig[id];
             if (!c || !c.pool) return;
@@ -3273,14 +3279,6 @@ class Game {
                     this.renderStagingMelodySlotButtons();
                 });
             }));
-            if (isStagingCustomSlotReorderUi()) {
-                actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingMelodySlotByDelta(id, -1), {
-                    disabled: orderIndex <= 0 || orderLen < 2
-                }));
-                actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingMelodySlotByDelta(id, 1), {
-                    disabled: orderIndex >= orderLen - 1 || orderLen < 2
-                }));
-            }
             actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
                 this.openStagingSlotProMelodyEditor(id);
             }));
@@ -3315,6 +3313,29 @@ class Game {
                 toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
                 toggle.setAttribute('aria-label', open ? 'その他の操作を閉じる' : 'その他の操作を表示');
             });
+            if (isStagingCustomSlotReorderUi() && this._stagingMelodyReorderMode) {
+                const bar = document.createElement('div');
+                bar.className = 'staging-slot-reorder-bar';
+                const mkStep = (emoji, title, delta, disabled) => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'icon-btn staging-slot-action-btn';
+                    b.textContent = emoji;
+                    b.title = title;
+                    b.setAttribute('aria-label', title);
+                    if (disabled) b.disabled = true;
+                    b.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (b.disabled) return;
+                        this.moveStagingMelodySlotByDelta(id, delta);
+                    });
+                    return b;
+                };
+                bar.appendChild(mkStep('▲', '上に移動', -1, orderIndex <= 0 || orderLen < 2));
+                bar.appendChild(mkStep('▼', '下に移動', 1, orderIndex >= orderLen - 1 || orderLen < 2));
+                row.appendChild(bar);
+            }
             mainRow.appendChild(btn);
             mainRow.appendChild(toggle);
             row.appendChild(mainRow);
@@ -3322,6 +3343,23 @@ class Game {
             wrap.appendChild(row);
         });
         anchor.insertAdjacentElement('afterend', wrap);
+        if (isStagingCustomSlotReorderUi() && orderLen >= 1) {
+            const footer = document.createElement('div');
+            footer.id = 'staging-melody-reorder-footer';
+            footer.className = 'staging-slot-reorder-footer';
+            const modeBtn = document.createElement('button');
+            modeBtn.type = 'button';
+            modeBtn.className = 'btn-secondary staging-slot-reorder-mode-toggle';
+            modeBtn.textContent = this._stagingMelodyReorderMode ? '完了' : '順番並び替え';
+            modeBtn.setAttribute('aria-pressed', this._stagingMelodyReorderMode ? 'true' : 'false');
+            modeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this._stagingMelodyReorderMode = !this._stagingMelodyReorderMode;
+                this.renderStagingMelodySlotButtons();
+            });
+            footer.appendChild(modeBtn);
+            wrap.insertAdjacentElement('afterend', footer);
+        }
     }
 
     /** Staging: 保存済みコードスロットの Pro 設定を開く（STAGE選択から） */
@@ -3554,10 +3592,12 @@ class Game {
         const anchor = document.getElementById('btn-level-pro-chord');
         if (!levelButtons || !anchor) return;
         levelButtons.querySelectorAll('.staging-pro-chord-slot-dynamic').forEach((el) => el.remove());
+        document.getElementById('staging-chord-reorder-footer')?.remove();
         const wrap = document.createElement('div');
         wrap.className = 'staging-pro-chord-slot-dynamic';
         const orderedIds = this.getStagingChordSlotIdsOrdered();
         const orderLen = orderedIds.length;
+        if (orderLen === 0) this._stagingChordReorderMode = false;
         orderedIds.forEach((id, orderIndex) => {
             const c = this.stageConfig[id];
             if (!c || !c.pool) return;
@@ -3619,14 +3659,6 @@ class Game {
                     this.renderStagingChordSlotButtons();
                 });
             }));
-            if (isStagingCustomSlotReorderUi()) {
-                actions.appendChild(mkAction('▲', '上に移動', () => this.moveStagingChordSlotByDelta(id, -1), {
-                    disabled: orderIndex <= 0 || orderLen < 2
-                }));
-                actions.appendChild(mkAction('▼', '下に移動', () => this.moveStagingChordSlotByDelta(id, 1), {
-                    disabled: orderIndex >= orderLen - 1 || orderLen < 2
-                }));
-            }
             actions.appendChild(mkAction('⚙️', 'Pro設定を編集', () => {
                 this.openStagingSlotProChordEditor(id);
             }));
@@ -3661,6 +3693,29 @@ class Game {
                 toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
                 toggle.setAttribute('aria-label', open ? 'その他の操作を閉じる' : 'その他の操作を表示');
             });
+            if (isStagingCustomSlotReorderUi() && this._stagingChordReorderMode) {
+                const bar = document.createElement('div');
+                bar.className = 'staging-slot-reorder-bar';
+                const mkStep = (emoji, title, delta, disabled) => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'icon-btn staging-slot-action-btn';
+                    b.textContent = emoji;
+                    b.title = title;
+                    b.setAttribute('aria-label', title);
+                    if (disabled) b.disabled = true;
+                    b.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (b.disabled) return;
+                        this.moveStagingChordSlotByDelta(id, delta);
+                    });
+                    return b;
+                };
+                bar.appendChild(mkStep('▲', '上に移動', -1, orderIndex <= 0 || orderLen < 2));
+                bar.appendChild(mkStep('▼', '下に移動', 1, orderIndex >= orderLen - 1 || orderLen < 2));
+                row.appendChild(bar);
+            }
             mainRow.appendChild(btn);
             mainRow.appendChild(toggle);
             row.appendChild(mainRow);
@@ -3668,6 +3723,23 @@ class Game {
             wrap.appendChild(row);
         });
         anchor.insertAdjacentElement('afterend', wrap);
+        if (isStagingCustomSlotReorderUi() && orderLen >= 1) {
+            const footer = document.createElement('div');
+            footer.id = 'staging-chord-reorder-footer';
+            footer.className = 'staging-slot-reorder-footer';
+            const modeBtn = document.createElement('button');
+            modeBtn.type = 'button';
+            modeBtn.className = 'btn-secondary staging-slot-reorder-mode-toggle';
+            modeBtn.textContent = this._stagingChordReorderMode ? '完了' : '順番並び替え';
+            modeBtn.setAttribute('aria-pressed', this._stagingChordReorderMode ? 'true' : 'false');
+            modeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this._stagingChordReorderMode = !this._stagingChordReorderMode;
+                this.renderStagingChordSlotButtons();
+            });
+            footer.appendChild(modeBtn);
+            wrap.insertAdjacentElement('afterend', footer);
+        }
     }
 
     resetProMelodySettingsToDefaults() {
