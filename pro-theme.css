@@ -110,11 +110,11 @@
     cursor: default;
 }
 
-/* Staging preview: カスタムSTAGE一覧の下「順番並び替え」＋各行の▲▼ */
+/* Staging preview: カスタムSTAGE一覧の下「順番並び替え」＋各行の▲▼（▼トグルと同寸） */
 .staging-slot-reorder-footer {
     width: 100%;
-    max-width: 250px;
-    margin: 18px auto 0;
+    max-width: 200px;
+    margin: 14px auto 0;
     display: flex;
     justify-content: center;
     box-sizing: border-box;
@@ -122,9 +122,14 @@
 
 .staging-slot-reorder-mode-toggle {
     width: 100%;
-    max-width: 250px;
+    max-width: 100%;
     box-sizing: border-box;
-    font-weight: 700;
+    padding: 6px 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    border-radius: 999px;
     touch-action: manipulation;
 }
 
@@ -139,15 +144,44 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
     max-width: 250px;
-    margin: 0 auto 8px;
+    margin: 8px auto 6px;
     box-sizing: border-box;
 }
 
-.staging-slot-reorder-bar .staging-slot-action-btn {
-    min-width: 40px;
+/* プルダウン（.staging-slot-dropdown-toggle）と同じ 28×28・角丸8px */
+.staging-slot-reorder-step-btn {
+    box-sizing: border-box;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.88);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: 0.55rem;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.staging-slot-reorder-step-btn:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.staging-slot-reorder-step-btn:disabled {
+    opacity: 0.38;
+    cursor: default;
 }
 
 #screen-melody.modal .level-buttons {

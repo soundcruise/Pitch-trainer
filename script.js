@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.5.4';
+const PITCH_TRAINER_APP_VERSION = '1.5.5';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '23';
+const PITCH_TRAINER_APP_BUILD = '24';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -3313,13 +3313,16 @@ class Game {
                 toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
                 toggle.setAttribute('aria-label', open ? 'その他の操作を閉じる' : 'その他の操作を表示');
             });
+            mainRow.appendChild(btn);
+            mainRow.appendChild(toggle);
+            row.appendChild(mainRow);
             if (isStagingCustomSlotReorderUi() && this._stagingMelodyReorderMode) {
                 const bar = document.createElement('div');
                 bar.className = 'staging-slot-reorder-bar';
                 const mkStep = (emoji, title, delta, disabled) => {
                     const b = document.createElement('button');
                     b.type = 'button';
-                    b.className = 'icon-btn staging-slot-action-btn';
+                    b.className = 'staging-slot-reorder-step-btn';
                     b.textContent = emoji;
                     b.title = title;
                     b.setAttribute('aria-label', title);
@@ -3336,9 +3339,6 @@ class Game {
                 bar.appendChild(mkStep('▼', '下に移動', 1, orderIndex >= orderLen - 1 || orderLen < 2));
                 row.appendChild(bar);
             }
-            mainRow.appendChild(btn);
-            mainRow.appendChild(toggle);
-            row.appendChild(mainRow);
             row.appendChild(actions);
             wrap.appendChild(row);
         });
@@ -3693,13 +3693,16 @@ class Game {
                 toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
                 toggle.setAttribute('aria-label', open ? 'その他の操作を閉じる' : 'その他の操作を表示');
             });
+            mainRow.appendChild(btn);
+            mainRow.appendChild(toggle);
+            row.appendChild(mainRow);
             if (isStagingCustomSlotReorderUi() && this._stagingChordReorderMode) {
                 const bar = document.createElement('div');
                 bar.className = 'staging-slot-reorder-bar';
                 const mkStep = (emoji, title, delta, disabled) => {
                     const b = document.createElement('button');
                     b.type = 'button';
-                    b.className = 'icon-btn staging-slot-action-btn';
+                    b.className = 'staging-slot-reorder-step-btn';
                     b.textContent = emoji;
                     b.title = title;
                     b.setAttribute('aria-label', title);
@@ -3716,9 +3719,6 @@ class Game {
                 bar.appendChild(mkStep('▼', '下に移動', 1, orderIndex >= orderLen - 1 || orderLen < 2));
                 row.appendChild(bar);
             }
-            mainRow.appendChild(btn);
-            mainRow.appendChild(toggle);
-            row.appendChild(mainRow);
             row.appendChild(actions);
             wrap.appendChild(row);
         });
