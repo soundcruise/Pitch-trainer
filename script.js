@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.4.1';
+const PITCH_TRAINER_APP_VERSION = '1.5.0';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '18';
+const PITCH_TRAINER_APP_BUILD = '19';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -3008,6 +3008,137 @@ class Game {
         }
     }
 
+    /** ポインタ Y からカスタム STAGE 行の挿入インデックス（0 〜 n-1）を推定 */
+    stagingSlotIndexFromPointerY(wrap, clientY) {
+        const rows = [...wrap.querySelectorAll('.staging-pro-slot-row')];
+        if (rows.length === 0) return 0;
+        let best = 0;
+        let bestDist = Infinity;
+        rows.forEach((r, i) => {
+            const rect = r.getBoundingClientRect();
+            const mid = (rect.top + rect.bottom) / 2;
+            const d = Math.abs(clientY - mid);
+            if (d < bestDist) {
+                bestDist = d;
+                best = i;
+            }
+        });
+        return best;
+    }
+
+    /** 表示順配列に合わせて DOM の子を並べ替え（data-staging-slot-id 必須） */
+    stagingSlotReorderDomChildren(wrap, orderedSlotIds) {
+        const byId = new Map();
+        wrap.querySelectorAll('.staging-pro-slot-row').forEach((r) => {
+            const id = Number(r.dataset.stagingSlotId);
+            if (!Number.isNaN(id)) byId.set(id, r);
+        });
+        orderedSlotIds.forEach((id) => {
+            const el = byId.get(id);
+            if (el) wrap.appendChild(el);
+        });
+    }
+
+    /**
+     * 長押し → ドラッグでカスタム STAGE の並びを変更（メロディ／コード共通）
+     * @param {'melody'|'chord'} kind
+     */
+    attachStagingSlotRowReorder(row, wrap, slotId, kind) {
+        const mainBtn = row.querySelector('.staging-slot-main-btn');
+        if (!mainBtn || !isStagingProSlotsFeature()) return;
+        const LONG_MS = 450;
+        const MOVE_CANCEL = 14;
+        mainBtn.setAttribute('title', '長押しで並び替え');
+        let timer = null;
+        let armed = false;
+        let dragging = false;
+        let startX = 0;
+        let startY = 0;
+        let activePointerId = null;
+
+        const getOrder = () =>
+            kind === 'melody' ? this.getStagingMelodySlotIdsOrdered() : this.getStagingChordSlotIdsOrdered();
+        const setOrder = (arr) => {
+            if (kind === 'melody') this._stagingMelodySlotOrder = arr;
+            else this._stagingChordSlotOrder = arr;
+        };
+        const save = () =>
+            kind === 'melody' ? this.saveStagingMelodySlotsToStorage() : this.saveStagingChordSlotsToStorage();
+
+        const endDrag = (e) => {
+            clearTimeout(timer);
+            timer = null;
+            armed = false;
+            if (!dragging) return;
+            dragging = false;
+            row.classList.remove('staging-pro-slot-row--dragging');
+            document.body.style.userSelect = '';
+            try {
+                if (e && activePointerId != null) mainBtn.releasePointerCapture(activePointerId);
+            } catch (_) { /* ignore */ }
+            activePointerId = null;
+            save();
+            this._suppressStagingSlotClick = true;
+            setTimeout(() => {
+                this._suppressStagingSlotClick = false;
+            }, 120);
+        };
+
+        mainBtn.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            armed = true;
+            dragging = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            activePointerId = e.pointerId;
+            timer = setTimeout(() => {
+                if (!armed) return;
+                dragging = true;
+                row.classList.add('staging-pro-slot-row--dragging');
+                document.body.style.userSelect = 'none';
+                try {
+                    mainBtn.setPointerCapture(e.pointerId);
+                } catch (_) { /* ignore */ }
+                timer = null;
+            }, LONG_MS);
+        });
+
+        mainBtn.addEventListener('pointermove', (e) => {
+            if (armed && timer && !dragging) {
+                if (Math.hypot(e.clientX - startX, e.clientY - startY) > MOVE_CANCEL) {
+                    clearTimeout(timer);
+                    timer = null;
+                    armed = false;
+                }
+            }
+            if (!dragging) return;
+            e.preventDefault();
+            const newIdx = this.stagingSlotIndexFromPointerY(wrap, e.clientY);
+            const order = [...getOrder()];
+            const curIdx = order.indexOf(slotId);
+            if (curIdx < 0 || newIdx < 0 || newIdx >= order.length || curIdx === newIdx) return;
+            order.splice(curIdx, 1);
+            order.splice(newIdx, 0, slotId);
+            setOrder(order);
+            this.stagingSlotReorderDomChildren(wrap, order);
+        });
+
+        mainBtn.addEventListener('pointerup', (e) => {
+            clearTimeout(timer);
+            timer = null;
+            if (!armed && !dragging) return;
+            armed = false;
+            if (dragging) endDrag(e);
+        });
+
+        mainBtn.addEventListener('pointercancel', (e) => {
+            clearTimeout(timer);
+            timer = null;
+            armed = false;
+            if (dragging) endDrag(e);
+        });
+    }
+
     /** Staging: 存在するスロット ID を表示順で返す（無いIDは末尾に補完） */
     getStagingMelodySlotIdsOrdered() {
         const present = [];
@@ -3173,6 +3304,7 @@ class Game {
             if (!c || !c.pool) return;
             const row = document.createElement('div');
             row.className = 'staging-pro-slot-row';
+            row.dataset.stagingSlotId = String(id);
             const mainRow = document.createElement('div');
             mainRow.className = 'staging-slot-main-row';
             const btn = document.createElement('button');
@@ -3183,6 +3315,11 @@ class Game {
             btn.innerHTML = '<span class="staging-slot-main-label"></span>';
             btn.querySelector('.staging-slot-main-label').textContent = label;
             btn.addEventListener('click', (e) => {
+                if (this._suppressStagingSlotClick) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
                 e.preventDefault();
                 this.startGame(id);
             });
@@ -3265,6 +3402,7 @@ class Game {
             row.appendChild(mainRow);
             row.appendChild(actions);
             wrap.appendChild(row);
+            this.attachStagingSlotRowReorder(row, wrap, id, 'melody');
         });
         anchor.insertAdjacentElement('afterend', wrap);
     }
@@ -3507,6 +3645,7 @@ class Game {
             if (!c || !c.pool) return;
             const row = document.createElement('div');
             row.className = 'staging-pro-slot-row';
+            row.dataset.stagingSlotId = String(id);
             const mainRow = document.createElement('div');
             mainRow.className = 'staging-slot-main-row';
             const btn = document.createElement('button');
@@ -3517,6 +3656,11 @@ class Game {
             btn.innerHTML = '<span class="staging-slot-main-label"></span>';
             btn.querySelector('.staging-slot-main-label').textContent = label;
             btn.addEventListener('click', (e) => {
+                if (this._suppressStagingSlotClick) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
                 e.preventDefault();
                 this.startGame(id);
             });
@@ -3599,6 +3743,7 @@ class Game {
             row.appendChild(mainRow);
             row.appendChild(actions);
             wrap.appendChild(row);
+            this.attachStagingSlotRowReorder(row, wrap, id, 'chord');
         });
         anchor.insertAdjacentElement('afterend', wrap);
     }

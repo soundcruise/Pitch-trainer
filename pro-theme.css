@@ -105,6 +105,17 @@
     transform: rotate(180deg);
 }
 
+.staging-pro-slot-row--dragging {
+    opacity: 0.92;
+    z-index: 3;
+    position: relative;
+}
+
+.staging-pro-slot-row--dragging .staging-slot-main-btn {
+    touch-action: none;
+    cursor: grabbing;
+}
+
 #screen-melody.modal .level-buttons {
     overflow-x: visible;
 }
