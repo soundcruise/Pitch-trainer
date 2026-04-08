@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.6.0';
+const PITCH_TRAINER_APP_VERSION = '1.6.1';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '25';
+const PITCH_TRAINER_APP_BUILD = '26';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
