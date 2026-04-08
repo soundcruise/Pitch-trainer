@@ -71,7 +71,8 @@
 ・画面上に **PRO バッジ**、ゲーム中に **👑 Pro 設定**ボタンなど。
 ・ホーム画面の名前・アイコンは通常版と同じ「音感クルーズ」。
 ・**会員向け案内用 URL**（限定投稿・メンバー向け動画の概要欄など向け）：
-  https://soundcruise.github.io/Pitch-trainer/pro_k3m9/
+  https://pitch-trainer.soundcruise.jp/pro_x9v7q2m8/（独自ドメイン・DNS反映後）
+  https://soundcruise.github.io/Pitch-trainer/pro_x9v7q2m8/（GitHub ドメイン・従来どおり）
 ・注意：URL は「知っている人が開く」形であり、**ログイン式の会員証ではない**。GitHub 公開のため**完全秘匿ではない**。
 
 --------------------------------------------------------------------------------
