@@ -5,6 +5,7 @@
 (function () {
     var PARAM = 'fromStagingHub';
     var STORAGE_KEY = 'pitchTrainerFromStagingHub';
+    var STAGING_TOKEN = 'x9v7q2m8';
     var params = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
     if (params.get(PARAM) === '1') {
         try {
@@ -27,7 +28,7 @@
         if (document.getElementById('staging-hub-back-link')) return;
         var link = document.createElement('a');
         link.id = 'staging-hub-back-link';
-        link.href = '../staging/index.html';
+        link.href = '../staging/index.html?k=' + encodeURIComponent(STAGING_TOKEN);
         link.className = 'staging-hub-back-link';
         link.textContent = '検証トップへ';
         link.setAttribute('title', '検証用ハブ（staging）のトップに戻る');

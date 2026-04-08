@@ -15,6 +15,22 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon_pwa_192.png">
     <script>
+        (function () {
+            var key = 'k';
+            var token = 'x9v7q2m8';
+            var params = new URLSearchParams(window.location.search || '');
+            if (params.get(key) !== token) {
+                document.documentElement.innerHTML = '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>404 Not Found | 音感クルーズ</title><meta name="robots" content="noindex,nofollow"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;background:#111827;color:#f9fafb}main{width:min(92vw,560px);text-align:center;padding:2rem 1.25rem}h1{margin:0 0 .75rem;font-size:clamp(1.6rem,4vw,2.2rem)}p{margin:0;line-height:1.7;color:#d1d5db}</style></head><body><main><h1>404 Not Found</h1><p>このページは見つかりませんでした。</p></main></body>';
+                return;
+            }
+            params.delete(key);
+            var q = params.toString();
+            var cleanUrl = window.location.pathname + (q ? '?' + q : '') + (window.location.hash || '');
+            try {
+                history.replaceState(null, '', cleanUrl);
+            } catch (e) { /* ignore */ }
+        })();
+
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./service-worker.js', { scope: './' })
                 .then(() => console.log('Service Worker Registered (staging)'))
@@ -181,7 +197,7 @@
             <button type="button" class="btn-secondary btn-in-game-refresh js-reload-app">ページを更新</button>
         </div>
     </div>
-    <script src="../script.js?v=1.6.2"></script>
+    <script src="../script.js?v=1.7.0"></script>
 </body>
 
 </html>
