@@ -34,11 +34,10 @@ URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-train
 アイコン: `pitch-trainer/beta/beta_pwa_192.png` / `pitch-trainer/beta/beta_pwa_512.png`（元画像・作業用は `icon_idea/` に同ファイル名でも保持可）
 
 【 👑 Pro版 (Pro Version) 】
-URL（会員向け・推奨）: https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/
-URL（短い入口・ルート）: https://soundcruise.jp/pro.html → **member.soundcruise.jp** の Pro へ直接転送
-URL（代替）: https://soundcruise.jp/pitch-trainer/pro_x9v7q2m8/ ／ https://pitch-trainer.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/
+URL（会員向け・推奨）: https://soundcruise.jp/pitch-trainer/pro_x9v7q2m8/
+URL（短い入口・ルート）: https://soundcruise.jp/pro.html → pitch-trainer/pro_x9v7q2m8/ へ転送
 URL（GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-trainer/pro_x9v7q2m8/
-（YouTube 有料メンバー向けの案内では **member 側の URL** を共有してください）
+（YouTube 有料メンバー向けの案内では上記 soundcruise.jp の URL を共有してください）
 旧URL: ルートの `/pro_x9v7q2m8/` は新URLへ自動転送します。
 旧フォルダ名 pro_k3m9: 廃止（404 になります。会員には新URLを案内してください）
 特徴: すべての機能を利用可能。ホーム画面のタイトルに「PRO」バッジが表示されます。
@@ -51,7 +50,7 @@ URL（GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-
 ● auth/pro-gate-config.js（全会員向け Pro の入室・1か所で管理）
   リポジトリ直下の **`auth/pro-gate-config.js`** に入室用4桁と **`rotationId`** を書きます。パスワードを変えるときは4桁を更新し、**必ず `rotationId` を 1 増やす**と、全アプリで再入力が必要になります。テンプレートは **`auth/pro-gate-config.example.js`**。GitHub Pages では **コミットして push する**必要があります（無いと「設定エラー」になります）。他アプリの Pro でも、同じファイルを `<script src="（相対パス）/auth/pro-gate-config.js">` で読み込めば同じパスワード・同じ入室状態（`soundcruise.jp` 配下では Cookie 共有）が使えます。
   公開リポジトリではソースからパスワードが読めます。厳密に隠したい場合はリポジトリを非公開にするか、別ホストで配布する等の検討が必要です。
-  パスワードを変えたいときは `gate-config.js` の4桁を書き換え、会員にはメール等で共有してください。
+  パスワードを変えたいときは `auth/pro-gate-config.js` の4桁と rotationId を書き換え、会員にはメール等で共有してください。
 
 【 🔧 検証用 Staging（ハブ・開発・運用向け）】
 URL（推奨・検証ハブ）: https://soundcruise.jp/pitch-trainer/staging/?k=x9v7q2m8

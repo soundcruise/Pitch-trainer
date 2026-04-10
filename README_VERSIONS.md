@@ -52,10 +52,8 @@ GitHub Pages のベース URL は **`https://soundcruise.github.io/Pitch-trainer
 ### 👑 Pro版 (Pro Version)
 
 - **入室パスワード（共通・1か所）**: リポジトリ直下の **`auth/pro-gate-config.js`**。将来ほかのアプリも Pro を出すときは **同じファイルを読み込めば**、パスワード変更は1回・同じ4桁で入室できます。`rotationId` を **1 増やす**と、パスワード変更と同時に **全会員に再入力**がかかります（運用の仕組みとして）。
-- **会員向けの URL は `member.soundcruise.jp` 側だけで案内してください。**  
-  例: `https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`（独自ドメイン・DNS が未設定のときは GitHub Pages の member 用ホストに読み替え）
-- **短い入口（ルート）**: `pro.html`（例: `https://soundcruise.jp/pro.html`）は **`https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`** へ直接転送します（会員サイト側で開きます）。
-- **公開サイト（soundcruise.jp）に同じパスを置いた場合**、アプリ側（`pro-gate.js`）が **会員ドメインへ転送**します。それでも **会員への案内リンクは最初から member 側**にすると迷いが少なくなります。
+- **Pro の URL**: `https://soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`（推測しにくいフォルダ名＋4桁パスワードで保護）
+- **短い入口（ルート）**: `pro.html`（例: `https://soundcruise.jp/pro.html`）は **`pitch-trainer/pro_x9v7q2m8/`** へ転送します。
 - **この README には Pro のフル URL を固定で載せません。** YouTube の有料メンバー向け案内などで共有し、必要なら **リポジトリ外**（個人用メモ・会員向け資料）で管理するとよいです。
 - **旧パス**: ルートの `pro_x9v7q2m8/` は **新しい場所へ自動転送**します。
 - **特徴**: すべての機能を利用可能。ホーム画面のタイトルに `PRO` バッジが表示されます。
