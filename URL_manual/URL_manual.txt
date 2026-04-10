@@ -45,6 +45,7 @@ URL（GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-
 
 ● Pro版 入室パスワード（4桁・初回のみ入力）
   会員向けの4桁の数字です。ブラウザに「入室済み」が記録されるまで、次回以降は入力不要です（アプリの Ver が上がっても再入力は不要。端末のデータ削除や別端末では再度入力が必要です）。
+  パスワード画面が出ないとき（入室記録を消してやり直す）: URL の末尾に `?resetGate=1` を付けて開く（例: `https://soundcruise.jp/pitch-trainer/pro_x9v7q2m8/?resetGate=1`）。またはアプリ内の「入室の記録を消す」からも同じです。
   パスワード: 7392
 
 ● auth/pro-gate-config.js（全会員向け Pro の入室・1か所で管理）

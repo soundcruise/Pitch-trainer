@@ -136,7 +136,46 @@
         });
     }
 
+    /** GitHub Pages: /<リポジトリ名>/pitch-trainer/... のときだけ先頭に /リポジトリ名 を付ける */
+    function siteRootPrefix() {
+        const segs = location.pathname.split('/').filter(Boolean);
+        if (segs.length >= 2 && segs[1] === 'pitch-trainer') {
+            return '/' + segs[0];
+        }
+        return '';
+    }
+
+    function loadAuthScriptThen(done) {
+        if (getConfig()) {
+            done();
+            return;
+        }
+        const prefix = siteRootPrefix();
+        const src = location.origin + prefix + '/auth/pro-gate-config.js?v=2';
+        const el = document.createElement('script');
+        el.src = src;
+        el.async = false;
+        el.onload = function () {
+            done();
+        };
+        el.onerror = function () {
+            showMissingConfigOverlay();
+        };
+        (document.head || document.documentElement).appendChild(el);
+    }
+
     function mountGate() {
+        try {
+            const q = new URLSearchParams(location.search || '');
+            if (q.get('resetGate') === '1') {
+                clearGateStorage();
+                q.delete('resetGate');
+                const qs = q.toString();
+                const clean = location.pathname + (qs ? '?' + qs : '') + (location.hash || '');
+                history.replaceState(null, '', clean);
+            }
+        } catch (_) { /* ignore */ }
+
         const cfg = getConfig();
         if (!cfg) {
             showMissingConfigOverlay();
@@ -206,9 +245,20 @@
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', mountGate);
-    } else {
-        mountGate();
+    function boot() {
+        function scheduleMount() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', mountGate);
+            } else {
+                mountGate();
+            }
+        }
+        if (getConfig()) {
+            scheduleMount();
+        } else {
+            loadAuthScriptThen(scheduleMount);
+        }
     }
+
+    boot();
 })();

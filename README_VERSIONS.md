@@ -53,6 +53,7 @@ GitHub Pages のベース URL は **`https://soundcruise.github.io/Pitch-trainer
 
 - **入室パスワード（共通・1か所）**: リポジトリ直下の **`auth/pro-gate-config.js`**。将来ほかのアプリも Pro を出すときは **同じファイルを読み込めば**、パスワード変更は1回・同じ4桁で入室できます。`rotationId` を **1 増やす**と、パスワード変更と同時に **全会員に再入力**がかかります（運用の仕組みとして）。
 - **Pro の URL**: `https://soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`（推測しにくいフォルダ名＋4桁パスワードで保護）
+- **パスワード画面が出ないとき**（以前に入室した記録が残っているときなど）: URL の末尾に **`?resetGate=1`** を付けて開くと、入室記録を消してパスワード入力に戻せます（例: `https://soundcruise.jp/pitch-trainer/pro_x9v7q2m8/?resetGate=1`）。
 - **短い入口（ルート）**: `pro.html`（例: `https://soundcruise.jp/pro.html`）は **`pitch-trainer/pro_x9v7q2m8/`** へ転送します。
 - **この README には Pro のフル URL を固定で載せません。** YouTube の有料メンバー向け案内などで共有し、必要なら **リポジトリ外**（個人用メモ・会員向け資料）で管理するとよいです。
 - **旧パス**: ルートの `pro_x9v7q2m8/` は **新しい場所へ自動転送**します。
@@ -71,7 +72,7 @@ GitHub Pages のベース URL は **`https://soundcruise.github.io/Pitch-trainer
 
 iPhoneやAndroidのホーム画面に「独立したアプリ」として追加する手順です。
 
-1.  **通常版**は `…/pitch-trainer/standard/`、**ベータ**は `…/pitch-trainer/beta/`、**Pro**は **会員向けに案内している URL（member 側）**をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます（Android ではパスごとに別アプリとして追加できます）。
+1.  **通常版**は `…/pitch-trainer/standard/`、**ベータ**は `…/pitch-trainer/beta/`、**Pro**は **会員向けに案内している URL** をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます（Android ではパスごとに別アプリとして追加できます）。
 2.  ブラウザのメニューから **「ホーム画面に追加」** を選択します。
 3.  必要な版だけ、または複数版を追加して使い分けます。
 4.  以前のショートカットで表示が混ざる場合は、古いアイコンを削除してから、上記URLで入れ直してください。

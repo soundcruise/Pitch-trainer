@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pitch-trainer-pro-scope-v9';
+const CACHE_NAME = 'pitch-trainer-pro-scope-v10';
 
 self.addEventListener('install', (e) => {
     self.skipWaiting();
