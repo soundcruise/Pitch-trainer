@@ -34,10 +34,12 @@ URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-train
 アイコン: `pitch-trainer/beta/beta_pwa_192.png` / `pitch-trainer/beta/beta_pwa_512.png`（元画像・作業用は `icon_idea/` に同ファイル名でも保持可）
 
 【 👑 Pro版 (Pro Version) 】
-URL（会員向け・推奨・PWA用・独自ドメイン）: https://pitch-trainer.soundcruise.jp/pro_x9v7q2m8/
-URL（会員向け・代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pro_x9v7q2m8/
-（YouTube 有料メンバー向けの案内では、**上の独自ドメインURL**を共有してください）
-旧URL（pro.html 等）: 無効（アプリは開きません）
+URL（会員向け・推奨）: https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/
+URL（一般ドメイン・短い入口）: https://soundcruise.jp/pro.html → `pitch-trainer/pro_x9v7q2m8/` へ転送（開いたあと会員ドメインへ進む場合あり）
+URL（代替）: https://soundcruise.jp/pitch-trainer/pro_x9v7q2m8/ ／ https://pitch-trainer.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/
+URL（GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-trainer/pro_x9v7q2m8/
+（YouTube 有料メンバー向けの案内では **member 側の URL** を共有してください）
+旧URL: ルートの `/pro_x9v7q2m8/` は新URLへ自動転送します。
 旧フォルダ名 pro_k3m9: 廃止（404 になります。会員には新URLを案内してください）
 特徴: すべての機能を利用可能。ホーム画面のタイトルに「PRO」バッジが表示されます。
 アイコン: 通常版と同じ icon_pwa_192 / icon_pwa_512。ホーム画面の名前も「音感クルーズ」（通常版と同じ表記）
@@ -47,13 +49,15 @@ URL（会員向け・代替・GitHub Pages 既定）: https://soundcruise.github
   パスワード: 7392
 
 ● gate-config.js（GitHub Pages 用にリポジトリに含める）
-  `pro_x9v7q2m8/gate-config.js` に入室用4桁を書いています。GitHub Pages はリポジトリに無いファイルは配信できないため、このファイルを **コミットして push する**必要があります（無いと「設定エラー」になります）。テンプレートは `gate-config.example.js`。
+  `pitch-trainer/pro_x9v7q2m8/gate-config.js` に入室用4桁を書いています。GitHub Pages はリポジトリに無いファイルは配信できないため、このファイルを **コミットして push する**必要があります（無いと「設定エラー」になります）。テンプレートは `gate-config.example.js`。
   公開リポジトリではソースからパスワードが読めます。厳密に隠したい場合はリポジトリを非公開にするか、別ホストで配布する等の検討が必要です。
   パスワードを変えたいときは `gate-config.js` の4桁を書き換え、会員にはメール等で共有してください。
 
 【 🔧 検証用 Staging（ハブ・開発・運用向け）】
-URL（推奨・検証ハブ・独自ドメイン）: https://pitch-trainer.soundcruise.jp/staging/?k=x9v7q2m8
-URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/staging/?k=x9v7q2m8
+URL（推奨・検証ハブ）: https://soundcruise.jp/pitch-trainer/staging/?k=x9v7q2m8
+短い入口: `staging.html` → 同じく `?k=` 付きで転送（例: https://soundcruise.jp/staging.html）
+URL（代替）: https://pitch-trainer.soundcruise.jp/pitch-trainer/staging/?k=x9v7q2m8
+URL（GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-trainer/staging/?k=x9v7q2m8
 特徴: トップ画面から「通常版」「Pro版」「ベータ版」を切り替えて開ける。本番の各URLと同じリポジトリ内容を、デプロイ後に実機で触る前の確認用として使う想定です。
 使い方の流れ: (1) まず staging の画面で各版を開き、動作を確認する → (2) 問題なければ、従来どおり通常版・ベータ・Pro の本番URLへ変更が載っていることを確認する。
 注意: `?k=` のトークンがない `.../staging/` は 404 表示になります。トークン付きURLを共有して利用してください。
