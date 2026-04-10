@@ -2,6 +2,23 @@
  * Pro版: 初回のみ4桁パスワード（gate-config.js）→ localStorage に記録し以後スキップ
  */
 (function () {
+    /* 公開サイト上で Pro を誤って soundcruise.jp に置いた場合、会員専用ドメインへ移す */
+    try {
+        const hn = window.location.hostname;
+        if (hn === 'soundcruise.jp' || hn === 'www.soundcruise.jp') {
+            const path = window.location.pathname || '';
+            if (
+                path.includes('/pitch-trainer/pro_x9v7q2m8') ||
+                path.includes('/pro_x9v7q2m8')
+            ) {
+                const u = new URL(window.location.href);
+                u.hostname = 'member.soundcruise.jp';
+                window.location.replace(u.toString());
+                return;
+            }
+        }
+    } catch (_) { /* ignore */ }
+
     const STORAGE_KEY = 'pitchTrainerProGateOk';
 
     function isUnlocked() {

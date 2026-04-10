@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 STAGING = Path(__file__).resolve().parent
 SRC = ROOT / "icon_idea" / "staging.png"
 SIZES = (192, 512)

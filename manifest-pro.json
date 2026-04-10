@@ -1,9 +1,9 @@
 {
-    "id": "./pro_x9v7q2m8/",
+    "id": "./pitch-trainer/pro_x9v7q2m8/",
     "name": "音感クルーズ",
     "short_name": "音感クルーズ",
-    "start_url": "./pro_x9v7q2m8/",
-    "scope": "./",
+    "start_url": "./pitch-trainer/pro_x9v7q2m8/",
+    "scope": "./pitch-trainer/pro_x9v7q2m8/",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#121212",

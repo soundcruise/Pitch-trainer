@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.8.1';
+const PITCH_TRAINER_APP_VERSION = '1.9.1';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '31';
+const PITCH_TRAINER_APP_BUILD = '33';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -188,12 +188,26 @@ function unregisterLegacyRootServiceWorker() {
             try {
                 const u = new URL(sw.scriptURL);
                 const p = u.pathname;
+                const pl = p.toLowerCase();
+                /* github.io プロジェクトサイト: /Pitch-trainer/pitch-trainer/… = pitch-trainer 配下へ移行後 */
                 if (
-                    p.endsWith('/standard/service-worker.js') ||
-                    p.endsWith('/beta/service-worker.js') ||
-                    p.endsWith('/pro_x9v7q2m8/service-worker.js') ||
-                    p.endsWith('/staging/service-worker.js')
+                    pl.includes('/pitch-trainer/pitch-trainer/') &&
+                    (pl.endsWith('/standard/service-worker.js') ||
+                        pl.endsWith('/pro_x9v7q2m8/service-worker.js') ||
+                        pl.endsWith('/staging/service-worker.js'))
                 ) {
+                    return;
+                }
+                /* カスタムドメイン等: /pitch-trainer/standard/…（リポジトリ名がパスに出ない場合） */
+                if (
+                    (pl.endsWith('/pitch-trainer/standard/service-worker.js') ||
+                        pl.endsWith('/pitch-trainer/pro_x9v7q2m8/service-worker.js') ||
+                        pl.endsWith('/pitch-trainer/staging/service-worker.js')) &&
+                    !pl.includes('/pitch-trainer/pitch-trainer/')
+                ) {
+                    return;
+                }
+                if (pl.endsWith('/beta/service-worker.js')) {
                     return;
                 }
                 if (p.endsWith('/pro_k3m9/service-worker.js')) {
