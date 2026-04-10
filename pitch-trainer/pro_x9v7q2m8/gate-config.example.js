@@ -1,7 +1,6 @@
 /**
- * Pro版「入室」用の4桁パスワードのテンプレートです。
+ * @deprecated 共通の入室パスワードは auth/pro-gate-config.example.js を参照してください。
  *
- * 実際の設定は `gate-config.js`（同フォルダ）に記載し、GitHub Pages ではリポジトリに
- * 含めて push してください（無いと Pro 版が「設定エラー」になります）。
+ * 旧方式（このファイルだけ）で動かす場合のみ、下記のように定義してください。
  */
-window.__PRO_GATE_PASSWORD__ = '0000';
+// window.__PRO_GATE_PASSWORD__ = '0000';

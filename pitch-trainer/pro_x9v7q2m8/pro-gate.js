@@ -1,5 +1,6 @@
 /**
- * Pro版: 初回のみ4桁パスワード（gate-config.js）→ localStorage に記録し以後スキップ
+ * Pro版: 共通設定（auth/pro-gate-config.js）の4桁パスワード → 同一ドメイン群では Cookie で入室状態を共有
+ * rotationId を上げると全アプリで再入力が必要になります。
  */
 (function () {
     /* 公開サイト上で Pro を誤って soundcruise.jp に置いた場合、会員専用ドメインへ移す */
@@ -19,27 +20,106 @@
         }
     } catch (_) { /* ignore */ }
 
-    const STORAGE_KEY = 'pitchTrainerProGateOk';
+    const STORAGE_KEY_LEGACY = 'pitchTrainerProGateOk';
+    const LS_ROTATION_KEY = 'soundcruise_pro_gate_rotation';
+    const COOKIE_NAME = 'soundcruise_pro_gate_rid';
 
-    function isUnlocked() {
-        try {
-            return localStorage.getItem(STORAGE_KEY) === '1';
-        } catch (_) {
-            return false;
-        }
+    function sharedDomainForCookie() {
+        const h = location.hostname;
+        if (h === 'localhost' || h.endsWith('.local')) return null;
+        if (h.endsWith('soundcruise.jp')) return '.soundcruise.jp';
+        return null;
     }
 
-    function setUnlocked() {
+    function getConfig() {
+        const g = window.__SOUNDCRUISE_PRO_GATE__;
+        if (g && typeof g.password === 'string' && g.rotationId != null) {
+            const p = String(g.password).trim();
+            if (!/^\d{4}$/.test(p)) return null;
+            const rid = Number(g.rotationId);
+            if (!Number.isFinite(rid) || rid < 0) return null;
+            return { rotationId: rid, password: p };
+        }
+        const legacy = window.__PRO_GATE_PASSWORD__;
+        if (typeof legacy === 'string') {
+            const p = legacy.trim();
+            if (/^\d{4}$/.test(p)) return { rotationId: 1, password: p };
+        }
+        return null;
+    }
+
+    function getStoredRotationId() {
+        const d = sharedDomainForCookie();
+        if (d) {
+            const re = new RegExp('(?:^|; )' + COOKIE_NAME + '=([^;]*)');
+            const m = document.cookie.match(re);
+            if (m) {
+                const v = parseInt(decodeURIComponent(m[1]), 10);
+                if (!Number.isNaN(v)) return v;
+            }
+        }
         try {
-            localStorage.setItem(STORAGE_KEY, '1');
+            const s = localStorage.getItem(LS_ROTATION_KEY);
+            if (s != null) {
+                const v = parseInt(s, 10);
+                if (!Number.isNaN(v)) return v;
+            }
+        } catch (_) { /* ignore */ }
+        return NaN;
+    }
+
+    function setStoredRotation(rid) {
+        const d = sharedDomainForCookie();
+        if (d) {
+            const sec = location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie =
+                COOKIE_NAME +
+                '=' +
+                encodeURIComponent(String(rid)) +
+                '; Path=/; Domain=' +
+                d +
+                '; Max-Age=31536000; SameSite=Lax' +
+                sec;
+        }
+        try {
+            localStorage.setItem(LS_ROTATION_KEY, String(rid));
         } catch (_) { /* ignore */ }
     }
 
-    function getExpectedPassword() {
-        const p = window.__PRO_GATE_PASSWORD__;
-        if (typeof p !== 'string') return null;
-        const t = p.trim();
-        return /^\d{4}$/.test(t) ? t : null;
+    function clearGateStorage() {
+        const d = sharedDomainForCookie();
+        if (d) {
+            const sec = location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie =
+                COOKIE_NAME +
+                '=; Path=/; Domain=' +
+                d +
+                '; Max-Age=0' +
+                sec;
+        }
+        try {
+            localStorage.removeItem(LS_ROTATION_KEY);
+            localStorage.removeItem(STORAGE_KEY_LEGACY);
+        } catch (_) { /* ignore */ }
+    }
+
+    function isUnlocked(cfg) {
+        if (!cfg) return false;
+        const stored = getStoredRotationId();
+        if (stored === cfg.rotationId) return true;
+        /* 移行前の localStorage のみのユーザー（一度だけ救済） */
+        try {
+            if (
+                localStorage.getItem(STORAGE_KEY_LEGACY) === '1' &&
+                cfg.rotationId === 1 &&
+                Number.isNaN(stored)
+            ) {
+                setStoredRotation(cfg.rotationId);
+                localStorage.removeItem(STORAGE_KEY_LEGACY);
+                return true;
+            }
+        } catch (_) { /* ignore */ }
+        return false;
     }
 
     function dismissOverlay(overlay) {
@@ -57,8 +137,8 @@
         overlay.innerHTML =
             '<div class="pro-gate-panel">' +
             '<h2 id="pro-gate-title">設定エラー</h2>' +
-            '<p class="pro-gate-hint">Pro版用の <strong>gate-config.js</strong> が読み込めません。<br>' +
-            'リポジトリの <code>gate-config.example.js</code> を <code>gate-config.js</code> にコピーしてデプロイしてください。</p>' +
+            '<p class="pro-gate-hint">共通の <strong>auth/pro-gate-config.js</strong> が読み込めません。<br>' +
+            'リポジトリの <code>auth/pro-gate-config.example.js</code> を <code>auth/pro-gate-config.js</code> にコピーしてデプロイしてください。</p>' +
             '</div>';
         document.body.classList.add('pro-gate-active');
         document.body.insertBefore(overlay, document.body.firstChild);
@@ -68,22 +148,20 @@
         const btn = document.getElementById('pro-gate-reset');
         if (!btn) return;
         btn.addEventListener('click', () => {
-            try {
-                localStorage.removeItem(STORAGE_KEY);
-            } catch (_) { /* ignore */ }
+            clearGateStorage();
             window.location.reload();
         });
     }
 
     function mountGate() {
-        if (isUnlocked()) {
-            attachResetButton();
+        const cfg = getConfig();
+        if (!cfg) {
+            showMissingConfigOverlay();
             return;
         }
 
-        const expected = getExpectedPassword();
-        if (!expected) {
-            showMissingConfigOverlay();
+        if (isUnlocked(cfg)) {
+            attachResetButton();
             return;
         }
 
@@ -107,6 +185,7 @@
         const input = document.getElementById('pro-gate-input');
         const err = document.getElementById('pro-gate-error');
         const submit = document.getElementById('pro-gate-submit');
+        const expected = cfg.password;
 
         function trySubmit() {
             const v = (input.value || '').replace(/\D/g, '').slice(0, 4);
@@ -121,7 +200,10 @@
                 input.select();
                 return;
             }
-            setUnlocked();
+            try {
+                localStorage.removeItem(STORAGE_KEY_LEGACY);
+            } catch (_) { /* ignore */ }
+            setStoredRotation(cfg.rotationId);
             dismissOverlay(overlay);
             attachResetButton();
         }

@@ -51,6 +51,7 @@ GitHub Pages のベース URL は **`https://soundcruise.github.io/Pitch-trainer
 
 ### 👑 Pro版 (Pro Version)
 
+- **入室パスワード（共通・1か所）**: リポジトリ直下の **`auth/pro-gate-config.js`**。将来ほかのアプリも Pro を出すときは **同じファイルを読み込めば**、パスワード変更は1回・同じ4桁で入室できます。`rotationId` を **1 増やす**と、パスワード変更と同時に **全会員に再入力**がかかります（運用の仕組みとして）。
 - **会員向けの URL は `member.soundcruise.jp` 側だけで案内してください。**  
   例: `https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`（独自ドメイン・DNS が未設定のときは GitHub Pages の member 用ホストに読み替え）
 - **短い入口（ルート）**: `pro.html`（例: `https://soundcruise.jp/pro.html`）は **`https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`** へ直接転送します（会員サイト側で開きます）。

@@ -48,8 +48,8 @@ URL（GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-
   会員向けの4桁の数字です。ブラウザに「入室済み」が記録されるまで、次回以降は入力不要です（アプリの Ver が上がっても再入力は不要。端末のデータ削除や別端末では再度入力が必要です）。
   パスワード: 7392
 
-● gate-config.js（GitHub Pages 用にリポジトリに含める）
-  `pitch-trainer/pro_x9v7q2m8/gate-config.js` に入室用4桁を書いています。GitHub Pages はリポジトリに無いファイルは配信できないため、このファイルを **コミットして push する**必要があります（無いと「設定エラー」になります）。テンプレートは `gate-config.example.js`。
+● auth/pro-gate-config.js（全会員向け Pro の入室・1か所で管理）
+  リポジトリ直下の **`auth/pro-gate-config.js`** に入室用4桁と **`rotationId`** を書きます。パスワードを変えるときは4桁を更新し、**必ず `rotationId` を 1 増やす**と、全アプリで再入力が必要になります。テンプレートは **`auth/pro-gate-config.example.js`**。GitHub Pages では **コミットして push する**必要があります（無いと「設定エラー」になります）。他アプリの Pro でも、同じファイルを `<script src="（相対パス）/auth/pro-gate-config.js">` で読み込めば同じパスワード・同じ入室状態（`soundcruise.jp` 配下では Cookie 共有）が使えます。
   公開リポジトリではソースからパスワードが読めます。厳密に隠したい場合はリポジトリを非公開にするか、別ホストで配布する等の検討が必要です。
   パスワードを変えたいときは `gate-config.js` の4桁を書き換え、会員にはメール等で共有してください。
 
