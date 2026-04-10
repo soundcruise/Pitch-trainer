@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.9.1';
+const PITCH_TRAINER_APP_VERSION = '1.10.0';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '33';
+const PITCH_TRAINER_APP_BUILD = '34';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -202,11 +202,13 @@ function unregisterLegacyRootServiceWorker() {
                 if (
                     (pl.endsWith('/pitch-trainer/standard/service-worker.js') ||
                         pl.endsWith('/pitch-trainer/pro_x9v7q2m8/service-worker.js') ||
-                        pl.endsWith('/pitch-trainer/staging/service-worker.js')) &&
+                        pl.endsWith('/pitch-trainer/staging/service-worker.js') ||
+                        pl.endsWith('/pitch-trainer/beta/service-worker.js')) &&
                     !pl.includes('/pitch-trainer/pitch-trainer/')
                 ) {
                     return;
                 }
+                /* 旧: ルート /beta/（移行前） */
                 if (pl.endsWith('/beta/service-worker.js')) {
                     return;
                 }

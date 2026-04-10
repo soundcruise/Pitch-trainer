@@ -16,19 +16,22 @@
 ※ **ルート**（末尾が `/` だけ、`/standard/` などが付かないURL）は意図的に **404 表示**のままです。必ず **各版のパス付きURL** を使ってください。
 
 【 🎵 通常版 (Standard Version) 】
-URL（推奨・PWA用・独自ドメイン）: https://pitch-trainer.soundcruise.jp/standard/
-URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/standard/
+URL（推奨・PWA用・独自ドメイン）: https://soundcruise.jp/pitch-trainer/standard/
+URL（代替・旧サブドメイン）: https://pitch-trainer.soundcruise.jp/pitch-trainer/standard/
+URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-trainer/standard/
 入口（ルート・404）: https://soundcruise.github.io/Pitch-trainer/ および https://pitch-trainer.soundcruise.jp/ は 404 表示（自動で standard/ へは行きません）
 特徴: 基礎的なトレーニングに特化したシンプル構成。Proカスタム設定は表示されません。
 アイコン: 軽量PWA用 icon_pwa_192 / icon_pwa_512
 
 【 🧪 お試しベータ版 (Beta) 】
-URL（推奨・PWA用・独自ドメイン）: https://pitch-trainer.soundcruise.jp/beta/
-URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/beta/
-短い入口: `beta.html` は `beta/` へリダイレクトします。  
-  https://pitch-trainer.soundcruise.jp/beta.html ／ https://soundcruise.github.io/Pitch-trainer/beta.html
+URL（推奨・PWA用・独自ドメイン）: https://soundcruise.jp/pitch-trainer/beta/
+URL（代替・旧サブドメイン）: https://pitch-trainer.soundcruise.jp/pitch-trainer/beta/
+URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/pitch-trainer/beta/
+短い入口: `beta.html` は `pitch-trainer/beta/` へリダイレクトします。  
+  https://soundcruise.jp/beta.html ／ https://soundcruise.github.io/Pitch-trainer/beta.html
+旧URL: ルートの `/beta/` は新URLへ自動転送します。
 特徴: メロディ・コードとも STAGE 1〜4 のみ。トップに「お試しベータ」と表示。
-アイコン: `beta/beta_pwa_192.png` / `beta/beta_pwa_512.png`（元画像・作業用は `icon_idea/` に同ファイル名でも保持可）
+アイコン: `pitch-trainer/beta/beta_pwa_192.png` / `pitch-trainer/beta/beta_pwa_512.png`（元画像・作業用は `icon_idea/` に同ファイル名でも保持可）
 
 【 👑 Pro版 (Pro Version) 】
 URL（会員向け・推奨・PWA用・独自ドメイン）: https://pitch-trainer.soundcruise.jp/pro_x9v7q2m8/
@@ -77,7 +80,7 @@ URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-train
 
 iPhoneやAndroidのホーム画面に「独立したアプリ」として追加する手順です。
 
-(1) 通常版は `https://pitch-trainer.soundcruise.jp/standard/`、ベータは `/beta/`、Pro版は `/pro_x9v7q2m8/`、検証用ハブは `/staging/?k=x9v7q2m8` をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます（**https 推奨**。代替として `https://soundcruise.github.io/Pitch-trainer/` ＋同じパスでも可）。
+(1) 通常版は `https://soundcruise.jp/pitch-trainer/standard/`、ベータは `https://soundcruise.jp/pitch-trainer/beta/`、Pro版は会員向けURL（member 側）、検証用ハブは `https://soundcruise.jp/pitch-trainer/staging/?k=x9v7q2m8` をスマートフォンのブラウザ（iPhoneならSafari、AndroidならChrome）で開きます（**https 推奨**。代替として `https://soundcruise.github.io/Pitch-trainer/` ＋同じパスでも可）。
 (2) ブラウザのメニューから「ホーム画面に追加」を選択します。
 (3) 必要な版だけ、または複数版を追加して使い分けます。（検証用に staging を追加すると、そこから各版へ飛びやすくなります）
 
