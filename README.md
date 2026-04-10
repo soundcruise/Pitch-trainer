@@ -26,15 +26,17 @@ Webブラウザで動作する絶対音感トレーニングアプリです。
 - JavaScript (Vanilla JS, Web Audio API)
 
 ## 起動方法
-ローカルサーバーを立てて `index.html` を開いてください。
+ローカルサーバーを立てて開いてください。
 
 ```bash
 # プロジェクトルートで実行
 python3 -m http.server 8080
 ```
 
-ブラウザで `http://localhost:8080` にアクセスします。
+ブラウザで `http://localhost:8080/apps/pitch-cruise/standard/` にアクセスします。
 (キャッシュが残っている場合はクエリパラメータをつけてください: `?v=final23` など)
+
+各版の本番 URL は `apps/pitch-cruise/` の下にあります。詳しくは `README_VERSIONS.md` を参照。
 
 ## 次のステップ (TODO)
 - コード問題のバリエーション追加

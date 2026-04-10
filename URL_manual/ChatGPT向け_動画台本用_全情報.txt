@@ -62,17 +62,17 @@
 ・**メロディ STAGE 1〜6**、**コード STAGE 1〜6** までフルで使える。
 ・一般向け YouTube では **この URL を案内するのが基本**。
 ・URL（PWA 用・推奨）：
-  https://soundcruise.github.io/Pitch-trainer/standard/
+  https://soundcruise.jp/apps/pitch-cruise/standard/
 ・短い入口（自動で standard へ）：
-  https://soundcruise.github.io/Pitch-trainer/
+  https://soundcruise.jp/apps/pitch-cruise/standard/
 
 【Pro 版 — メンバー向け案内などで共有】
 ・**すべての固定 STAGE に加え、カスタム練習（メロディ Pro・コード Pro）**が使える。
 ・画面上に **PRO バッジ**、ゲーム中に **👑 Pro 設定**ボタンなど。
 ・ホーム画面の名前・アイコンは通常版と同じ「音感クルーズ」。
 ・**会員向け案内用 URL**（限定投稿・メンバー向け動画の概要欄など向け）：
-  https://pitch-trainer.soundcruise.jp/pro_x9v7q2m8/（独自ドメイン・DNS反映後）
-  https://soundcruise.github.io/Pitch-trainer/pro_x9v7q2m8/（GitHub ドメイン・従来どおり）
+  https://soundcruise.jp/apps/pitch-cruise/pro_x9v7q2m8/（独自ドメイン）
+  https://soundcruise.github.io/Pitch-trainer/apps/pitch-cruise/pro_x9v7q2m8/（GitHub ドメイン）
 ・注意：URL は「知っている人が開く」形であり、**ログイン式の会員証ではない**。GitHub 公開のため**完全秘匿ではない**。
 
 --------------------------------------------------------------------------------
