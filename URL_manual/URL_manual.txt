@@ -28,7 +28,7 @@ URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-train
 短い入口: `beta.html` は `beta/` へリダイレクトします。  
   https://pitch-trainer.soundcruise.jp/beta.html ／ https://soundcruise.github.io/Pitch-trainer/beta.html
 特徴: メロディ・コードとも STAGE 1〜4 のみ。トップに「お試しベータ」と表示。
-アイコン: icon_idea/beta_pwa_192 / beta_pwa_512
+アイコン: `beta/beta_pwa_192.png` / `beta/beta_pwa_512.png`（元画像・作業用は `icon_idea/` に同ファイル名でも保持可）
 
 【 👑 Pro版 (Pro Version) 】
 URL（会員向け・推奨・PWA用・独自ドメイン）: https://pitch-trainer.soundcruise.jp/pro_x9v7q2m8/
