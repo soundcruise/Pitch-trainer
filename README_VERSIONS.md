@@ -53,7 +53,7 @@ GitHub Pages のベース URL は **`https://soundcruise.github.io/Pitch-trainer
 
 - **会員向けの URL は `member.soundcruise.jp` 側だけで案内してください。**  
   例: `https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`（独自ドメイン・DNS が未設定のときは GitHub Pages の member 用ホストに読み替え）
-- **短い入口（ルート）**: `pro.html`（例: `https://soundcruise.jp/pro.html`）は **`pitch-trainer/pro_x9v7q2m8/`** へ自動転送します。`soundcruise.jp` で開いたあと **会員ドメインへ転送**される場合があります（`pro-gate.js`）。
+- **短い入口（ルート）**: `pro.html`（例: `https://soundcruise.jp/pro.html`）は **`https://member.soundcruise.jp/pitch-trainer/pro_x9v7q2m8/`** へ直接転送します（会員サイト側で開きます）。
 - **公開サイト（soundcruise.jp）に同じパスを置いた場合**、アプリ側（`pro-gate.js`）が **会員ドメインへ転送**します。それでも **会員への案内リンクは最初から member 側**にすると迷いが少なくなります。
 - **この README には Pro のフル URL を固定で載せません。** YouTube の有料メンバー向け案内などで共有し、必要なら **リポジトリ外**（個人用メモ・会員向け資料）で管理するとよいです。
 - **旧パス**: ルートの `pro_x9v7q2m8/` は **新しい場所へ自動転送**します。
