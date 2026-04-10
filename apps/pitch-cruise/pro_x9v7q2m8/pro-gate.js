@@ -136,22 +136,12 @@
         });
     }
 
-    /** GitHub Pages: /<リポジトリ名>/pitch-trainer/... のときだけ先頭に /リポジトリ名 を付ける */
-    function siteRootPrefix() {
-        const segs = location.pathname.split('/').filter(Boolean);
-        if (segs.length >= 2 && segs[1] === 'pitch-trainer') {
-            return '/' + segs[0];
-        }
-        return '';
-    }
-
     function loadAuthScriptThen(done) {
         if (getConfig()) {
             done();
             return;
         }
-        const prefix = siteRootPrefix();
-        const src = location.origin + prefix + '/auth/pro-gate-config.js?v=2';
+        const src = new URL('../auth/pro-gate-config.js?v=2', location.href).href;
         const el = document.createElement('script');
         el.src = src;
         el.async = false;

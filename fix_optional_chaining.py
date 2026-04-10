@@ -1,6 +1,6 @@
 import re
 
-with open('script.js', 'r') as f:
+with open('apps/pitch-cruise/script.js', 'r') as f:
     text = f.read()
 
 # Pattern 1: document.getElementById('id')?.cmd(...)
@@ -30,7 +30,7 @@ text = re.sub(r'^(\s*)([a-zA-Z0-9_]+)\?\.(addEventListener.+)$', replace_var_met
 # Pattern 3: btn?.classList.contains('playing') -> btn && btn.classList.contains('playing')
 text = re.sub(r'([a-zA-Z0-9_]+)\?\.(classList\.contains\([^\)]+\))', r'(\1 && \1.\2)', text)
 
-with open('script.js', 'w') as f:
+with open('apps/pitch-cruise/script.js', 'w') as f:
     f.write(text)
 
 print("Done replacing.")

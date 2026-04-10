@@ -1,9 +1,9 @@
 {
-    "id": "./pitch-trainer/pro_x9v7q2m8/",
+    "id": "./apps/pitch-cruise/pro_x9v7q2m8/",
     "name": "音感クルーズ",
     "short_name": "音感クルーズ",
-    "start_url": "./pitch-trainer/pro_x9v7q2m8/",
-    "scope": "./pitch-trainer/pro_x9v7q2m8/",
+    "start_url": "./apps/pitch-cruise/pro_x9v7q2m8/",
+    "scope": "./apps/pitch-cruise/pro_x9v7q2m8/",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#121212",
@@ -11,13 +11,13 @@
     "description": "絶対音感トレーニングアプリ「音感クルーズ」のプロバージョン。",
     "icons": [
         {
-            "src": "pro_icon_192.png",
+            "src": "apps/pitch-cruise/pro_icon_192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "pro_icon_512.png",
+            "src": "apps/pitch-cruise/pro_icon_512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"

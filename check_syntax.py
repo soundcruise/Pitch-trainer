@@ -1,7 +1,7 @@
 import sys
 import subprocess
 
-with open('script.js', 'r') as f:
+with open('apps/pitch-cruise/script.js', 'r') as f:
     js_code = f.read()
 
 # We can use javascriptcore which is bundled on Mac, accessible via osascript
