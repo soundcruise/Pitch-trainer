@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.12.0';
+const PITCH_TRAINER_APP_VERSION = '1.12.1';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '37';
+const PITCH_TRAINER_APP_BUILD = '38';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -4407,7 +4407,15 @@ class Game {
                         const pick = entries[Math.floor(Math.random() * entries.length)];
                         this.currentSequence.push({ note: pick.note, octaveOffset: pick.octaveOffset });
                     } else {
-                        const randomNote = cfg.pool[Math.floor(Math.random() * cfg.pool.length)];
+                        let pool = cfg.pool;
+                        if (cfg.isChord && pool.length > 1 && this.currentSequence.length >= 2) {
+                            const ck = (c) => (typeof c === 'object' && c !== null) ? (c.id || c.name) : c;
+                            const last = ck(this.currentSequence[this.currentSequence.length - 1]);
+                            if (last === ck(this.currentSequence[this.currentSequence.length - 2])) {
+                                pool = pool.filter(c => ck(c) !== last);
+                            }
+                        }
+                        const randomNote = pool[Math.floor(Math.random() * pool.length)];
                         this.currentSequence.push(randomNote);
                     }
                 }
