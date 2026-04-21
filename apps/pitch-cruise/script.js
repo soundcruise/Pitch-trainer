@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.13.1';
+const PITCH_TRAINER_APP_VERSION = '1.14.0';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '40';
+const PITCH_TRAINER_APP_BUILD = '41';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -1408,6 +1408,15 @@ class Game {
             });
         }
 
+        const bulkChordsOn = document.getElementById('btn-bulk-chords-on');
+        const bulkChordsOff = document.getElementById('btn-bulk-chords-off');
+        if (bulkChordsOn) bulkChordsOn.addEventListener('click', () => this.setAllCustomChordsActive(true));
+        if (bulkChordsOff) bulkChordsOff.addEventListener('click', () => this.setAllCustomChordsActive(false));
+        const bulkProgsOn = document.getElementById('btn-bulk-progressions-on');
+        const bulkProgsOff = document.getElementById('btn-bulk-progressions-off');
+        if (bulkProgsOn) bulkProgsOn.addEventListener('click', () => this.setAllCustomProgressionsActive(true));
+        if (bulkProgsOff) bulkProgsOff.addEventListener('click', () => this.setAllCustomProgressionsActive(false));
+
         if (document.getElementById('btn-preset-custom-progression')) {
             console.log("Attached btn-preset-custom-progression click handler");
             document.getElementById('btn-preset-custom-progression').addEventListener('click', () => {
@@ -2070,6 +2079,20 @@ class Game {
             item.appendChild(actionsDiv);
             listDiv.appendChild(item);
         });
+    }
+
+    setAllCustomChordsActive(active) {
+        if (!this.customChords.length) return;
+        this.customChords.forEach(c => { c.isActive = active; });
+        this.saveCustomData();
+        this.renderCustomChordList();
+    }
+
+    setAllCustomProgressionsActive(active) {
+        if (!this.customProgressions.length) return;
+        this.customProgressions.forEach(p => { p.isActive = active; });
+        this.saveCustomData();
+        this.renderCustomProgressionList();
     }
 
     openChordEditor(chordToEdit = null) {

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>音感クルーズ</title>
-    <link rel="stylesheet" href="../style.css?v=96">
+    <link rel="stylesheet" href="../style.css?v=97">
     <link rel="stylesheet" href="../pro-theme.css?v=98">
     <link rel="stylesheet" href="../staging/staging-hub-nav.css?v=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -473,8 +473,11 @@
                         </div>
                     </div>
                     <button id="btn-add-custom-chord" class="btn-secondary" style="margin-top: 10px;">+ 新規コード追加</button>
-                    <button id="btn-preset-custom-chord" class="btn-action"
-                        style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">デフォルトセットを復元</button>
+                    <div class="pro-custom-bulk-actions">
+                        <button type="button" id="btn-preset-custom-chord" class="btn-action">デフォルトセットを復元</button>
+                        <button type="button" id="btn-bulk-chords-on" class="btn-secondary">すべてON</button>
+                        <button type="button" id="btn-bulk-chords-off" class="btn-secondary">すべてOFF</button>
+                    </div>
 
                     <div
                         style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; width: 100%;">
@@ -499,8 +502,11 @@
                     </div>
                     <button id="btn-add-custom-progression" class="btn-secondary" style="margin-top: 10px;">+
                         新規進行追加</button>
-                    <button id="btn-preset-custom-progression" class="btn-action"
-                        style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">デフォルトセットを復元</button>
+                    <div class="pro-custom-bulk-actions">
+                        <button type="button" id="btn-preset-custom-progression" class="btn-action">デフォルトセットを復元</button>
+                        <button type="button" id="btn-bulk-progressions-on" class="btn-secondary">すべてON</button>
+                        <button type="button" id="btn-bulk-progressions-off" class="btn-secondary">すべてOFF</button>
+                    </div>
                 </div>
 
                 <div class="pro-settings-modal-footer">
@@ -752,7 +758,7 @@
         </div>
     </div>
     <script src="../staging/staging-hub-nav.js?v=3"></script>
-    <script src="../script.js?v=1.13.1"></script>
+    <script src="../script.js?v=1.14.0"></script>
 </body>
 
 </html>

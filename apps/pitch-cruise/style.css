@@ -1674,6 +1674,25 @@ input.chord-preview-display:focus {
     box-shadow: 0 0 18px rgba(0, 210, 255, 0.35);
 }
 
+/* Proコード設定: デフォルト復元と並ぶ一括ON/OFF */
+.pro-custom-bulk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.pro-custom-bulk-actions .btn-action {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.pro-custom-bulk-actions .btn-secondary {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+}
+
 .editor-tension-options {
     display: flex;
     flex-wrap: wrap;
