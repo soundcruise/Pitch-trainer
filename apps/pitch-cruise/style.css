@@ -1652,6 +1652,8 @@ input:checked+.slider:before {
 }
 
 .chord-preview-display {
+    width: 100%;
+    box-sizing: border-box;
     background: rgba(0, 0, 0, 0.4);
     border: 2px solid var(--secondary-color);
     border-radius: 12px;
@@ -1662,6 +1664,14 @@ input:checked+.slider:before {
     margin-bottom: 20px;
     letter-spacing: 2px;
     box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    text-align: center;
+    font-family: inherit;
+}
+
+input.chord-preview-display:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 18px rgba(0, 210, 255, 0.35);
 }
 
 .editor-tension-options {

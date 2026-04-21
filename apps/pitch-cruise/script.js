@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.12.1';
+const PITCH_TRAINER_APP_VERSION = '1.13.0';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '38';
+const PITCH_TRAINER_APP_BUILD = '39';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -942,6 +942,8 @@ class Game {
         this.proSolfegeFlatBySharpNote = { 'C#': 'レ♭', 'D#': 'ミ♭', 'F#': 'ソ♭', 'G#': 'ラ♭', 'A#': 'シ♭' };
         this.loadProMelodyAccidentalPref();
         this.customChords = []; // User-defined Pro chords
+        /** コードを作る: コード名を手で触ったら、ルートなど変更時に自動名で上書きしない */
+        this.chordEditorNameUserEdited = false;
         this.customProgressions = []; // User-defined Pro progressions
         this.naturalNotes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
@@ -1364,15 +1366,29 @@ class Game {
             btnPreviewChord.addEventListener('touchstart', handlePreviewChord, { passive: false });
         }
 
-        // Listen for editor changes to update preview name dynamically
-        const editorInputs = this.chordEditorModal ? this.chordEditorModal.querySelectorAll('select, input') : [];
-        editorInputs.forEach(input => {
-            input.addEventListener('change', () => {
-                const chordData = this.readChordEditorState();
-                const previewName = document.getElementById('chord-preview-name');
-                if (previewName) previewName.textContent = this.generateChordName(chordData);
+        // コード名プレビュー: ルート等を変えたら自動名に同期（手でコード名を編集した後は上書きしない）
+        const chordPreviewNameEl = document.getElementById('chord-preview-name');
+        if (chordPreviewNameEl) {
+            chordPreviewNameEl.addEventListener('input', () => {
+                this.chordEditorNameUserEdited = true;
             });
-        });
+        }
+        const applyGeneratedChordNameToPreview = () => {
+            if (this.chordEditorNameUserEdited) return;
+            const previewName = document.getElementById('chord-preview-name');
+            if (previewName) {
+                const chordData = this.readChordEditorState();
+                previewName.value = this.generateChordName(chordData);
+            }
+        };
+        if (this.chordEditorModal) {
+            this.chordEditorModal.querySelectorAll('select').forEach(el => {
+                el.addEventListener('change', applyGeneratedChordNameToPreview);
+            });
+            this.chordEditorModal.querySelectorAll('.tension-checkbox').forEach(el => {
+                el.addEventListener('change', applyGeneratedChordNameToPreview);
+            });
+        }
 
         // Default Presets Button
         if (document.getElementById('btn-preset-custom-chord')) {
@@ -2062,6 +2078,7 @@ class Game {
         document.querySelectorAll('.tension-checkbox').forEach(cb => cb.checked = false);
 
         this.editingChordId = null; // Reset editing state
+        const previewEl = document.getElementById('chord-preview-name');
 
         if (chordToEdit) {
             this.editingChordId = chordToEdit.id;
@@ -2074,9 +2091,11 @@ class Game {
                 const cb = document.querySelector('.tension-checkbox[value="' + tension + '"]');
                 if (cb) cb.checked = true;
             });
-            document.getElementById('chord-preview-name').textContent = chordToEdit.name;
+            this.chordEditorNameUserEdited = true;
+            if (previewEl) previewEl.value = chordToEdit.name || '';
         } else {
-            document.getElementById('chord-preview-name').textContent = "C";
+            this.chordEditorNameUserEdited = false;
+            if (previewEl) previewEl.value = this.generateChordName(this.readChordEditorState());
         }
 
         this.chordEditorModal.classList.remove('hidden');
@@ -2096,7 +2115,9 @@ class Game {
 
     saveChordFromEditor() {
         const chordData = this.readChordEditorState();
-        chordData.name = this.generateChordName(chordData);
+        const previewEl = document.getElementById('chord-preview-name');
+        let customName = previewEl && typeof previewEl.value === 'string' ? previewEl.value.trim() : '';
+        chordData.name = customName || this.generateChordName(chordData);
 
         if (this.editingChordId) {
             // Edit existing
