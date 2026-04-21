@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.13.0';
+const PITCH_TRAINER_APP_VERSION = '1.13.1';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '39';
+const PITCH_TRAINER_APP_BUILD = '40';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -1371,6 +1371,12 @@ class Game {
         if (chordPreviewNameEl) {
             chordPreviewNameEl.addEventListener('input', () => {
                 this.chordEditorNameUserEdited = true;
+            });
+            chordPreviewNameEl.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                this.chordEditorNameUserEdited = false;
+                chordPreviewNameEl.blur();
             });
         }
         const applyGeneratedChordNameToPreview = () => {
