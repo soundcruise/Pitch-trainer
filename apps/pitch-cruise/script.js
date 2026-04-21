@@ -1,8 +1,8 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.14.0';
+const PITCH_TRAINER_APP_VERSION = '1.14.2';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
-const PITCH_TRAINER_APP_BUILD = '41';
+const PITCH_TRAINER_APP_BUILD = '43';
 
 /** Staging 検証（?stagingPreview=1）: メロディ Pro に「STAGEに追加」で保存したスロット ID 範囲 */
 const STAGING_PRO_MELODY_SLOT_MIN = 5001;
@@ -896,9 +896,9 @@ class Game {
         this.isBlockingInput = false;
         this.isRoundOver = false;
         this.scaleEnabled = true; // 問題前の音階再生フラグ
-        /** 各ラウンドでキーをランダム（0〜11）。オン時は音階を必ず鳴らす */
+        /** 各ラウンドでキーをランダム（0〜11）。音階ONならド〜、OFFなら主音のみ */
         this.keyRandomMode = false;
-        /** キーランダムONにする直前の「問題前の音階」設定（OFFに戻したときに復元） */
+        /** キーランダムONにする直前の「問題前の音階」（OFFに戻したときに復元） */
         this._scaleEnabledBeforeKeyRandom = undefined;
         /** 現在のラウンドで再生・正解判定に使うキー（キーランダム時は毎ラウンド更新） */
         this.roundKeyOffset = 0;
@@ -1134,6 +1134,7 @@ class Game {
                 } else if (this._scaleEnabledBeforeKeyRandom !== undefined) {
                     this.scaleEnabled = this._scaleEnabledBeforeKeyRandom;
                     if (scaleToggle) scaleToggle.checked = this.scaleEnabled;
+                    this._scaleEnabledBeforeKeyRandom = undefined;
                 }
                 this.keyRandomMode = on;
                 this.updateKeyRandomDependentUi();
@@ -1789,11 +1790,6 @@ class Game {
                     this.keyRandomMode = false;
                     const krt = document.getElementById('key-random-toggle');
                     if (krt) krt.checked = false;
-                }
-                if (isKeyRandomGameplayActive(this)) {
-                    this.scaleEnabled = true;
-                    const scaleToggle = document.getElementById('scale-toggle');
-                    if (scaleToggle) scaleToggle.checked = true;
                 }
                 if (isPitchTrainerPro()) {
                     if (s.noteSpeed !== undefined) {
@@ -3905,7 +3901,7 @@ class Game {
         this.saveSettings();
     }
 
-    /** キーランダムON時: キー欄は「ランダム」表示・音階はON固定でグレーアウト（有効は Pro のみ） */
+    /** キーランダムON時: キー欄は「ランダム」表示。「問題前の音階」はONなら音階・OFFなら主音のみ（有効は Pro のみ） */
     updateKeyRandomDependentUi() {
         const display = document.getElementById('key-random-display');
         const sel = this.keySelector;
@@ -3933,13 +3929,12 @@ class Game {
                 sel.disabled = true;
                 sel.setAttribute('aria-disabled', 'true');
             }
-            this.scaleEnabled = true;
             if (scaleToggle) {
-                scaleToggle.checked = true;
-                scaleToggle.disabled = true;
-                scaleToggle.setAttribute('aria-disabled', 'true');
+                scaleToggle.checked = this.scaleEnabled;
+                scaleToggle.disabled = false;
+                scaleToggle.removeAttribute('aria-disabled');
             }
-            scaleRow?.classList.add('setting-item--key-random-locked');
+            scaleRow?.classList.remove('setting-item--key-random-locked');
             keyRow?.classList.add('setting-item--key-random-locked');
         } else {
             if (display) display.classList.add('hidden');
@@ -4338,6 +4333,21 @@ class Game {
         }
     }
 
+    /** キーランダムで「問題前の音階」OFF時: そのキーの主音（ド）だけを短く再生 */
+    async playTonicPreview(callback) {
+        await this.audio.resumeContext();
+        this.audio.stopAllScheduledSounds();
+        const noteDuration = 0.45 / this.noteSpeed;
+        const now = this.audio.ctx.currentTime;
+        this.audio.playNote('C' + this.baseOctave, noteDuration, now, this.getPlaybackKeyOffset());
+        if (callback) {
+            const delay = noteDuration * 1000 + 200 / this.noteSpeed;
+            setTimeout(() => {
+                Promise.resolve(callback()).catch(() => {});
+            }, delay);
+        }
+    }
+
     // Helper: serialize a sequence into a comparable string key
     serializeSequence(seq) {
         return seq.map(item => {
@@ -4487,10 +4497,17 @@ class Game {
             // else: 3rd consecutive duplicate detected, retry
         }
 
-        const playScaleThisRound = this.scaleEnabled || isKeyRandomGameplayActive(this);
-        if (playScaleThisRound) {
+        const keyRand = isKeyRandomGameplayActive(this);
+        if (this.scaleEnabled) {
             this.showFeedback('音階を聴いてください...');
             void this.playScale(async () => {
+                this.showFeedback('問題を聴いてください...');
+                await this.playSequence();
+                this.isBlockingInput = false;
+            });
+        } else if (keyRand) {
+            this.showFeedback('主音を聴いてください...');
+            void this.playTonicPreview(async () => {
                 this.showFeedback('問題を聴いてください...');
                 await this.playSequence();
                 this.isBlockingInput = false;
