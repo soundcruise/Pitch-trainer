@@ -645,14 +645,13 @@ html[data-app-edition="Pro"] .home-info-link--final {
     position: fixed;
     left: max(12px, calc(env(safe-area-inset-left) + 8px));
     bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px));
-    width: auto;
+    width: 44px;
     min-width: 44px;
     height: 40px;
-    padding: 0 14px;
-    font-size: 0.76rem;
+    padding: 0;
+    font-size: 1.05rem;
     line-height: 1;
     letter-spacing: 0;
-    white-space: nowrap;
     z-index: 170;
 }
 
@@ -706,9 +705,11 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
     .in-game-info-link {
         left: max(10px, calc(env(safe-area-inset-left) + 6px));
         bottom: max(10px, calc(env(safe-area-inset-bottom) + 6px));
+        width: 40px;
+        min-width: 40px;
         height: 38px;
-        padding: 0 12px;
-        font-size: 0.72rem;
+        padding: 0;
+        font-size: 1rem;
     }
 
     .info-card {
