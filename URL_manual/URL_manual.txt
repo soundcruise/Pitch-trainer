@@ -33,7 +33,6 @@ URL（代替・GitHub Pages 既定）: https://soundcruise.github.io/Pitch-train
 
 【 👑 Pro版 (Pro Version) 】
 URL（会員向け・推奨）: https://soundcruise.jp/apps/pitch-cruise/pro_x9v7q2m8/
-URL（短い入口・ルート）: https://soundcruise.jp/pro.html → apps/pitch-cruise/pro_x9v7q2m8/ へ転送
 URL（GitHub Pages 既定）: https://soundcruise.github.io/Pitch-trainer/apps/pitch-cruise/pro_x9v7q2m8/
 （YouTube 有料メンバー向けの案内では上記 soundcruise.jp の URL を共有してください）
 旧URL: ルートの `/pro_x9v7q2m8/`、`/pitch-trainer/pro_x9v7q2m8/` は新URLへ自動転送します。
