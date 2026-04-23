@@ -496,17 +496,17 @@ header {
 }
 
 .home-info-options {
-    position: fixed;
+    position: absolute;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+    overflow: visible;
     pointer-events: none;
     z-index: 160;
 }
 
 .home-info-link {
-    position: fixed;
     width: 44px;
     height: 44px;
     padding: 0;
@@ -525,28 +525,10 @@ header {
     pointer-events: auto;
 }
 
-.home-info-link--1 {
-    left: calc(50% - 236px);
-    top: calc(50% + 178px);
-}
-
-.home-info-link--2 {
-    left: calc(50% - 210px);
-    top: calc(50% + 208px);
-}
-
-.home-info-link--3 {
-    left: calc(50% - 264px);
-    top: calc(50% + 208px);
-}
-
 .home-info-link--final {
-    left: calc(50% - 237px);
-    top: calc(50% + 208px);
-}
-
-html[data-app-edition="Pro"] .home-info-link--final {
-    top: calc(50% + 220px);
+    position: absolute;
+    left: 26px;
+    bottom: -66px;
 }
 
 .info-page {
@@ -649,6 +631,10 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
     display: none;
 }
 
+#screen-home.modal {
+    overflow: visible;
+}
+
 /* モバイル向けのタイトルサイズ調整 */
 @media (max-width: 480px) {
 
@@ -670,28 +656,9 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
         padding-right: 2.75rem;
     }
 
-    .home-info-link--1 {
-        left: calc(50% - 160px);
-        top: calc(50% + 134px);
-    }
-
-    .home-info-link--2 {
-        left: calc(50% - 136px);
-        top: calc(50% + 162px);
-    }
-
-    .home-info-link--3 {
-        left: calc(50% - 184px);
-        top: calc(50% + 162px);
-    }
-
     .home-info-link--final {
-        left: calc(50% - 160px);
-        top: calc(50% + 162px);
-    }
-
-    html[data-app-edition="Pro"] .home-info-link--final {
-        top: calc(50% + 174px);
+        left: 22px;
+        bottom: -58px;
     }
 
     .screen-info-link,
