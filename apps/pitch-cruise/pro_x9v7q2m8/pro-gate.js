@@ -183,12 +183,15 @@
         overlay.setAttribute('aria-modal', 'true');
         overlay.setAttribute('aria-labelledby', 'pro-gate-title');
         overlay.innerHTML =
+            '<div class="pro-gate-box">' +
             '<div class="pro-gate-panel">' +
             '<h2 id="pro-gate-title">音感クルーズ <span style="color:#ffe566;">PRO</span></h2>' +
             '<p class="pro-gate-hint">会員向けのページです。<br>4桁のパスワードを入力(初回のみ)</p>' +
             '<input type="password" id="pro-gate-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" aria-describedby="pro-gate-error" />' +
             '<p id="pro-gate-error" aria-live="polite"></p>' +
             '<button type="button" id="pro-gate-submit" class="btn-primary">入る</button>' +
+            '</div>' +
+            '<a class="pro-gate-password-link" href="https://www.youtube.com/post/UgkxGGd0QKGyDd3-mMWvhusmK4ZvqmH8I6Er" target="_blank" rel="noopener noreferrer">パスワードはこちら(メンバーのみ閲覧可能)</a>' +
             '</div>';
 
         document.body.classList.add('pro-gate-active');

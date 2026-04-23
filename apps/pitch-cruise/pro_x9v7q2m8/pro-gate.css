@@ -29,6 +29,32 @@
     text-align: center;
 }
 
+.pro-gate-box {
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+}
+
+.pro-gate-box .pro-gate-panel {
+    max-width: none;
+}
+
+.pro-gate-password-link {
+    display: inline-block;
+    margin-top: 14px;
+    color: rgba(255, 229, 102, 0.92);
+    font-size: 0.86rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.pro-gate-password-link:focus,
+.pro-gate-password-link:hover {
+    color: #fff1a6;
+}
+
 #pro-gate-title {
     margin: 0 0 10px;
     font-size: 1.35rem;
