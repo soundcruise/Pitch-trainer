@@ -643,7 +643,7 @@ html[data-app-edition="Pro"] .home-info-link--final {
 .screen-info-link,
 .in-game-info-link {
     position: fixed;
-    left: max(12px, calc(env(safe-area-inset-left) + 8px));
+    left: max(28px, calc(env(safe-area-inset-left) + 24px));
     bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px));
     width: 44px;
     min-width: 44px;
@@ -703,7 +703,7 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
 
     .screen-info-link,
     .in-game-info-link {
-        left: max(10px, calc(env(safe-area-inset-left) + 6px));
+        left: max(24px, calc(env(safe-area-inset-left) + 20px));
         bottom: max(10px, calc(env(safe-area-inset-bottom) + 6px));
         width: 40px;
         min-width: 40px;
