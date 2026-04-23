@@ -192,7 +192,7 @@
             '<button type="button" id="pro-gate-submit" class="btn-primary">入る</button>' +
             '</div>' +
             '<a class="pro-gate-password-link" href="https://www.youtube.com/post/UgkxGGd0QKGyDd3-mMWvhusmK4ZvqmH8I6Er" target="_blank" rel="noopener noreferrer">パスワードはこちら(メンバーのみ閲覧可能)</a>' +
-            '<div class="pro-gate-password-updated">2025.4.23更新</div>' +
+            '<div class="pro-gate-password-updated">2026.4.25更新</div>' +
             '</div>';
 
         document.body.classList.add('pro-gate-active');
