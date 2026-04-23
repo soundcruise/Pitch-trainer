@@ -495,6 +495,160 @@ header {
     padding-right: 3rem;
 }
 
+.home-info-options {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 160;
+}
+
+.home-info-link {
+    position: fixed;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    text-decoration: none;
+    font-size: 1.1rem;
+    line-height: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    pointer-events: auto;
+}
+
+.home-info-link--1 {
+    left: calc(50% - 236px);
+    top: calc(50% + 178px);
+}
+
+.home-info-link--2 {
+    left: calc(50% - 210px);
+    top: calc(50% + 208px);
+}
+
+.home-info-link--3 {
+    left: calc(50% - 264px);
+    top: calc(50% + 208px);
+}
+
+.home-info-link--final {
+    left: calc(50% - 237px);
+    top: calc(50% + 208px);
+}
+
+html[data-app-edition="Pro"] .home-info-link--final {
+    top: calc(50% + 220px);
+}
+
+.info-page {
+    min-height: 100vh;
+    overflow: auto;
+}
+
+.info-page .app-container {
+    max-width: 720px;
+    min-height: 100vh;
+    justify-content: center;
+    padding-top: max(32px, calc(env(safe-area-inset-top) + 24px));
+    padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 24px));
+}
+
+.info-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 32px 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+}
+
+.info-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.info-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-nav-link {
+    text-decoration: none;
+}
+
+.info-links {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.info-link-card {
+    display: block;
+    width: 100%;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-color);
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+@media (hover: hover) {
+    .info-link-card:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.28);
+    }
+}
+
+.info-link-title {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.info-link-note {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.66);
+    line-height: 1.45;
+}
+
+.screen-info-link,
+.in-game-info-link {
+    position: fixed;
+    left: max(12px, calc(env(safe-area-inset-left) + 8px));
+    bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px));
+    z-index: 170;
+}
+
+.screen-info-link {
+    pointer-events: auto;
+}
+
+.in-game-info-link {
+    pointer-events: auto;
+}
+
+body:has(#screen-home:not(.hidden)) .in-game-info-link {
+    display: none;
+}
+
 /* モバイル向けのタイトルサイズ調整 */
 @media (max-width: 480px) {
 
@@ -514,6 +668,41 @@ header {
     #screen-home .home-title {
         padding-left: 1rem;
         padding-right: 2.75rem;
+    }
+
+    .home-info-link--1 {
+        left: calc(50% - 160px);
+        top: calc(50% + 134px);
+    }
+
+    .home-info-link--2 {
+        left: calc(50% - 136px);
+        top: calc(50% + 162px);
+    }
+
+    .home-info-link--3 {
+        left: calc(50% - 184px);
+        top: calc(50% + 162px);
+    }
+
+    .home-info-link--final {
+        left: calc(50% - 160px);
+        top: calc(50% + 162px);
+    }
+
+    html[data-app-edition="Pro"] .home-info-link--final {
+        top: calc(50% + 174px);
+    }
+
+    .screen-info-link,
+    .in-game-info-link {
+        left: max(10px, calc(env(safe-area-inset-left) + 6px));
+        bottom: max(10px, calc(env(safe-area-inset-bottom) + 6px));
+    }
+
+    .info-card {
+        padding: 28px 18px;
+        border-radius: 20px;
     }
 }
 
