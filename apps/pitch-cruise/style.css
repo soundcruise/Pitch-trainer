@@ -557,6 +557,13 @@ html[data-app-edition="Pro"] .home-info-link--final {
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
 }
 
+.info-card h1 {
+    margin-bottom: 18px;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+    line-height: 1.08;
+}
+
 .info-nav {
     display: flex;
     justify-content: space-between;
@@ -572,6 +579,9 @@ html[data-app-edition="Pro"] .home-info-link--final {
 }
 
 .info-nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
     min-width: 0;
     height: 38px;
@@ -586,6 +596,7 @@ html[data-app-edition="Pro"] .home-info-link--final {
     min-width: 38px;
     padding: 0;
     font-size: 1rem;
+    line-height: 1;
 }
 
 .info-links {
@@ -616,14 +627,15 @@ html[data-app-edition="Pro"] .home-info-link--final {
 
 .info-link-title {
     display: block;
-    font-size: 1.05rem;
+    font-size: 0.96rem;
     font-weight: 700;
+    line-height: 1.35;
 }
 
 .info-link-note {
     display: block;
     margin-top: 6px;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     color: rgba(255, 255, 255, 0.66);
     line-height: 1.45;
 }
@@ -704,6 +716,11 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
         border-radius: 20px;
     }
 
+    .info-card h1 {
+        font-size: 1.75rem;
+        letter-spacing: 0.5px;
+    }
+
     .info-nav-link {
         height: 36px;
         padding: 0 10px;
@@ -714,6 +731,14 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
         width: 36px;
         min-width: 36px;
         font-size: 0.95rem;
+    }
+
+    .info-link-title {
+        font-size: 0.88rem;
+    }
+
+    .info-link-note {
+        font-size: 0.66rem;
     }
 }
 
