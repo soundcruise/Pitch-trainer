@@ -531,6 +531,10 @@ header {
     bottom: -66px;
 }
 
+html[data-app-edition="Pro"] .home-info-link--final {
+    bottom: -78px;
+}
+
 .info-page {
     min-height: 100vh;
     overflow: auto;
@@ -569,6 +573,19 @@ header {
 
 .info-nav-link {
     text-decoration: none;
+    min-width: 0;
+    height: 38px;
+    padding: 0 12px;
+    font-size: 0.86rem;
+    line-height: 1;
+    gap: 6px;
+}
+
+#info-home-link {
+    width: 38px;
+    min-width: 38px;
+    padding: 0;
+    font-size: 1rem;
 }
 
 .info-links {
@@ -616,6 +633,14 @@ header {
     position: fixed;
     left: max(12px, calc(env(safe-area-inset-left) + 8px));
     bottom: max(12px, calc(env(safe-area-inset-bottom) + 8px));
+    width: auto;
+    min-width: 44px;
+    height: 40px;
+    padding: 0 14px;
+    font-size: 0.76rem;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
     z-index: 170;
 }
 
@@ -661,15 +686,34 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
         bottom: -58px;
     }
 
+    html[data-app-edition="Pro"] .home-info-link--final {
+        bottom: -70px;
+    }
+
     .screen-info-link,
     .in-game-info-link {
         left: max(10px, calc(env(safe-area-inset-left) + 6px));
         bottom: max(10px, calc(env(safe-area-inset-bottom) + 6px));
+        height: 38px;
+        padding: 0 12px;
+        font-size: 0.72rem;
     }
 
     .info-card {
         padding: 28px 18px;
         border-radius: 20px;
+    }
+
+    .info-nav-link {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 0.8rem;
+    }
+
+    #info-home-link {
+        width: 36px;
+        min-width: 36px;
+        font-size: 0.95rem;
     }
 }
 
