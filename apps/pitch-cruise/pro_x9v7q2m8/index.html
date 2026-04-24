@@ -641,6 +641,9 @@
 
         <div id="chord-editor-modal" class="modal hidden">
             <div class="modal-content chord-editor-content">
+                <div style="display: flex; justify-content: flex-start; width: 100%; margin-bottom: 10px;">
+                    <button type="button" id="btn-back-chord-editor" class="btn-back" style="margin-bottom: 0;">← 戻る</button>
+                </div>
                 <h2>コードを作る</h2>
 
                 <input type="text" class="chord-preview-display" id="chord-preview-name" value="C" maxlength="64" autocomplete="off" spellcheck="false" inputmode="text" aria-label="コード名（タップして編集できます）" />
@@ -747,6 +750,9 @@
     <!-- Custom Progression Editor Modal -->
     <div id="progression-editor-modal" class="modal hidden" style="z-index: 1001;">
         <div class="modal-content chord-editor-content">
+            <div style="display: flex; justify-content: flex-start; width: 100%; margin-bottom: 10px;">
+                <button type="button" id="btn-back-progression-editor" class="btn-back" style="margin-bottom: 0;">← 戻る</button>
+            </div>
             <h2>進行を作る</h2>
 
             <div class="setting-item vertical" style="align-items: flex-start;">
@@ -814,7 +820,7 @@
     <script src="../auth/pro-gate-config.js?v=2"></script>
     <script src="pro-gate.js?v=10"></script>
     <script src="../staging/staging-hub-nav.js?v=3"></script>
-    <script src="../script.js?v=1.16.1"></script>
+    <script src="../script.js?v=1.17.0"></script>
 </body>
 
 </html>

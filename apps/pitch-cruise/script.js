@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.16.1';
+const PITCH_TRAINER_APP_VERSION = '1.17.0';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
 const PITCH_TRAINER_APP_BUILD = '43';
@@ -1399,6 +1399,11 @@ class Game {
             btnCancelEditor.addEventListener('click', handleCancelEditor);
             btnCancelEditor.addEventListener('touchstart', handleCancelEditor, { passive: false });
         }
+        const btnBackChordEditor = document.getElementById('btn-back-chord-editor');
+        if (btnBackChordEditor) {
+            btnBackChordEditor.addEventListener('click', handleCancelEditor);
+            btnBackChordEditor.addEventListener('touchstart', handleCancelEditor, { passive: false });
+        }
 
         const btnSaveChord = document.getElementById('btn-save-chord');
         const handleSaveChord = (e) => {
@@ -1592,6 +1597,11 @@ class Game {
         if (btnCancelProgression) {
             btnCancelProgression.addEventListener('click', handleCancelProg);
             btnCancelProgression.addEventListener('touchstart', handleCancelProg, { passive: false });
+        }
+        const btnBackProgressionEditor = document.getElementById('btn-back-progression-editor');
+        if (btnBackProgressionEditor) {
+            btnBackProgressionEditor.addEventListener('click', handleCancelProg);
+            btnBackProgressionEditor.addEventListener('touchstart', handleCancelProg, { passive: false });
         }
 
         const btnSaveProgression = document.getElementById('btn-save-progression');
