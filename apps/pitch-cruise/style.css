@@ -617,11 +617,36 @@ html[data-app-edition="Pro"] .home-info-link--final {
     transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
+.info-link-card--primary {
+    position: relative;
+    background: linear-gradient(135deg, rgba(255, 214, 94, 0.12), rgba(77, 150, 255, 0.1));
+    border-color: rgba(255, 214, 94, 0.28);
+    box-shadow: 0 0 0 rgba(255, 214, 94, 0);
+    animation: infoPrimaryFloat 2.6s ease-in-out infinite, infoPrimaryPulse 2.8s ease-in-out infinite;
+}
+
+.info-link-card--primary::after {
+    content: "▶";
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    color: rgba(255, 230, 160, 0.92);
+    animation: infoArrowNudge 1.4s ease-in-out infinite;
+}
+
 @media (hover: hover) {
     .info-link-card:hover {
         transform: translateY(-2px);
         background: rgba(255, 255, 255, 0.1);
         border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .info-link-card--primary:hover {
+        background: linear-gradient(135deg, rgba(255, 214, 94, 0.2), rgba(77, 150, 255, 0.14));
+        border-color: rgba(255, 228, 148, 0.42);
+        box-shadow: 0 12px 28px rgba(255, 214, 94, 0.14);
     }
 }
 
@@ -638,6 +663,46 @@ html[data-app-edition="Pro"] .home-info-link--final {
     font-size: 0.72rem;
     color: rgba(255, 255, 255, 0.66);
     line-height: 1.45;
+}
+
+@keyframes infoPrimaryFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes infoPrimaryPulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 rgba(255, 214, 94, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 22px rgba(255, 214, 94, 0.16);
+    }
+}
+
+@keyframes infoArrowNudge {
+    0%,
+    100% {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    50% {
+        transform: translateY(-50%) translateX(4px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .info-link-card--primary,
+    .info-link-card--primary::after {
+        animation: none;
+    }
 }
 
 .screen-info-link,
