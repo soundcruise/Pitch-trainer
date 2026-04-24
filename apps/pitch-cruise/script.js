@@ -4654,6 +4654,12 @@ class Game {
         if (!this.homeInfoNewBadgeEl) return;
         const homeScreen = document.getElementById('screen-home');
         if (!homeScreen || homeScreen.classList.contains('hidden')) return;
+        // First-time users see the intro callout; suppress NEW badge to avoid overlap
+        if (this.homeInfoIntroEl && !this.homeInfoIntroEl.classList.contains('hidden')) {
+            this.homeInfoNewBadgeEl.classList.add('hidden');
+            try { localStorage.setItem(this.infoNewBadgeStorageKey, '1'); } catch (_) {}
+            return;
+        }
         let seen = false;
         try {
             seen = localStorage.getItem(this.infoNewBadgeStorageKey) === '1';
