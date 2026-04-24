@@ -101,6 +101,20 @@
                 }
                 backLink.href = homePath;
             });
+
+            // On iOS standalone (home screen PWA), target="_blank" opens an in-app browser
+            // in the same process, which associates YouTube audio with this app's audio session
+            // and causes the Now Playing widget to appear on the lock screen.
+            // Navigating via window.location.href triggers iOS to open the URL in external
+            // Safari (a separate process), preventing the audio session leak.
+            if (window.navigator.standalone) {
+                document.querySelectorAll('a[target="_blank"]').forEach(function (a) {
+                    a.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        window.location.href = this.href;
+                    });
+                });
+            }
         }());
     </script>
 </body>

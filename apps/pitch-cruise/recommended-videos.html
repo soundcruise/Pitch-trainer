@@ -74,6 +74,17 @@
             if (backLink && fromHome) {
                 backLink.href = './info.html?from=home&edition=' + encodeURIComponent(editionParam || (homePath.indexOf('/pro_x9v7q2m8/') !== -1 ? 'pro' : 'standard'));
             }
+
+            // Same iOS standalone workaround as info.html: open external links via
+            // window.location.href so iOS uses a separate Safari process.
+            if (window.navigator.standalone) {
+                document.querySelectorAll('a[target="_blank"]').forEach(function (a) {
+                    a.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        window.location.href = this.href;
+                    });
+                });
+            }
         }());
     </script>
 </body>
