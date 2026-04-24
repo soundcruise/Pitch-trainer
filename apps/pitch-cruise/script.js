@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.18.0';
+const PITCH_TRAINER_APP_VERSION = '1.18.1';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
 const PITCH_TRAINER_APP_BUILD = '43';
@@ -2686,6 +2686,14 @@ class Game {
             }
             const progChordIds = [...new Set(activeProgs.flatMap(p => p.chords))];
             pool = progChordIds.map(id => this.customChords.find(c => c.id === id)).filter(Boolean);
+            // Sort buttons C → B chromatically, then alphabetically within the same root
+            const rootOrder = { C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11 };
+            const getRoot = n => (n.length >= 2 && (n[1] === '#' || n[1] === 'b')) ? n.slice(0, 2) : n.slice(0, 1);
+            pool.sort((a, b) => {
+                const ra = rootOrder[getRoot(a.name)] ?? 99;
+                const rb = rootOrder[getRoot(b.name)] ?? 99;
+                return ra !== rb ? ra - rb : a.name.localeCompare(b.name);
+            });
             if (pool.length === 0) {
                 alert('進行に登録されたコードが見つかりません。コードを再登録してください。');
                 return false;
