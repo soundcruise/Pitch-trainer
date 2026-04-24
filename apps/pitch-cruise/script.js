@@ -1207,6 +1207,10 @@ class Game {
             this._proMelodyModalTargetStageId = null;
             if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
         });
+        if (document.getElementById('btn-back-pro-melody')) document.getElementById('btn-back-pro-melody').addEventListener('click', () => {
+            this._proMelodyModalTargetStageId = null;
+            if (this.proSettingsModal) this.proSettingsModal.classList.add('hidden');
+        });
 
         if (document.getElementById('btn-start-pro')) {
             document.getElementById('btn-start-pro').addEventListener('click', () => this.confirmProMelodySettings());
@@ -1279,6 +1283,9 @@ class Game {
         });
 
         if (document.getElementById('btn-cancel-pro-chord')) document.getElementById('btn-cancel-pro-chord').addEventListener('click', () => {
+            this.cancelProChordSettingsModal();
+        });
+        if (document.getElementById('btn-back-pro-chord')) document.getElementById('btn-back-pro-chord').addEventListener('click', () => {
             this.cancelProChordSettingsModal();
         });
 
