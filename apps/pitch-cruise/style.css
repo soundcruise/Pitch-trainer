@@ -549,7 +549,8 @@ html[data-app-edition="Pro"] .home-info-link--final {
     line-height: 1.35;
     box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
     animation: infoIntroFloat 1.9s ease-in-out infinite;
-    pointer-events: none;
+    text-decoration: none;
+    pointer-events: auto;
 }
 
 .info-intro-callout::before {

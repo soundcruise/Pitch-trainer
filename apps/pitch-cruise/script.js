@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.15.7';
+const PITCH_TRAINER_APP_VERSION = '1.15.8';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
 const PITCH_TRAINER_APP_BUILD = '43';
@@ -918,7 +918,7 @@ class Game {
         this._stagingMelodyReorderMode = false;
         /** Pro: コード STAGE 選択で「順番並び替え」モード中 */
         this._stagingChordReorderMode = false;
-        this.infoIntroStorageKey = 'pitchCruiseInfoIntroSeen';
+        this.infoIntroStorageKey = 'pitchCruiseInfoIntroSeen:1.15.8-r1';
         if (typeof document !== 'undefined') {
             document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
         }
@@ -1049,6 +1049,9 @@ class Game {
         this.homeInfoLinkEl = document.querySelector('#screen-home .home-info-link--final');
         if (this.homeInfoLinkEl) {
             this.homeInfoLinkEl.addEventListener('click', () => this.dismissInfoIntro());
+        }
+        if (this.homeInfoIntroEl) {
+            this.homeInfoIntroEl.addEventListener('click', () => this.dismissInfoIntro());
         }
 
         if (document.getElementById('confirm-settings')) {
