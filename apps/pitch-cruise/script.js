@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.15.10';
+const PITCH_TRAINER_APP_VERSION = '1.15.11';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
 const PITCH_TRAINER_APP_BUILD = '43';
@@ -404,7 +404,28 @@ class AudioEngine {
             if (!document.hidden) {
                 this._frozenSince = 0;
                 tryResume();
+                this.requestPlaybackAudioSession();
+            } else {
+                // Release iOS Now Playing session to prevent lock screen widget from persisting
+                // when navigating away (e.g. opening a YouTube link from the info page).
+                try {
+                    const as = typeof navigator !== 'undefined' && navigator.audioSession;
+                    if (as) as.type = 'auto';
+                } catch (_) { /* ignore */ }
+                try {
+                    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+                } catch (_) { /* ignore */ }
             }
+        });
+        window.addEventListener('pagehide', () => {
+            // Also release on full page navigation (PWA page transitions).
+            try {
+                const as = typeof navigator !== 'undefined' && navigator.audioSession;
+                if (as) as.type = 'auto';
+            } catch (_) { /* ignore */ }
+            try {
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+            } catch (_) { /* ignore */ }
         });
         window.addEventListener('pageshow', (e) => {
             if (e.persisted) {
@@ -919,7 +940,7 @@ class Game {
         /** Pro: コード STAGE 選択で「順番並び替え」モード中 */
         this._stagingChordReorderMode = false;
         this.infoIntroStorageKey = 'pitchCruiseInfoIntroSeen:1.15.8-r1';
-        this.infoNewBadgeStorageKey = 'pitchCruiseInfoNewSeen:1.15.10';
+        this.infoNewBadgeStorageKey = 'pitchCruiseInfoNewSeen:1.15.11';
         if (typeof document !== 'undefined') {
             document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
         }
