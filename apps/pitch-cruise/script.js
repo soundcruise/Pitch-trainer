@@ -2449,7 +2449,9 @@ class Game {
                 this.addProgressionChordSlot(chordId);
             });
         } else {
-            // Default 2 slots
+            // Default 4 slots
+            this.addProgressionChordSlot();
+            this.addProgressionChordSlot();
             this.addProgressionChordSlot();
             this.addProgressionChordSlot();
         }
