@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.17.0';
+const PITCH_TRAINER_APP_VERSION = '1.18.0';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
 const PITCH_TRAINER_APP_BUILD = '43';
@@ -2673,23 +2673,38 @@ class Game {
     applyProChordSettingsFromUI(targetStageId) {
         const tid = targetStageId !== undefined ? targetStageId : 199;
         const activeChords = this.customChords.filter(c => c.isActive !== false);
-
-        if (activeChords.length === 0) {
-            alert('少なくとも1つのコードを選択してください。');
-            return false;
-        }
-
         const countVal = parseInt(document.getElementById('pro-chord-count-slider').value) || 4;
         const qm = document.querySelector('input[name="pro-question-mode"]:checked')?.value || 'chords';
         this.proQuestionMode = qm;
 
-        const activeNames = activeChords.map(c => c.name).join(', ');
+        let pool;
+        if (qm === 'progressions') {
+            const activeProgs = this.customProgressions.filter(p => p.isActive !== false);
+            if (activeProgs.length === 0) {
+                alert('少なくとも1つの進行を有効にしてください。');
+                return false;
+            }
+            const progChordIds = [...new Set(activeProgs.flatMap(p => p.chords))];
+            pool = progChordIds.map(id => this.customChords.find(c => c.id === id)).filter(Boolean);
+            if (pool.length === 0) {
+                alert('進行に登録されたコードが見つかりません。コードを再登録してください。');
+                return false;
+            }
+        } else {
+            if (activeChords.length === 0) {
+                alert('少なくとも1つのコードを選択してください。');
+                return false;
+            }
+            pool = activeChords;
+        }
+
+        const activeNames = pool.map(c => c.name).join(', ');
         const desc = (activeNames ? activeNames + ' / ' : '') + countVal + 'コード';
 
         const prev = this.stageConfig[tid] || {};
         this.stageConfig[tid] = {
             ...prev,
-            pool: activeChords,
+            pool,
             count: countVal,
             isChord: true,
             isCustomChord: true,
@@ -4464,19 +4479,14 @@ class Game {
                 : null;
             if (isProChordStageId(this.stage) && proChordQm === 'progressions') {
                 const activeProgs = this.customProgressions.filter(p => p.isActive !== false);
-                const poolIds = cfg.pool.map(c => c.id);
-
-                // Filter progressions where every chord is in the current active pool
-                const validProgs = activeProgs.filter(prog =>
-                    prog.chords.every(chordId => poolIds.includes(chordId))
-                );
-
-                if (validProgs.length > 0) {
-                    const selectedProg = validProgs[Math.floor(Math.random() * validProgs.length)];
-                    // Play the progression EXACTLY as defined, ignoring cfg.count
+                if (activeProgs.length > 0) {
+                    const selectedProg = activeProgs[Math.floor(Math.random() * activeProgs.length)];
+                    // Play the progression EXACTLY as defined, ignoring cfg.count.
+                    // Look up chords from customChords directly to avoid stale pool issues.
                     for (let i = 0; i < selectedProg.chords.length; i++) {
                         const chordId = selectedProg.chords[i];
-                        const chordObj = cfg.pool.find(c => c.id === chordId);
+                        const chordObj = this.customChords.find(c => c.id === chordId)
+                            || cfg.pool.find(c => c.id === chordId);
                         if (chordObj) {
                             this.currentSequence.push(chordObj);
                         }
