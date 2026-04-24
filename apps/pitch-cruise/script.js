@@ -918,6 +918,7 @@ class Game {
         this._stagingMelodyReorderMode = false;
         /** Pro: コード STAGE 選択で「順番並び替え」モード中 */
         this._stagingChordReorderMode = false;
+        this.infoIntroStorageKey = 'pitchCruiseInfoIntroSeen';
         if (typeof document !== 'undefined') {
             document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
         }
@@ -1043,6 +1044,12 @@ class Game {
         // 戻るボタン → ホーム画面
         if (document.getElementById('btn-back-melody')) document.getElementById('btn-back-melody').addEventListener('click', () => showScreen('screen-home'));
         if (document.getElementById('btn-back-chord')) document.getElementById('btn-back-chord').addEventListener('click', () => showScreen('screen-home'));
+
+        this.homeInfoIntroEl = document.getElementById('home-info-intro');
+        this.homeInfoLinkEl = document.querySelector('#screen-home .home-info-link--final');
+        if (this.homeInfoLinkEl) {
+            this.homeInfoLinkEl.addEventListener('click', () => this.dismissInfoIntro());
+        }
 
         if (document.getElementById('confirm-settings')) {
             document.getElementById('confirm-settings').addEventListener('click', () => this.hideSettingsModal());
@@ -1263,6 +1270,7 @@ class Game {
 
         this.updateProMelody2OctaveToggleLayers();
         this.updateProNoteTogglesKeyboardLayoutClass();
+        this.maybeShowInfoIntro();
 
         // Chord Pattern Mode Toggle (Random vs Progression)
         document.querySelectorAll('input[name="chord-pattern-mode"]').forEach(radio => {
@@ -4559,6 +4567,40 @@ class Game {
         if (appTitle) appTitle.style.display = 'block';
 
         this.applyTranslations();
+        this.maybeShowInfoIntro();
+    }
+
+    maybeShowInfoIntro() {
+        if (!this.homeInfoIntroEl) return;
+        const homeScreen = document.getElementById('screen-home');
+        if (!homeScreen || homeScreen.classList.contains('hidden')) return;
+        let seen = false;
+        try {
+            seen = localStorage.getItem(this.infoIntroStorageKey) === '1';
+        } catch (error) {
+            seen = false;
+        }
+        if (seen) {
+            this.homeInfoIntroEl.classList.add('hidden');
+            return;
+        }
+        this.homeInfoIntroEl.classList.remove('hidden');
+        try {
+            localStorage.setItem(this.infoIntroStorageKey, '1');
+        } catch (error) {
+            // ignore localStorage failures and still show once for this session
+        }
+        clearTimeout(this._infoIntroTimer);
+        this._infoIntroTimer = setTimeout(() => this.dismissInfoIntro(), 7000);
+    }
+
+    dismissInfoIntro() {
+        if (!this.homeInfoIntroEl) return;
+        this.homeInfoIntroEl.classList.add('hidden');
+        if (this._infoIntroTimer) {
+            clearTimeout(this._infoIntroTimer);
+            this._infoIntroTimer = null;
+        }
     }
 
     /** 将来の多言語切り替え用。未定義のままだと例外になるため空実装 */

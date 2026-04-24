@@ -535,6 +535,46 @@ html[data-app-edition="Pro"] .home-info-link--final {
     bottom: -78px;
 }
 
+.info-intro-callout {
+    position: absolute;
+    left: 84px;
+    bottom: -72px;
+    max-width: 188px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 214, 94, 0.96), rgba(255, 242, 186, 0.96));
+    color: #1b1608;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.35;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+    animation: infoIntroFloat 1.9s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.info-intro-callout::before {
+    content: "";
+    position: absolute;
+    left: -10px;
+    bottom: 18px;
+    width: 16px;
+    height: 16px;
+    background: inherit;
+    transform: rotate(45deg);
+    border-radius: 4px;
+}
+
+@keyframes infoIntroFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
 .info-page {
     min-height: 100vh;
     overflow: auto;
@@ -764,6 +804,14 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
 
     html[data-app-edition="Pro"] .home-info-link--final {
         bottom: -70px;
+    }
+
+    .info-intro-callout {
+        left: 74px;
+        bottom: -64px;
+        max-width: 160px;
+        padding: 9px 12px;
+        font-size: 0.74rem;
     }
 
     .screen-info-link,
