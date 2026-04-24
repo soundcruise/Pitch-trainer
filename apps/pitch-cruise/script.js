@@ -4631,6 +4631,9 @@ class Game {
             this.homeInfoIntroEl.classList.add('hidden');
             return;
         }
+        // First-time user: permanently suppress the NEW badge so it never shows,
+        // neither now nor in any future session. The intro callout is sufficient.
+        try { localStorage.setItem(this.infoNewBadgeStorageKey, '1'); } catch (_) {}
         this.homeInfoIntroEl.classList.remove('hidden');
         try {
             localStorage.setItem(this.infoIntroStorageKey, '1');
@@ -4654,12 +4657,6 @@ class Game {
         if (!this.homeInfoNewBadgeEl) return;
         const homeScreen = document.getElementById('screen-home');
         if (!homeScreen || homeScreen.classList.contains('hidden')) return;
-        // First-time users see the intro callout; suppress NEW badge to avoid overlap
-        if (this.homeInfoIntroEl && !this.homeInfoIntroEl.classList.contains('hidden')) {
-            this.homeInfoNewBadgeEl.classList.add('hidden');
-            try { localStorage.setItem(this.infoNewBadgeStorageKey, '1'); } catch (_) {}
-            return;
-        }
         let seen = false;
         try {
             seen = localStorage.getItem(this.infoNewBadgeStorageKey) === '1';
