@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.15.11';
+const PITCH_TRAINER_APP_VERSION = '1.15.12';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
 const PITCH_TRAINER_APP_BUILD = '43';
@@ -956,7 +956,7 @@ class Game {
         /** Pro: コード STAGE 選択で「順番並び替え」モード中 */
         this._stagingChordReorderMode = false;
         this.infoIntroStorageKey = 'pitchCruiseInfoIntroSeen:1.15.8-r1';
-        this.infoNewBadgeStorageKey = 'pitchCruiseInfoNewSeen:1.15.11';
+        this.infoNewBadgeStorageKey = 'pitchCruiseInfoNewSeen:1.15.12';
         if (typeof document !== 'undefined') {
             document.documentElement.classList.remove('staging-slot-drag-scroll-lock');
         }
