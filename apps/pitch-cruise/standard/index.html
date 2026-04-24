@@ -156,9 +156,10 @@
                     style="position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right)); z-index: 100;"
                     title="設定">⚙️</button>
                 <div class="home-info-options" aria-label="インフォメーション候補位置">
-                    <a href="../info.html" class="home-info-link icon-btn home-info-link--final" aria-label="インフォメーション"
+                    <a href="../info.html?from=home&edition=standard" class="home-info-link icon-btn home-info-link--final" aria-label="インフォメーション"
                         title="インフォメーション">i</a>
-                    <a id="home-info-intro" class="info-intro-callout hidden" aria-hidden="true" href="../info.html">まずはこちらをチェック</a>
+                    <span id="home-info-new-badge" class="info-new-badge home-info-new-badge hidden" aria-hidden="true">New</span>
+                    <a id="home-info-intro" class="info-intro-callout hidden" aria-hidden="true" href="../info.html?from=home&edition=standard">まずはこちらをチェック</a>
                 </div>
                 <h2 class="home-title">音感クルーズ</h2>
                 <div class="category-cards">
@@ -775,7 +776,7 @@
         </div>
     </div>
     <script src="../staging/staging-hub-nav.js?v=3"></script>
-    <script src="../script.js?v=1.15.8"></script>
+    <script src="../script.js?v=1.15.10"></script>
 </body>
 
 </html>

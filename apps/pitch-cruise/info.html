@@ -26,11 +26,15 @@
             </div>
             <h1>インフォメーション</h1>
             <div class="info-links">
-                <a class="info-link-card info-link-card--primary" href="https://youtu.be/a-gLbJ0_Cvc" target="_blank" rel="noopener noreferrer">
-                    <span class="info-link-title">まずはこちらの動画で使い方を知る</span>
+                <a class="info-link-card info-link-card--primary" href="https://youtu.be/a-gLbJ0_Cvc?t=78" target="_blank" rel="noopener noreferrer">
+                    <span class="info-link-title">【動画】最短でクリアする3つのコツ</span>
                     <span class="info-link-note">※感想や要望などもこちらにコメントしてください♪</span>
                 </a>
-                <a class="info-link-card" href="https://www.youtube.com/channel/UC4ncQuk56I8SK6lJGZcGwJQ"
+                <a class="info-link-card recommended-link-with-badge" href="./recommended-videos.html" id="recommended-videos-link">
+                    <span class="info-link-title">おすすめの関連動画リスト</span>
+                    <span id="recommended-videos-new-badge" class="info-new-badge recommended-link-new-badge hidden" aria-hidden="true">New</span>
+                </a>
+                <a class="info-link-card info-link-card--compact" href="https://www.youtube.com/channel/UC4ncQuk56I8SK6lJGZcGwJQ"
                     target="_blank" rel="noopener noreferrer">
                     <span class="info-link-title">YouTube Chトップ</span>
                 </a>
@@ -42,8 +46,15 @@
             var backLink = document.getElementById('info-back-link');
             var homeLink = document.getElementById('info-home-link');
             var defaultHome = './standard/index.html';
+            var currentUrl = new URL(window.location.href);
+            var fromHome = currentUrl.searchParams.get('from') === 'home';
+            var editionParam = currentUrl.searchParams.get('edition');
+            var recommendedNewBadge = document.getElementById('recommended-videos-new-badge');
+            var recommendedNewKey = 'pitchCruiseRecommendedNewSeen:1.15.10';
 
             function resolveHomePath() {
+                if (editionParam === 'pro') return './pro_x9v7q2m8/index.html';
+                if (editionParam === 'standard') return './standard/index.html';
                 try {
                     var referrerUrl = document.referrer ? new URL(document.referrer) : null;
                     if (referrerUrl && referrerUrl.origin === window.location.origin) {
@@ -62,8 +73,27 @@
 
             var homePath = resolveHomePath();
             homeLink.href = homePath;
+            var recommendedLink = document.getElementById('recommended-videos-link');
+            if (recommendedLink && fromHome) {
+                recommendedLink.href = './recommended-videos.html?from=home&edition=' + encodeURIComponent(editionParam || (homePath.indexOf('/pro_x9v7q2m8/') !== -1 ? 'pro' : 'standard'));
+            }
+            if (recommendedNewBadge) {
+                try {
+                    if (localStorage.getItem(recommendedNewKey) !== '1') {
+                        recommendedNewBadge.classList.remove('hidden');
+                        localStorage.setItem(recommendedNewKey, '1');
+                    }
+                } catch (error) {
+                    recommendedNewBadge.classList.remove('hidden');
+                }
+            }
 
             backLink.addEventListener('click', function (event) {
+                if (fromHome) {
+                    event.preventDefault();
+                    window.location.href = homePath;
+                    return;
+                }
                 if (window.history.length > 1 && document.referrer) {
                     event.preventDefault();
                     window.history.back();

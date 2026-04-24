@@ -576,6 +576,50 @@ html[data-app-edition="Pro"] .home-info-link--final {
     }
 }
 
+.info-new-badge {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+    color: #1f1205;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+    animation: infoNewBadgePop 1.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.home-info-new-badge {
+    left: 58px;
+    bottom: -48px;
+}
+
+.recommended-link-with-badge {
+    position: relative;
+}
+
+.recommended-link-new-badge {
+    top: -10px;
+    right: 14px;
+}
+
+@keyframes infoNewBadgePop {
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-3px) scale(1.04);
+    }
+}
+
 .info-page {
     min-height: 100vh;
     overflow: auto;
@@ -658,6 +702,13 @@ html[data-app-edition="Pro"] .home-info-link--final {
     transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
+.info-link-card--compact {
+    width: fit-content;
+    max-width: 170px;
+    padding: 12px 12px 12px 14px;
+    border-radius: 14px;
+}
+
 .info-link-card--primary {
     position: relative;
     background: linear-gradient(135deg, rgba(255, 214, 94, 0.12), rgba(77, 150, 255, 0.1));
@@ -696,6 +747,11 @@ html[data-app-edition="Pro"] .home-info-link--final {
     font-size: 0.96rem;
     font-weight: 700;
     line-height: 1.35;
+}
+
+.info-link-card--compact .info-link-title {
+    font-size: 0.88rem;
+    font-weight: 600;
 }
 
 .info-link-note {
@@ -815,6 +871,23 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
         font-size: 0.74rem;
     }
 
+    .info-new-badge {
+        min-width: 44px;
+        height: 24px;
+        padding: 0 9px;
+        font-size: 0.68rem;
+    }
+
+    .home-info-new-badge {
+        left: 52px;
+        bottom: -42px;
+    }
+
+    .recommended-link-new-badge {
+        top: -8px;
+        right: 10px;
+    }
+
     .screen-info-link,
     .in-game-info-link {
         left: max(24px, calc(env(safe-area-inset-left) + 20px));
@@ -850,6 +923,15 @@ body:has(#screen-home:not(.hidden)) .in-game-info-link {
 
     .info-link-title {
         font-size: 0.88rem;
+    }
+
+    .info-link-card--compact {
+        max-width: 154px;
+        padding: 10px 10px 10px 12px;
+    }
+
+    .info-link-card--compact .info-link-title {
+        font-size: 0.82rem;
     }
 
     .info-link-note {
