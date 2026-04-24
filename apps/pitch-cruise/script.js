@@ -273,6 +273,16 @@ class AudioEngine {
             const as = typeof navigator !== 'undefined' && navigator.audioSession;
             if (as) as.type = 'playback';
         } catch (_) { /* ignore */ }
+        // Suppress the iOS Now Playing lock-screen widget: signal "not playing" so iOS
+        // never surfaces this app's audio session in the lock screen controls.
+        // Without this, audioSession.type='playback' causes iOS to show a Now Playing
+        // entry (potentially showing metadata from YouTube opened via an in-app browser).
+        try {
+            if (typeof navigator !== 'undefined' && 'mediaSession' in navigator) {
+                navigator.mediaSession.metadata = null;
+                navigator.mediaSession.playbackState = 'none';
+            }
+        } catch (_) { /* ignore */ }
     }
 
     _trackScheduledSource(node) {
@@ -413,7 +423,10 @@ class AudioEngine {
                     if (as) as.type = 'auto';
                 } catch (_) { /* ignore */ }
                 try {
-                    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.metadata = null;
+                        navigator.mediaSession.playbackState = 'none';
+                    }
                 } catch (_) { /* ignore */ }
             }
         });
@@ -424,7 +437,10 @@ class AudioEngine {
                 if (as) as.type = 'auto';
             } catch (_) { /* ignore */ }
             try {
-                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = null;
+                    navigator.mediaSession.playbackState = 'none';
+                }
             } catch (_) { /* ignore */ }
         });
         window.addEventListener('pageshow', (e) => {
