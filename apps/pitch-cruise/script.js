@@ -1,5 +1,5 @@
 /** アプリの版表示（リリースのたびにここを更新。運用ルールは README_VERSIONS.md 参照） */
-const PITCH_TRAINER_APP_VERSION = '1.18.1';
+const PITCH_TRAINER_APP_VERSION = '1.18.2';
 
 /** 検証ハブ（Staging）の Ver 表記の括弧内。小さな更新は原則ここだけ増やす（版番号の変更は別指示時のみ） */
 const PITCH_TRAINER_APP_BUILD = '43';
@@ -1198,8 +1198,9 @@ class Game {
         const speedValue = document.getElementById('speed-value');
         if (speedSlider && isPitchTrainerPro()) {
             speedSlider.addEventListener('input', (e) => {
-                const val = parseFloat(e.target.value);
+                const val = this.getNoteSpeedFromSliderValue(e.target.value);
                 this.noteSpeed = val;
+                e.target.value = this.getSliderValueFromNoteSpeed(val).toFixed(1);
                 if (speedValue) speedValue.textContent = val.toFixed(1);
                 this.saveSettings();
             });
@@ -1831,6 +1832,27 @@ class Game {
         if (this.keySelector) this.keySelector.value = '0';
     }
 
+    normalizeNoteSpeed(value) {
+        const raw = parseFloat(value);
+        if (!Number.isFinite(raw)) return 1.0;
+        const clamped = Math.min(5.0, Math.max(0.5, raw));
+        if (clamped <= 2.0) return Math.round(clamped * 10) / 10;
+        return Math.min(5.0, Math.max(3.0, Math.round(clamped)));
+    }
+
+    getNoteSpeedFromSliderValue(value) {
+        const sliderValue = Math.round(parseFloat(value) * 10) / 10;
+        if (!Number.isFinite(sliderValue)) return 1.0;
+        if (sliderValue <= 2.0) return this.normalizeNoteSpeed(sliderValue);
+        return Math.min(5.0, Math.max(3.0, Math.round((sliderValue - 2.0) * 10) + 2));
+    }
+
+    getSliderValueFromNoteSpeed(value) {
+        const speed = this.normalizeNoteSpeed(value);
+        if (speed <= 2.0) return speed;
+        return 2.0 + ((speed - 2.0) / 10);
+    }
+
     loadSettings() {
         try {
             const data = localStorage.getItem('pitchTrainerSettings');
@@ -1864,11 +1886,11 @@ class Game {
                 }
                 if (isPitchTrainerPro()) {
                     if (s.noteSpeed !== undefined) {
-                        this.noteSpeed = s.noteSpeed;
+                        this.noteSpeed = this.normalizeNoteSpeed(s.noteSpeed);
                         const speedSlider = document.getElementById('speed-slider');
                         const speedValue = document.getElementById('speed-value');
                         if (speedSlider) {
-                            speedSlider.value = this.noteSpeed;
+                            speedSlider.value = this.getSliderValueFromNoteSpeed(this.noteSpeed).toFixed(1);
                             if (speedValue) speedValue.textContent = this.noteSpeed.toFixed(1);
                         }
                     }
@@ -1925,6 +1947,7 @@ class Game {
                 data.keyRandomMode = this.keyRandomMode;
                 data.baseOctave = this.baseOctave;
                 data.keyOffset = this.keyOffset;
+                this.noteSpeed = this.normalizeNoteSpeed(this.noteSpeed);
                 data.noteSpeed = this.noteSpeed;
                 data.sustainTime = this.audio.sustainTime;
                 data.baseHz = this.audio.baseHz;
@@ -1973,10 +1996,10 @@ class Game {
                 if (s.baseOctave !== undefined) this.updateOctave(s.baseOctave - this.baseOctave);
                 if (s.keyOffset !== undefined) this.updateKey(s.keyOffset);
                 if (s.noteSpeed !== undefined) {
-                    this.noteSpeed = s.noteSpeed;
+                    this.noteSpeed = this.normalizeNoteSpeed(s.noteSpeed);
                     const speedSlider = document.getElementById('speed-slider');
                     const speedValue = document.getElementById('speed-value');
-                    if (speedSlider) speedSlider.value = this.noteSpeed;
+                    if (speedSlider) speedSlider.value = this.getSliderValueFromNoteSpeed(this.noteSpeed).toFixed(1);
                     if (speedValue) speedValue.textContent = this.noteSpeed.toFixed(1);
                 }
                 if (s.baseHz !== undefined) {
