@@ -5,7 +5,7 @@
  */
 (function () {
     // ---- パスワード設定（変更時は password を更新し rotationId を +1） ----
-    const CONFIG = { rotationId: 2, password: '8392' };
+    const CONFIG = { rotationId: 3, password: '7392' };
     // -----------------------------------------------------------------------
 
     const STORAGE_KEY_LEGACY = 'pitchTrainerProGateOk';
