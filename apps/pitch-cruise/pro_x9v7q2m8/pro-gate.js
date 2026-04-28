@@ -1,8 +1,13 @@
 /**
- * Pro版: 共通設定（auth/pro-gate-config.js）の4桁パスワード → 同一ドメイン群では Cookie で入室状態を共有
+ * Pro版: 4桁パスワード → 同一ドメイン群では Cookie で入室状態を共有
+ * パスワード変更時は password を更新し、rotationId を必ず +1 してください。
  * rotationId を上げると全アプリで再入力が必要になります。
  */
 (function () {
+    // ---- パスワード設定（変更時は password を更新し rotationId を +1） ----
+    const CONFIG = { rotationId: 2, password: '8392' };
+    // -----------------------------------------------------------------------
+
     const STORAGE_KEY_LEGACY = 'pitchTrainerProGateOk';
     const LS_ROTATION_KEY = 'soundcruise_pro_gate_rotation';
     const COOKIE_NAME = 'soundcruise_pro_gate_rid';
@@ -11,23 +16,6 @@
         const h = location.hostname;
         if (h === 'localhost' || h.endsWith('.local')) return null;
         if (h.endsWith('soundcruise.jp')) return '.soundcruise.jp';
-        return null;
-    }
-
-    function getConfig() {
-        const g = window.__SOUNDCRUISE_PRO_GATE__;
-        if (g && typeof g.password === 'string' && g.rotationId != null) {
-            const p = String(g.password).trim();
-            if (!/^\d{4}$/.test(p)) return null;
-            const rid = Number(g.rotationId);
-            if (!Number.isFinite(rid) || rid < 0) return null;
-            return { rotationId: rid, password: p };
-        }
-        const legacy = window.__PRO_GATE_PASSWORD__;
-        if (typeof legacy === 'string') {
-            const p = legacy.trim();
-            if (/^\d{4}$/.test(p)) return { rotationId: 1, password: p };
-        }
         return null;
     }
 
@@ -86,18 +74,17 @@
         } catch (_) { /* ignore */ }
     }
 
-    function isUnlocked(cfg) {
-        if (!cfg) return false;
+    function isUnlocked() {
         const stored = getStoredRotationId();
-        if (stored === cfg.rotationId) return true;
+        if (stored === CONFIG.rotationId) return true;
         /* 移行前の localStorage のみのユーザー（一度だけ救済） */
         try {
             if (
                 localStorage.getItem(STORAGE_KEY_LEGACY) === '1' &&
-                cfg.rotationId === 1 &&
+                CONFIG.rotationId === 1 &&
                 Number.isNaN(stored)
             ) {
-                setStoredRotation(cfg.rotationId);
+                setStoredRotation(CONFIG.rotationId);
                 localStorage.removeItem(STORAGE_KEY_LEGACY);
                 return true;
             }
@@ -112,21 +99,6 @@
         }
     }
 
-    function showMissingConfigOverlay() {
-        const overlay = document.createElement('div');
-        overlay.id = 'pro-gate-overlay';
-        overlay.className = 'pro-gate-overlay pro-gate-overlay--missing';
-        overlay.setAttribute('role', 'alert');
-        overlay.innerHTML =
-            '<div class="pro-gate-panel">' +
-            '<h2 id="pro-gate-title">設定エラー</h2>' +
-            '<p class="pro-gate-hint">共通の <strong>auth/pro-gate-config.js</strong> が読み込めません。<br>' +
-            'リポジトリの <code>auth/pro-gate-config.example.js</code> を <code>auth/pro-gate-config.js</code> にコピーしてデプロイしてください。</p>' +
-            '</div>';
-        document.body.classList.add('pro-gate-active');
-        document.body.insertBefore(overlay, document.body.firstChild);
-    }
-
     function attachResetButton() {
         const btn = document.getElementById('pro-gate-reset');
         if (!btn) return;
@@ -134,24 +106,6 @@
             clearGateStorage();
             window.location.reload();
         });
-    }
-
-    function loadAuthScriptThen(done) {
-        if (getConfig()) {
-            done();
-            return;
-        }
-        const src = new URL('../auth/pro-gate-config.js?v=2', location.href).href;
-        const el = document.createElement('script');
-        el.src = src;
-        el.async = false;
-        el.onload = function () {
-            done();
-        };
-        el.onerror = function () {
-            showMissingConfigOverlay();
-        };
-        (document.head || document.documentElement).appendChild(el);
     }
 
     function mountGate() {
@@ -166,13 +120,7 @@
             }
         } catch (_) { /* ignore */ }
 
-        const cfg = getConfig();
-        if (!cfg) {
-            showMissingConfigOverlay();
-            return;
-        }
-
-        if (isUnlocked(cfg)) {
+        if (isUnlocked()) {
             attachResetButton();
             return;
         }
@@ -201,7 +149,6 @@
         const input = document.getElementById('pro-gate-input');
         const err = document.getElementById('pro-gate-error');
         const submit = document.getElementById('pro-gate-submit');
-        const expected = cfg.password;
 
         function trySubmit() {
             const v = (input.value || '').replace(/\D/g, '').slice(0, 4);
@@ -211,7 +158,7 @@
                 err.textContent = '4桁の数字を入力してください。';
                 return;
             }
-            if (v !== expected) {
+            if (v !== CONFIG.password) {
                 err.textContent = 'パスワードが違います。';
                 input.select();
                 return;
@@ -219,7 +166,7 @@
             try {
                 localStorage.removeItem(STORAGE_KEY_LEGACY);
             } catch (_) { /* ignore */ }
-            setStoredRotation(cfg.rotationId);
+            setStoredRotation(CONFIG.rotationId);
             dismissOverlay(overlay);
             attachResetButton();
         }
@@ -240,17 +187,10 @@
     }
 
     function boot() {
-        function scheduleMount() {
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', mountGate);
-            } else {
-                mountGate();
-            }
-        }
-        if (getConfig()) {
-            scheduleMount();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', mountGate);
         } else {
-            loadAuthScriptThen(scheduleMount);
+            mountGate();
         }
     }
 
