@@ -1,7 +1,7 @@
-const GATE_VERSION = 3; // パスワード変更時に rotationId と合わせて +1
+const GATE_VERSION = 4; // パスワード変更時に rotationId と合わせて +1
 const CACHE_NAME = 'pitch-trainer-pro-scope-v14-apps-pitch-cruise';
 
-self.addEventListener('install', (e) => {
+self.addEventListener('install', () => {
     self.skipWaiting();
 });
 

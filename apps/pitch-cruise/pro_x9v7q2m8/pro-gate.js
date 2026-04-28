@@ -5,7 +5,7 @@
  */
 (function () {
     // ---- パスワード設定（変更時は password を更新し rotationId を +1） ----
-    const CONFIG = { rotationId: 3, password: '7392' };
+    const CONFIG = { rotationId: 4, password: '8392' };
     // -----------------------------------------------------------------------
 
     const STORAGE_KEY_LEGACY = 'pitchTrainerProGateOk';
@@ -141,7 +141,7 @@
             '<button type="button" id="pro-gate-submit" class="btn-primary">入る</button>' +
             '</div>' +
             '<a class="pro-gate-password-link" href="https://www.youtube.com/post/UgkxGGd0QKGyDd3-mMWvhusmK4ZvqmH8I6Er" target="_blank" rel="noopener noreferrer">パスワードはこちら(メンバーのみ閲覧可能)</a>' +
-            '<div class="pro-gate-password-updated">2026.4.28更新</div>' +
+            '<div class="pro-gate-password-updated">2026.4.29更新</div>' +
             '</div>';
 
         document.body.classList.add('pro-gate-active');
