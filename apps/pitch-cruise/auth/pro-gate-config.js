@@ -4,6 +4,6 @@
  * 同時に pro-gate.js の「YYYY.M.D更新」表示も更新してください。
  */
 window.__SOUNDCRUISE_PRO_GATE__ = {
-    rotationId: 1,
-    password: '7392',
+    rotationId: 2,
+    password: '8392',
 };
