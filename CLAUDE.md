@@ -34,3 +34,17 @@ apps/pitch-cruise/staging/index.html    ← script.js?v=
 ---
 
 詳細な運用方針は [README_VERSIONS.md](./README_VERSIONS.md) を参照。
+
+---
+
+## Pro版パスワード変更手順
+
+パスワードを変えるときは **以下3つを必ずセットで更新** する。どれか1つでも漏れると強制ログアウトが機能しない。
+
+| ファイル | 変更箇所 | 操作 |
+|---|---|---|
+| `apps/pitch-cruise/pro_x9v7q2m8/pro-gate.js` | `CONFIG.password` | 新しいパスワードに変更 |
+| `apps/pitch-cruise/pro_x9v7q2m8/pro-gate.js` | `CONFIG.rotationId` | +1 |
+| `apps/pitch-cruise/pro_x9v7q2m8/service-worker.js` | `GATE_VERSION` | +1（rotationId と同じ値にする） |
+
+`pro-gate.js?v=` も +1 すること（index.html 内）。

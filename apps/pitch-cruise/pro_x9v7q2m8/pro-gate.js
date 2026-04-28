@@ -11,6 +11,7 @@
     const STORAGE_KEY_LEGACY = 'pitchTrainerProGateOk';
     const LS_ROTATION_KEY = 'soundcruise_pro_gate_rotation';
     const COOKIE_NAME = 'soundcruise_pro_gate_rid';
+    const SW_GATE_VERSION_KEY = 'soundcruise_pro_sw_gate_v';
 
     function sharedDomainForCookie() {
         const h = location.hostname;
@@ -192,6 +193,23 @@
         } else {
             mountGate();
         }
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', function (event) {
+            if (!event.data || event.data.type !== 'PRO_GATE_INVALIDATE') return;
+            var newVer = event.data.version;
+            var knownVer = NaN;
+            try {
+                var s = localStorage.getItem(SW_GATE_VERSION_KEY);
+                if (s != null) knownVer = parseInt(s, 10);
+            } catch (_) {}
+            if (Number.isNaN(knownVer) || newVer > knownVer) {
+                try { localStorage.setItem(SW_GATE_VERSION_KEY, String(newVer)); } catch (_) {}
+                clearGateStorage();
+                window.location.reload();
+            }
+        });
     }
 
     boot();
